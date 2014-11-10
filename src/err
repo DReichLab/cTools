@@ -1,0 +1,1692 @@
+mkdir -p  /home/np29/cteamsrc/lib
+mkdir -p  /home/np29/cteamsrc/tables
+mkdir -p  /home/np29/cteamsrc/include
+mkdir -p  /home/np29/cteamsrc/bin
+cp  *.h  /home/np29/cteamsrc/include  
+cp  nicksrc/*.h  /home/np29/cteamsrc/include  
+ar -r libnick.a strsubs.o sortit.o vsubs.o statsubs.o linsubs.o getpars.o xsearch.o gauss.o	gds.o
+ranlib libnick.a
+cp libnick.a  /home/np29/cteamsrc/lib/nicklib.a
+gcc -o cpulldown  cpulldown.o mcio.o admutils.o  bam.o bam_aux.o bam_import.o bam_index.o bam_lpileup.o bam_maqcns.o bam_mate.o bam_md.o bam_pileup.o bam_plcmd.o bam_rmdup.o bam_sort.o bam_stat.o bam_rmdupse.o bam_tview.o bgzf.o faidx.o glf.o kstring.o razf.o sam.o sam_view.o  strsubs.o sortit.o vsubs.o statsubs.o linsubs.o getpars.o xsearch.o gauss.o	gds.o  bam.o bam_aux.o bam_import.o bam_index.o bam_lpileup.o bam_maqcns.o bam_mate.o bam_md.o bam_pileup.o bam_plcmd.o bam_rmdup.o bam_sort.o bam_stat.o bam_rmdupse.o bam_tview.o bgzf.o faidx.o glf.o kstring.o razf.o sam.o sam_view.o  strsubs.o sortit.o vsubs.o statsubs.o linsubs.o getpars.o xsearch.o gauss.o	gds.o -lm -lz -lncurses 
+bam.o: In function `bam_is_big_endian':
+/home/np29/cteamsrc/bam_endian.h:7: multiple definition of `bam_is_be'
+bam.o:/home/np29/cteamsrc/bam_endian.h:7: first defined here
+bam.o: In function `bam_segreg':
+/home/np29/cteamsrc/bam.c:14: multiple definition of `bam_segreg'
+bam.o:/home/np29/cteamsrc/bam.c:14: first defined here
+bam.o: In function `bam_calend':
+/home/np29/cteamsrc/bam.c:36: multiple definition of `bam_calend'
+bam.o:/home/np29/cteamsrc/bam.c:36: first defined here
+bam.o: In function `bam_cigar2qlen':
+/home/np29/cteamsrc/bam.c:48: multiple definition of `bam_cigar2qlen'
+bam.o:/home/np29/cteamsrc/bam.c:48: first defined here
+bam.o: In function `bam_header_init':
+/home/np29/cteamsrc/bam.c:64: multiple definition of `bam_header_init'
+bam.o:/home/np29/cteamsrc/bam.c:64: first defined here
+bam.o: In function `bam_header_destroy':
+/home/np29/cteamsrc/bam.c:70: multiple definition of `bam_header_destroy'
+bam.o:/home/np29/cteamsrc/bam.c:70: first defined here
+bam.o: In function `bam_header_read':
+/home/np29/cteamsrc/bam.c:88: multiple definition of `bam_header_read'
+bam.o:/home/np29/cteamsrc/bam.c:88: first defined here
+bam.o: In function `bam_header_write':
+/home/np29/cteamsrc/bam.c:121: multiple definition of `bam_header_write'
+bam.o:/home/np29/cteamsrc/bam.c:121: first defined here
+bam.o: In function `bam_read1':
+/home/np29/cteamsrc/bam.c:175: multiple definition of `bam_read1'
+bam.o:/home/np29/cteamsrc/bam.c:175: first defined here
+bam.o: In function `bam_write1_core':
+/home/np29/cteamsrc/bam.c:208: multiple definition of `bam_write1_core'
+bam.o:/home/np29/cteamsrc/bam.c:208: first defined here
+bam.o: In function `bam_write1':
+/home/np29/cteamsrc/bam.c:233: multiple definition of `bam_write1'
+bam.o:/home/np29/cteamsrc/bam.c:233: first defined here
+bam.o: In function `bam_format1':
+/home/np29/cteamsrc/bam.c:238: multiple definition of `bam_format1'
+bam.o:/home/np29/cteamsrc/bam.c:238: first defined here
+bam.o: In function `bam_view1':
+/home/np29/cteamsrc/bam.c:284: multiple definition of `bam_view1'
+bam.o:/home/np29/cteamsrc/bam.c:284: first defined here
+bam_aux.o: In function `bam_aux_append':
+/home/np29/cteamsrc/bam_aux.c:7: multiple definition of `bam_aux_append'
+bam_aux.o:/home/np29/cteamsrc/bam_aux.c:7: first defined here
+bam_aux.o: In function `bam_aux_get_core':
+/home/np29/cteamsrc/bam_aux.c:22: multiple definition of `bam_aux_get_core'
+bam_aux.o:/home/np29/cteamsrc/bam_aux.c:22: first defined here
+bam_aux.o: In function `bam_aux_get':
+/home/np29/cteamsrc/bam_aux.c:27: multiple definition of `bam_aux_get'
+bam_aux.o:/home/np29/cteamsrc/bam_aux.c:27: first defined here
+bam_aux.o: In function `bam_init_header_hash':
+/home/np29/cteamsrc/bam_aux.c:46: multiple definition of `bam_init_header_hash'
+bam_aux.o:/home/np29/cteamsrc/bam_aux.c:46: first defined here
+bam_aux.o: In function `bam_destroy_header_hash':
+/home/np29/cteamsrc/bam_aux.c:60: multiple definition of `bam_destroy_header_hash'
+bam_aux.o:/home/np29/cteamsrc/bam_aux.c:60: first defined here
+bam_aux.o: In function `bam_get_tid':
+/home/np29/cteamsrc/bam_aux.c:66: multiple definition of `bam_get_tid'
+bam_aux.o:/home/np29/cteamsrc/bam_aux.c:66: first defined here
+bam_aux.o: In function `bam_parse_region':
+/home/np29/cteamsrc/bam_aux.c:74: multiple definition of `bam_parse_region'
+bam_aux.o:/home/np29/cteamsrc/bam_aux.c:74: first defined here
+bam_aux.o: In function `bam_aux2i':
+/home/np29/cteamsrc/bam_aux.c:113: multiple definition of `bam_aux2i'
+bam_aux.o:/home/np29/cteamsrc/bam_aux.c:113: first defined here
+bam_aux.o: In function `bam_aux2f':
+/home/np29/cteamsrc/bam_aux.c:126: multiple definition of `bam_aux2f'
+bam_aux.o:/home/np29/cteamsrc/bam_aux.c:126: first defined here
+bam_aux.o: In function `bam_aux2d':
+/home/np29/cteamsrc/bam_aux.c:135: multiple definition of `bam_aux2d'
+bam_aux.o:/home/np29/cteamsrc/bam_aux.c:135: first defined here
+bam_aux.o: In function `bam_aux2A':
+/home/np29/cteamsrc/bam_aux.c:144: multiple definition of `bam_aux2A'
+bam_aux.o:/home/np29/cteamsrc/bam_aux.c:144: first defined here
+bam_aux.o: In function `bam_aux2Z':
+/home/np29/cteamsrc/bam_aux.c:153: multiple definition of `bam_aux2Z'
+bam_aux.o:/home/np29/cteamsrc/bam_aux.c:153: first defined here
+bam_aux.o: In function `bam_aux_getCSi':
+/home/np29/cteamsrc/bam_aux.c:162: multiple definition of `bam_aux_getCSi'
+bam_aux.o:/home/np29/cteamsrc/bam_aux.c:162: first defined here
+bam_aux.o: In function `bam_aux_getCQi':
+/home/np29/cteamsrc/bam_aux.c:177: multiple definition of `bam_aux_getCQi'
+bam_aux.o:/home/np29/cteamsrc/bam_aux.c:177: first defined here
+bam_aux.o: In function `bam_aux_nt2int':
+/home/np29/cteamsrc/bam_aux.c:191: multiple definition of `bam_aux_nt2int'
+bam_aux.o:/home/np29/cteamsrc/bam_aux.c:191: first defined here
+bam_aux.o: In function `bam_aux_ntnt2cs':
+/home/np29/cteamsrc/bam_aux.c:212: multiple definition of `bam_aux_ntnt2cs'
+bam_aux.o:/home/np29/cteamsrc/bam_aux.c:212: first defined here
+bam_aux.o: In function `bam_aux_getCEi':
+/home/np29/cteamsrc/bam_aux.c:220: multiple definition of `bam_aux_getCEi'
+bam_aux.o:/home/np29/cteamsrc/bam_aux.c:220: first defined here
+bam_import.o:(.data+0x0): multiple definition of `bam_nt16_table'
+bam_import.o:(.data+0x0): first defined here
+bam_import.o:(.data+0x100): multiple definition of `bam_nt16_rev_table'
+bam_import.o:(.data+0x100): first defined here
+bam_import.o: In function `__bam_get_lines':
+/home/np29/cteamsrc/bam_import.c:49: multiple definition of `__bam_get_lines'
+bam_import.o:/home/np29/cteamsrc/bam_import.c:49: first defined here
+bam_import.o: In function `sam_header_read2':
+/home/np29/cteamsrc/bam_import.c:93: multiple definition of `sam_header_read2'
+bam_import.o:/home/np29/cteamsrc/bam_import.c:93: first defined here
+bam_import.o: In function `sam_header_parse':
+/home/np29/cteamsrc/bam_import.c:150: multiple definition of `sam_header_parse'
+bam_import.o:/home/np29/cteamsrc/bam_import.c:150: first defined here
+bam_import.o: In function `sam_header_read':
+/home/np29/cteamsrc/bam_import.c:196: multiple definition of `sam_header_read'
+bam_import.o:/home/np29/cteamsrc/bam_import.c:196: first defined here
+bam_import.o: In function `sam_read1':
+/home/np29/cteamsrc/bam_import.c:217: multiple definition of `sam_read1'
+bam_import.o:/home/np29/cteamsrc/bam_import.c:217: first defined here
+bam_import.o: In function `sam_open':
+/home/np29/cteamsrc/bam_import.c:400: multiple definition of `sam_open'
+bam_import.o:/home/np29/cteamsrc/bam_import.c:400: first defined here
+bam_import.o: In function `sam_close':
+/home/np29/cteamsrc/bam_import.c:410: multiple definition of `sam_close'
+bam_import.o:/home/np29/cteamsrc/bam_import.c:410: first defined here
+bam_index.o: In function `ks_mergesort_off':
+/home/np29/cteamsrc/bam_index.c:46: multiple definition of `ks_mergesort_off'
+bam_index.o:/home/np29/cteamsrc/bam_index.c:46: first defined here
+bam_index.o: In function `ks_heapadjust_off':
+/home/np29/cteamsrc/bam_index.c:46: multiple definition of `ks_heapadjust_off'
+bam_index.o:/home/np29/cteamsrc/bam_index.c:46: first defined here
+bam_index.o: In function `ks_heapmake_off':
+/home/np29/cteamsrc/bam_index.c:46: multiple definition of `ks_heapmake_off'
+bam_index.o:/home/np29/cteamsrc/bam_index.c:46: first defined here
+bam_index.o: In function `ks_heapsort_off':
+/home/np29/cteamsrc/bam_index.c:46: multiple definition of `ks_heapsort_off'
+bam_index.o:/home/np29/cteamsrc/bam_index.c:46: first defined here
+bam_index.o: In function `__ks_insertsort_off':
+/home/np29/cteamsrc/bam_index.c:46: multiple definition of `__ks_insertsort_off'
+bam_index.o:/home/np29/cteamsrc/bam_index.c:46: first defined here
+bam_index.o: In function `ks_combsort_off':
+/home/np29/cteamsrc/bam_index.c:46: multiple definition of `ks_combsort_off'
+bam_index.o:/home/np29/cteamsrc/bam_index.c:46: first defined here
+bam_index.o: In function `ks_introsort_off':
+/home/np29/cteamsrc/bam_index.c:46: multiple definition of `ks_introsort_off'
+bam_index.o:/home/np29/cteamsrc/bam_index.c:46: first defined here
+bam_index.o: In function `ks_ksmall_off':
+/home/np29/cteamsrc/bam_index.c:46: multiple definition of `ks_ksmall_off'
+bam_index.o:/home/np29/cteamsrc/bam_index.c:46: first defined here
+bam_index.o: In function `bam_index_core':
+/home/np29/cteamsrc/bam_index.c:130: multiple definition of `bam_index_core'
+bam_index.o:/home/np29/cteamsrc/bam_index.c:130: first defined here
+bam_index.o: In function `bam_index_destroy':
+/home/np29/cteamsrc/bam_index.c:186: multiple definition of `bam_index_destroy'
+bam_index.o:/home/np29/cteamsrc/bam_index.c:186: first defined here
+bam_index.o: In function `bam_index_save':
+/home/np29/cteamsrc/bam_index.c:205: multiple definition of `bam_index_save'
+bam_index.o:/home/np29/cteamsrc/bam_index.c:205: first defined here
+bam_index.o: In function `bam_index_load':
+/home/np29/cteamsrc/bam_index.c:263: multiple definition of `bam_index_load'
+bam_index.o:/home/np29/cteamsrc/bam_index.c:263: first defined here
+bam_index.o: In function `bam_index_build2':
+/home/np29/cteamsrc/bam_index.c:340: multiple definition of `bam_index_build2'
+bam_index.o:/home/np29/cteamsrc/bam_index.c:340: first defined here
+bam_index.o: In function `bam_index_build':
+/home/np29/cteamsrc/bam_index.c:366: multiple definition of `bam_index_build'
+bam_index.o:/home/np29/cteamsrc/bam_index.c:366: first defined here
+bam_index.o: In function `bam_index':
+/home/np29/cteamsrc/bam_index.c:371: multiple definition of `bam_index'
+bam_index.o:/home/np29/cteamsrc/bam_index.c:371: first defined here
+bam_index.o: In function `bam_fetch':
+/home/np29/cteamsrc/bam_index.c:404: multiple definition of `bam_fetch'
+bam_index.o:/home/np29/cteamsrc/bam_index.c:404: first defined here
+bam_lpileup.o: In function `ks_mergesort_node':
+/home/np29/cteamsrc/bam_lpileup.c:14: multiple definition of `ks_mergesort_node'
+bam_lpileup.o:/home/np29/cteamsrc/bam_lpileup.c:14: first defined here
+bam_lpileup.o: In function `ks_heapadjust_node':
+/home/np29/cteamsrc/bam_lpileup.c:14: multiple definition of `ks_heapadjust_node'
+bam_lpileup.o:/home/np29/cteamsrc/bam_lpileup.c:14: first defined here
+bam_lpileup.o: In function `ks_heapmake_node':
+/home/np29/cteamsrc/bam_lpileup.c:14: multiple definition of `ks_heapmake_node'
+bam_lpileup.o:/home/np29/cteamsrc/bam_lpileup.c:14: first defined here
+bam_lpileup.o: In function `ks_heapsort_node':
+/home/np29/cteamsrc/bam_lpileup.c:14: multiple definition of `ks_heapsort_node'
+bam_lpileup.o:/home/np29/cteamsrc/bam_lpileup.c:14: first defined here
+bam_lpileup.o: In function `__ks_insertsort_node':
+/home/np29/cteamsrc/bam_lpileup.c:14: multiple definition of `__ks_insertsort_node'
+bam_lpileup.o:/home/np29/cteamsrc/bam_lpileup.c:14: first defined here
+bam_lpileup.o: In function `ks_combsort_node':
+/home/np29/cteamsrc/bam_lpileup.c:14: multiple definition of `ks_combsort_node'
+bam_lpileup.o:/home/np29/cteamsrc/bam_lpileup.c:14: first defined here
+bam_lpileup.o: In function `ks_introsort_node':
+/home/np29/cteamsrc/bam_lpileup.c:14: multiple definition of `ks_introsort_node'
+bam_lpileup.o:/home/np29/cteamsrc/bam_lpileup.c:14: first defined here
+bam_lpileup.o: In function `ks_ksmall_node':
+/home/np29/cteamsrc/bam_lpileup.c:14: multiple definition of `ks_ksmall_node'
+bam_lpileup.o:/home/np29/cteamsrc/bam_lpileup.c:14: first defined here
+bam_lpileup.o: In function `bam_lplbuf_reset':
+/home/np29/cteamsrc/bam_lpileup.c:61: multiple definition of `bam_lplbuf_reset'
+bam_lpileup.o:/home/np29/cteamsrc/bam_lpileup.c:61: first defined here
+bam_lpileup.o: In function `bam_lplbuf_init':
+/home/np29/cteamsrc/bam_lpileup.c:167: multiple definition of `bam_lplbuf_init'
+bam_lpileup.o:/home/np29/cteamsrc/bam_lpileup.c:167: first defined here
+bam_lpileup.o: In function `bam_lplbuf_destroy':
+/home/np29/cteamsrc/bam_lpileup.c:179: multiple definition of `bam_lplbuf_destroy'
+bam_lpileup.o:/home/np29/cteamsrc/bam_lpileup.c:179: first defined here
+bam_lpileup.o: In function `bam_lplbuf_push':
+/home/np29/cteamsrc/bam_lpileup.c:195: multiple definition of `bam_lplbuf_push'
+bam_lpileup.o:/home/np29/cteamsrc/bam_lpileup.c:195: first defined here
+bam_lpileup.o: In function `bam_lpileup_file':
+/home/np29/cteamsrc/bam_lpileup.c:200: multiple definition of `bam_lpileup_file'
+bam_lpileup.o:/home/np29/cteamsrc/bam_lpileup.c:200: first defined here
+bam_maqcns.o: In function `ks_mergesort_uint32_t':
+/home/np29/cteamsrc/bam_maqcns.c:5: multiple definition of `ks_mergesort_uint32_t'
+bam_maqcns.o:/home/np29/cteamsrc/bam_maqcns.c:5: first defined here
+bam_maqcns.o: In function `ks_heapadjust_uint32_t':
+/home/np29/cteamsrc/bam_maqcns.c:5: multiple definition of `ks_heapadjust_uint32_t'
+bam_maqcns.o:/home/np29/cteamsrc/bam_maqcns.c:5: first defined here
+bam_maqcns.o: In function `ks_heapmake_uint32_t':
+/home/np29/cteamsrc/bam_maqcns.c:5: multiple definition of `ks_heapmake_uint32_t'
+bam_maqcns.o:/home/np29/cteamsrc/bam_maqcns.c:5: first defined here
+bam_maqcns.o: In function `ks_heapsort_uint32_t':
+/home/np29/cteamsrc/bam_maqcns.c:5: multiple definition of `ks_heapsort_uint32_t'
+bam_maqcns.o:/home/np29/cteamsrc/bam_maqcns.c:5: first defined here
+bam_maqcns.o: In function `__ks_insertsort_uint32_t':
+/home/np29/cteamsrc/bam_maqcns.c:5: multiple definition of `__ks_insertsort_uint32_t'
+bam_maqcns.o:/home/np29/cteamsrc/bam_maqcns.c:5: first defined here
+bam_maqcns.o: In function `ks_combsort_uint32_t':
+/home/np29/cteamsrc/bam_maqcns.c:5: multiple definition of `ks_combsort_uint32_t'
+bam_maqcns.o:/home/np29/cteamsrc/bam_maqcns.c:5: first defined here
+bam_maqcns.o: In function `ks_introsort_uint32_t':
+/home/np29/cteamsrc/bam_maqcns.c:5: multiple definition of `ks_introsort_uint32_t'
+bam_maqcns.o:/home/np29/cteamsrc/bam_maqcns.c:5: first defined here
+bam_maqcns.o: In function `ks_ksmall_uint32_t':
+/home/np29/cteamsrc/bam_maqcns.c:5: multiple definition of `ks_ksmall_uint32_t'
+bam_maqcns.o:/home/np29/cteamsrc/bam_maqcns.c:5: first defined here
+bam_maqcns.o:(.data+0x0): multiple definition of `bam_nt16_nt4_table'
+bam_maqcns.o:(.data+0x0): first defined here
+bam_maqcns.o: In function `bam_maqcns_init':
+/home/np29/cteamsrc/bam_maqcns.c:103: multiple definition of `bam_maqcns_init'
+bam_maqcns.o:/home/np29/cteamsrc/bam_maqcns.c:103: first defined here
+bam_maqcns.o: In function `bam_maqcns_prepare':
+/home/np29/cteamsrc/bam_maqcns.c:115: multiple definition of `bam_maqcns_prepare'
+bam_maqcns.o:/home/np29/cteamsrc/bam_maqcns.c:115: first defined here
+bam_maqcns.o: In function `bam_maqcns_destroy':
+/home/np29/cteamsrc/bam_maqcns.c:120: multiple definition of `bam_maqcns_destroy'
+bam_maqcns.o:/home/np29/cteamsrc/bam_maqcns.c:120: first defined here
+bam_maqcns.o: In function `bam_maqcns_glfgen':
+/home/np29/cteamsrc/bam_maqcns.c:127: multiple definition of `bam_maqcns_glfgen'
+bam_maqcns.o:/home/np29/cteamsrc/bam_maqcns.c:127: first defined here
+bam_maqcns.o: In function `glf2cns':
+/home/np29/cteamsrc/bam_maqcns.c:229: multiple definition of `glf2cns'
+bam_maqcns.o:/home/np29/cteamsrc/bam_maqcns.c:229: first defined here
+bam_maqcns.o: In function `bam_maqcns_call':
+/home/np29/cteamsrc/bam_maqcns.c:254: multiple definition of `bam_maqcns_call'
+bam_maqcns.o:/home/np29/cteamsrc/bam_maqcns.c:254: first defined here
+bam_maqcns.o: In function `bam_maqindel_opt_init':
+/home/np29/cteamsrc/bam_maqcns.c:268: multiple definition of `bam_maqindel_opt_init'
+bam_maqcns.o:/home/np29/cteamsrc/bam_maqcns.c:268: first defined here
+bam_maqcns.o: In function `bam_maqindel_ret_destroy':
+/home/np29/cteamsrc/bam_maqcns.c:280: multiple definition of `bam_maqindel_ret_destroy'
+bam_maqcns.o:/home/np29/cteamsrc/bam_maqcns.c:280: first defined here
+bam_maqcns.o: In function `bam_maqindel':
+/home/np29/cteamsrc/bam_maqcns.c:289: multiple definition of `bam_maqindel'
+bam_maqcns.o:/home/np29/cteamsrc/bam_maqcns.c:289: first defined here
+bam_mate.o: In function `bam_mating_core':
+/home/np29/cteamsrc/bam_mate.c:7: multiple definition of `bam_mating_core'
+bam_mate.o:/home/np29/cteamsrc/bam_mate.c:7: first defined here
+bam_mate.o: In function `bam_mating':
+/home/np29/cteamsrc/bam_mate.c:59: multiple definition of `bam_mating'
+bam_mate.o:/home/np29/cteamsrc/bam_mate.c:59: first defined here
+bam_md.o: In function `bam_fillmd1':
+/home/np29/cteamsrc/bam_md.c:9: multiple definition of `bam_fillmd1'
+bam_md.o:/home/np29/cteamsrc/bam_md.c:9: first defined here
+bam_md.o: In function `bam_fillmd':
+/home/np29/cteamsrc/bam_md.c:72: multiple definition of `bam_fillmd'
+bam_md.o:/home/np29/cteamsrc/bam_md.c:72: first defined here
+bam_pileup.o: In function `bam_plbuf_reset':
+/home/np29/cteamsrc/bam_pileup.c:118: multiple definition of `bam_plbuf_reset'
+bam_pileup.o:/home/np29/cteamsrc/bam_pileup.c:118: first defined here
+bam_pileup.o: In function `bam_plbuf_set_mask':
+/home/np29/cteamsrc/bam_pileup.c:132: multiple definition of `bam_plbuf_set_mask'
+bam_pileup.o:/home/np29/cteamsrc/bam_pileup.c:132: first defined here
+bam_pileup.o: In function `bam_plbuf_init':
+/home/np29/cteamsrc/bam_pileup.c:138: multiple definition of `bam_plbuf_init'
+bam_pileup.o:/home/np29/cteamsrc/bam_pileup.c:138: first defined here
+bam_pileup.o: In function `bam_plbuf_destroy':
+/home/np29/cteamsrc/bam_pileup.c:151: multiple definition of `bam_plbuf_destroy'
+bam_pileup.o:/home/np29/cteamsrc/bam_pileup.c:151: first defined here
+bam_pileup.o: In function `bam_plbuf_push':
+/home/np29/cteamsrc/bam_pileup.c:162: multiple definition of `bam_plbuf_push'
+bam_pileup.o:/home/np29/cteamsrc/bam_pileup.c:162: first defined here
+bam_plcmd.o: In function `bam_pileup':
+/home/np29/cteamsrc/bam_plcmd.c:249: multiple definition of `bam_pileup'
+bam_plcmd.o:/home/np29/cteamsrc/bam_plcmd.c:249: first defined here
+bam_rmdup.o: In function `bam_rmdup_core':
+/home/np29/cteamsrc/bam_rmdup.c:50: multiple definition of `bam_rmdup_core'
+bam_rmdup.o:/home/np29/cteamsrc/bam_rmdup.c:50: first defined here
+bam_rmdup.o: In function `bam_rmdup':
+/home/np29/cteamsrc/bam_rmdup.c:129: multiple definition of `bam_rmdup'
+bam_rmdup.o:/home/np29/cteamsrc/bam_rmdup.c:129: first defined here
+bam_sort.o: In function `ks_mergesort_heap':
+/home/np29/cteamsrc/bam_sort.c:48: multiple definition of `ks_mergesort_heap'
+bam_sort.o:/home/np29/cteamsrc/bam_sort.c:48: first defined here
+bam_sort.o: In function `ks_heapadjust_heap':
+/home/np29/cteamsrc/bam_sort.c:48: multiple definition of `ks_heapadjust_heap'
+bam_sort.o:/home/np29/cteamsrc/bam_sort.c:48: first defined here
+bam_sort.o: In function `ks_heapmake_heap':
+/home/np29/cteamsrc/bam_sort.c:48: multiple definition of `ks_heapmake_heap'
+bam_sort.o:/home/np29/cteamsrc/bam_sort.c:48: first defined here
+bam_sort.o: In function `ks_heapsort_heap':
+/home/np29/cteamsrc/bam_sort.c:48: multiple definition of `ks_heapsort_heap'
+bam_sort.o:/home/np29/cteamsrc/bam_sort.c:48: first defined here
+bam_sort.o: In function `__ks_insertsort_heap':
+/home/np29/cteamsrc/bam_sort.c:48: multiple definition of `__ks_insertsort_heap'
+bam_sort.o:/home/np29/cteamsrc/bam_sort.c:48: first defined here
+bam_sort.o: In function `ks_combsort_heap':
+/home/np29/cteamsrc/bam_sort.c:48: multiple definition of `ks_combsort_heap'
+bam_sort.o:/home/np29/cteamsrc/bam_sort.c:48: first defined here
+bam_sort.o: In function `ks_introsort_heap':
+/home/np29/cteamsrc/bam_sort.c:48: multiple definition of `ks_introsort_heap'
+bam_sort.o:/home/np29/cteamsrc/bam_sort.c:48: first defined here
+bam_sort.o: In function `ks_ksmall_heap':
+/home/np29/cteamsrc/bam_sort.c:48: multiple definition of `ks_ksmall_heap'
+bam_sort.o:/home/np29/cteamsrc/bam_sort.c:48: first defined here
+bam_sort.o: In function `bam_merge_core':
+/home/np29/cteamsrc/bam_sort.c:51: multiple definition of `bam_merge_core'
+bam_sort.o:/home/np29/cteamsrc/bam_sort.c:51: first defined here
+bam_sort.o: In function `bam_merge':
+/home/np29/cteamsrc/bam_sort.c:115: multiple definition of `bam_merge'
+bam_sort.o:/home/np29/cteamsrc/bam_sort.c:115: first defined here
+bam_sort.o: In function `ks_mergesort_sort':
+/home/np29/cteamsrc/bam_sort.c:139: multiple definition of `ks_mergesort_sort'
+bam_sort.o:/home/np29/cteamsrc/bam_sort.c:139: first defined here
+bam_sort.o: In function `ks_heapadjust_sort':
+/home/np29/cteamsrc/bam_sort.c:139: multiple definition of `ks_heapadjust_sort'
+bam_sort.o:/home/np29/cteamsrc/bam_sort.c:139: first defined here
+bam_sort.o: In function `ks_heapmake_sort':
+/home/np29/cteamsrc/bam_sort.c:139: multiple definition of `ks_heapmake_sort'
+bam_sort.o:/home/np29/cteamsrc/bam_sort.c:139: first defined here
+bam_sort.o: In function `ks_heapsort_sort':
+/home/np29/cteamsrc/bam_sort.c:139: multiple definition of `ks_heapsort_sort'
+bam_sort.o:/home/np29/cteamsrc/bam_sort.c:139: first defined here
+bam_sort.o: In function `__ks_insertsort_sort':
+/home/np29/cteamsrc/bam_sort.c:139: multiple definition of `__ks_insertsort_sort'
+bam_sort.o:/home/np29/cteamsrc/bam_sort.c:139: first defined here
+bam_sort.o: In function `ks_combsort_sort':
+/home/np29/cteamsrc/bam_sort.c:139: multiple definition of `ks_combsort_sort'
+bam_sort.o:/home/np29/cteamsrc/bam_sort.c:139: first defined here
+bam_sort.o: In function `ks_introsort_sort':
+/home/np29/cteamsrc/bam_sort.c:139: multiple definition of `ks_introsort_sort'
+bam_sort.o:/home/np29/cteamsrc/bam_sort.c:139: first defined here
+bam_sort.o: In function `ks_ksmall_sort':
+/home/np29/cteamsrc/bam_sort.c:139: multiple definition of `ks_ksmall_sort'
+bam_sort.o:/home/np29/cteamsrc/bam_sort.c:139: first defined here
+bam_sort.o: In function `bam_sort_core':
+/home/np29/cteamsrc/bam_sort.c:159: multiple definition of `bam_sort_core'
+bam_sort.o:/home/np29/cteamsrc/bam_sort.c:159: first defined here
+bam_sort.o: In function `bam_sort':
+/home/np29/cteamsrc/bam_sort.c:218: multiple definition of `bam_sort'
+bam_sort.o:/home/np29/cteamsrc/bam_sort.c:218: first defined here
+bam_stat.o: In function `bam_flagstat_core':
+/home/np29/cteamsrc/bam_stat.c:33: multiple definition of `bam_flagstat_core'
+bam_stat.o:/home/np29/cteamsrc/bam_stat.c:33: first defined here
+bam_stat.o: In function `bam_flagstat':
+/home/np29/cteamsrc/bam_stat.c:49: multiple definition of `bam_flagstat'
+bam_stat.o:/home/np29/cteamsrc/bam_stat.c:49: first defined here
+bam_rmdupse.o: In function `bam_rmdupse':
+/home/np29/cteamsrc/bam_rmdupse.c:160: multiple definition of `bam_rmdupse'
+bam_rmdupse.o:/home/np29/cteamsrc/bam_rmdupse.c:160: first defined here
+bam_tview.o: In function `tv_pl_func':
+/home/np29/cteamsrc/bam_tview.c:40: multiple definition of `tv_pl_func'
+bam_tview.o:/home/np29/cteamsrc/bam_tview.c:40: first defined here
+bam_tview.o: In function `tv_init':
+/home/np29/cteamsrc/bam_tview.c:155: multiple definition of `tv_init'
+bam_tview.o:/home/np29/cteamsrc/bam_tview.c:155: first defined here
+bam_tview.o: In function `tv_destroy':
+/home/np29/cteamsrc/bam_tview.c:195: multiple definition of `tv_destroy'
+bam_tview.o:/home/np29/cteamsrc/bam_tview.c:195: first defined here
+bam_tview.o: In function `tv_fetch_func':
+/home/np29/cteamsrc/bam_tview.c:210: multiple definition of `tv_fetch_func'
+bam_tview.o:/home/np29/cteamsrc/bam_tview.c:210: first defined here
+bam_tview.o: In function `tv_draw_aln':
+/home/np29/cteamsrc/bam_tview.c:217: multiple definition of `tv_draw_aln'
+bam_tview.o:/home/np29/cteamsrc/bam_tview.c:217: first defined here
+bam_tview.o: In function `tv_loop':
+/home/np29/cteamsrc/bam_tview.c:301: multiple definition of `tv_loop'
+bam_tview.o:/home/np29/cteamsrc/bam_tview.c:301: first defined here
+bam_tview.o: In function `bam_tview_main':
+/home/np29/cteamsrc/bam_tview.c:352: multiple definition of `bam_tview_main'
+bam_tview.o:/home/np29/cteamsrc/bam_tview.c:352: first defined here
+bgzf.o: In function `packInt16':
+/home/np29/cteamsrc/bgzf.c:49: multiple definition of `packInt16'
+bgzf.o:/home/np29/cteamsrc/bgzf.c:49: first defined here
+bgzf.o: In function `unpackInt16':
+/home/np29/cteamsrc/bgzf.c:57: multiple definition of `unpackInt16'
+bgzf.o:/home/np29/cteamsrc/bgzf.c:57: first defined here
+bgzf.o: In function `packInt32':
+/home/np29/cteamsrc/bgzf.c:64: multiple definition of `packInt32'
+bgzf.o:/home/np29/cteamsrc/bgzf.c:64: first defined here
+bgzf.o: In function `min':
+/home/np29/cteamsrc/bgzf.c:74: multiple definition of `min'
+bgzf.o:/home/np29/cteamsrc/bgzf.c:74: first defined here
+bgzf.o: In function `bgzf_open':
+/home/np29/cteamsrc/bgzf.c:132: multiple definition of `bgzf_open'
+bgzf.o:/home/np29/cteamsrc/bgzf.c:132: first defined here
+bgzf.o: In function `bgzf_fdopen':
+/home/np29/cteamsrc/bgzf.c:151: multiple definition of `bgzf_fdopen'
+bgzf.o:/home/np29/cteamsrc/bgzf.c:151: first defined here
+bgzf.o: In function `bgzf_read':
+/home/np29/cteamsrc/bgzf.c:354: multiple definition of `bgzf_read'
+bgzf.o:/home/np29/cteamsrc/bgzf.c:354: first defined here
+bgzf.o: In function `bgzf_write':
+/home/np29/cteamsrc/bgzf.c:412: multiple definition of `bgzf_write'
+bgzf.o:/home/np29/cteamsrc/bgzf.c:412: first defined here
+bgzf.o: In function `bgzf_close':
+/home/np29/cteamsrc/bgzf.c:443: multiple definition of `bgzf_close'
+bgzf.o:/home/np29/cteamsrc/bgzf.c:443: first defined here
+bgzf.o: In function `bgzf_tell':
+/home/np29/cteamsrc/bgzf.c:466: multiple definition of `bgzf_tell'
+bgzf.o:/home/np29/cteamsrc/bgzf.c:466: first defined here
+bgzf.o: In function `bgzf_seek':
+/home/np29/cteamsrc/bgzf.c:472: multiple definition of `bgzf_seek'
+bgzf.o:/home/np29/cteamsrc/bgzf.c:472: first defined here
+faidx.o: In function `fai_build_core':
+/home/np29/cteamsrc/faidx.c:56: multiple definition of `fai_build_core'
+faidx.o:/home/np29/cteamsrc/faidx.c:56: first defined here
+faidx.o: In function `fai_save':
+/home/np29/cteamsrc/faidx.c:118: multiple definition of `fai_save'
+faidx.o:/home/np29/cteamsrc/faidx.c:118: first defined here
+faidx.o: In function `fai_read':
+/home/np29/cteamsrc/faidx.c:130: multiple definition of `fai_read'
+faidx.o:/home/np29/cteamsrc/faidx.c:130: first defined here
+faidx.o: In function `fai_destroy':
+/home/np29/cteamsrc/faidx.c:149: multiple definition of `fai_destroy'
+faidx.o:/home/np29/cteamsrc/faidx.c:149: first defined here
+faidx.o: In function `fai_build':
+/home/np29/cteamsrc/faidx.c:159: multiple definition of `fai_build'
+faidx.o:/home/np29/cteamsrc/faidx.c:159: first defined here
+faidx.o: In function `fai_load':
+/home/np29/cteamsrc/faidx.c:179: multiple definition of `fai_load'
+faidx.o:/home/np29/cteamsrc/faidx.c:179: first defined here
+faidx.o: In function `fai_fetch':
+/home/np29/cteamsrc/faidx.c:206: multiple definition of `fai_fetch'
+faidx.o:/home/np29/cteamsrc/faidx.c:206: first defined here
+faidx.o: In function `faidx_main':
+/home/np29/cteamsrc/faidx.c:262: multiple definition of `faidx_main'
+faidx.o:/home/np29/cteamsrc/faidx.c:262: first defined here
+glf.o: In function `glf3_header_init':
+/home/np29/cteamsrc/glf.c:29: multiple definition of `glf3_header_init'
+glf.o:/home/np29/cteamsrc/glf.c:29: first defined here
+glf.o: In function `glf3_header_read':
+/home/np29/cteamsrc/glf.c:35: multiple definition of `glf3_header_read'
+glf.o:/home/np29/cteamsrc/glf.c:35: first defined here
+glf.o: In function `glf3_header_write':
+/home/np29/cteamsrc/glf.c:54: multiple definition of `glf3_header_write'
+glf.o:/home/np29/cteamsrc/glf.c:54: first defined here
+glf.o: In function `glf3_header_destroy':
+/home/np29/cteamsrc/glf.c:63: multiple definition of `glf3_header_destroy'
+glf.o:/home/np29/cteamsrc/glf.c:63: first defined here
+glf.o: In function `glf3_ref_read':
+/home/np29/cteamsrc/glf.c:69: multiple definition of `glf3_ref_read'
+glf.o:/home/np29/cteamsrc/glf.c:69: first defined here
+glf.o: In function `glf3_ref_write':
+/home/np29/cteamsrc/glf.c:90: multiple definition of `glf3_ref_write'
+glf.o:/home/np29/cteamsrc/glf.c:90: first defined here
+glf.o: In function `glf3_view1':
+/home/np29/cteamsrc/glf.c:100: multiple definition of `glf3_view1'
+glf.o:/home/np29/cteamsrc/glf.c:100: first defined here
+glf.o: In function `glf3_write1':
+/home/np29/cteamsrc/glf.c:116: multiple definition of `glf3_write1'
+glf.o:/home/np29/cteamsrc/glf.c:116: first defined here
+glf.o: In function `glf3_read1':
+/home/np29/cteamsrc/glf.c:149: multiple definition of `glf3_read1'
+glf.o:/home/np29/cteamsrc/glf.c:149: first defined here
+glf.o: In function `glf3_view':
+/home/np29/cteamsrc/glf.c:194: multiple definition of `glf3_view'
+glf.o:/home/np29/cteamsrc/glf.c:194: first defined here
+glf.o: In function `glf3_view_main':
+/home/np29/cteamsrc/glf.c:214: multiple definition of `glf3_view_main'
+glf.o:/home/np29/cteamsrc/glf.c:214: first defined here
+kstring.o: In function `ksprintf':
+/home/np29/cteamsrc/kstring.c:8: multiple definition of `ksprintf'
+kstring.o:/home/np29/cteamsrc/kstring.c:8: first defined here
+kstring.o: In function `ksplit_core':
+/home/np29/cteamsrc/kstring.c:28: multiple definition of `ksplit_core'
+kstring.o:/home/np29/cteamsrc/kstring.c:28: first defined here
+razf.o: In function `razf_write':
+/home/np29/cteamsrc/razf.c:218: multiple definition of `razf_write'
+razf.o:/home/np29/cteamsrc/razf.c:218: first defined here
+razf.o: In function `razf_dopen':
+/home/np29/cteamsrc/razf.c:352: multiple definition of `razf_dopen'
+razf.o:/home/np29/cteamsrc/razf.c:352: first defined here
+razf.o: In function `razf_dopen2':
+/home/np29/cteamsrc/razf.c:359: multiple definition of `razf_dopen2'
+razf.o:/home/np29/cteamsrc/razf.c:359: first defined here
+razf.o: In function `razf_open':
+/home/np29/cteamsrc/razf.c:379: multiple definition of `razf_open'
+razf.o:/home/np29/cteamsrc/razf.c:379: first defined here
+razf.o: In function `razf_open2':
+/home/np29/cteamsrc/razf.c:383: multiple definition of `razf_open2'
+razf.o:/home/np29/cteamsrc/razf.c:383: first defined here
+razf.o: In function `razf_get_data_size':
+/home/np29/cteamsrc/razf.c:387: multiple definition of `razf_get_data_size'
+razf.o:/home/np29/cteamsrc/razf.c:387: first defined here
+razf.o: In function `razf_read':
+/home/np29/cteamsrc/razf.c:456: multiple definition of `razf_read'
+razf.o:/home/np29/cteamsrc/razf.c:456: first defined here
+razf.o: In function `razf_skip':
+/home/np29/cteamsrc/razf.c:495: multiple definition of `razf_skip'
+razf.o:/home/np29/cteamsrc/razf.c:495: first defined here
+razf.o: In function `razf_jump':
+/home/np29/cteamsrc/razf.c:544: multiple definition of `razf_jump'
+razf.o:/home/np29/cteamsrc/razf.c:544: first defined here
+razf.o: In function `razf_seek':
+/home/np29/cteamsrc/razf.c:565: multiple definition of `razf_seek'
+razf.o:/home/np29/cteamsrc/razf.c:565: first defined here
+razf.o: In function `razf_tell2':
+/home/np29/cteamsrc/razf.c:596: multiple definition of `razf_tell2'
+razf.o:/home/np29/cteamsrc/razf.c:596: first defined here
+razf.o: In function `razf_seek2':
+/home/np29/cteamsrc/razf.c:611: multiple definition of `razf_seek2'
+razf.o:/home/np29/cteamsrc/razf.c:611: first defined here
+razf.o: In function `razf_close':
+/home/np29/cteamsrc/razf.c:616: multiple definition of `razf_close'
+razf.o:/home/np29/cteamsrc/razf.c:616: first defined here
+sam.o: In function `bam_header_dup':
+/home/np29/cteamsrc/sam.c:8: multiple definition of `bam_header_dup'
+sam.o:/home/np29/cteamsrc/sam.c:8: first defined here
+sam.o: In function `samopen':
+/home/np29/cteamsrc/sam.c:26: multiple definition of `samopen'
+sam.o:/home/np29/cteamsrc/sam.c:26: first defined here
+sam.o: In function `samclose':
+/home/np29/cteamsrc/sam.c:90: multiple definition of `samclose'
+sam.o:/home/np29/cteamsrc/sam.c:90: first defined here
+sam.o: In function `samread':
+/home/np29/cteamsrc/sam.c:100: multiple definition of `samread'
+sam.o:/home/np29/cteamsrc/sam.c:100: first defined here
+sam.o: In function `samwrite':
+/home/np29/cteamsrc/sam.c:107: multiple definition of `samwrite'
+sam.o:/home/np29/cteamsrc/sam.c:107: first defined here
+sam.o: In function `sampileup':
+/home/np29/cteamsrc/sam.c:120: multiple definition of `sampileup'
+sam.o:/home/np29/cteamsrc/sam.c:120: first defined here
+sam_view.o: In function `main_samview':
+/home/np29/cteamsrc/sam_view.c:22: multiple definition of `main_samview'
+sam_view.o:/home/np29/cteamsrc/sam_view.c:22: first defined here
+sam_view.o: In function `main_import':
+/home/np29/cteamsrc/sam_view.c:132: multiple definition of `main_import'
+sam_view.o:/home/np29/cteamsrc/sam_view.c:132: first defined here
+strsubs.o: In function `oldsplitup':
+/home/np29/cteamsrc/nicksrc/strsubs.c:26: multiple definition of `oldsplitup'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:26: first defined here
+strsubs.o: In function `fatalx':
+/home/np29/cteamsrc/nicksrc/strsubs.c:159: multiple definition of `fatalx'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:159: first defined here
+strsubs.o: In function `fnwhite':
+/home/np29/cteamsrc/nicksrc/strsubs.c:125: multiple definition of `fnwhite'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:125: first defined here
+strsubs.o: In function `fwhite':
+/home/np29/cteamsrc/nicksrc/strsubs.c:147: multiple definition of `fwhite'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:147: first defined here
+strsubs.o: In function `freestring':
+/home/np29/cteamsrc/nicksrc/strsubs.c:1057: multiple definition of `freestring'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:1057: first defined here
+strsubs.o: In function `freeup':
+/home/np29/cteamsrc/nicksrc/strsubs.c:59: multiple definition of `freeup'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:59: first defined here
+strsubs.o: In function `first_word':
+/home/np29/cteamsrc/nicksrc/strsubs.c:80: multiple definition of `first_word'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:80: first defined here
+strsubs.o: In function `ftab':
+/home/np29/cteamsrc/nicksrc/strsubs.c:136: multiple definition of `ftab'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:136: first defined here
+strsubs.o: In function `NPisnumber':
+/home/np29/cteamsrc/nicksrc/strsubs.c:174: multiple definition of `NPisnumber'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:174: first defined here
+strsubs.o: In function `isnumword':
+/home/np29/cteamsrc/nicksrc/strsubs.c:182: multiple definition of `isnumword'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:182: first defined here
+strsubs.o: In function `seednum':
+/home/np29/cteamsrc/nicksrc/strsubs.c:205: multiple definition of `seednum'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:205: first defined here
+strsubs.o: In function `splitupwxbuff':
+/home/np29/cteamsrc/nicksrc/strsubs.c:221: multiple definition of `splitupwxbuff'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:221: first defined here
+strsubs.o: In function `splitupxbuff':
+/home/np29/cteamsrc/nicksrc/strsubs.c:254: multiple definition of `splitupxbuff'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:254: first defined here
+strsubs.o: In function `splitup':
+/home/np29/cteamsrc/nicksrc/strsubs.c:288: multiple definition of `splitup'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:288: first defined here
+strsubs.o: In function `splitupx':
+/home/np29/cteamsrc/nicksrc/strsubs.c:305: multiple definition of `splitupx'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:305: first defined here
+strsubs.o: In function `split1':
+/home/np29/cteamsrc/nicksrc/strsubs.c:327: multiple definition of `split1'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:327: first defined here
+strsubs.o: In function `printbl':
+/home/np29/cteamsrc/nicksrc/strsubs.c:353: multiple definition of `printbl'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:353: first defined here
+strsubs.o: In function `printnl':
+/home/np29/cteamsrc/nicksrc/strsubs.c:361: multiple definition of `printnl'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:361: first defined here
+strsubs.o: In function `striptrail':
+/home/np29/cteamsrc/nicksrc/strsubs.c:370: multiple definition of `striptrail'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:370: first defined here
+strsubs.o: In function `catx':
+/home/np29/cteamsrc/nicksrc/strsubs.c:380: multiple definition of `catx'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:380: first defined here
+strsubs.o: In function `catxx':
+/home/np29/cteamsrc/nicksrc/strsubs.c:395: multiple definition of `catxx'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:395: first defined here
+strsubs.o: In function `catxc':
+/home/np29/cteamsrc/nicksrc/strsubs.c:408: multiple definition of `catxc'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:408: first defined here
+strsubs.o: In function `makedfn':
+/home/np29/cteamsrc/nicksrc/strsubs.c:429: multiple definition of `makedfn'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:429: first defined here
+strsubs.o: In function `substringx':
+/home/np29/cteamsrc/nicksrc/strsubs.c:459: multiple definition of `substringx'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:459: first defined here
+strsubs.o: In function `substring':
+/home/np29/cteamsrc/nicksrc/strsubs.c:495: multiple definition of `substring'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:495: first defined here
+strsubs.o: In function `numcols':
+/home/np29/cteamsrc/nicksrc/strsubs.c:503: multiple definition of `numcols'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:503: first defined here
+strsubs.o: In function `openit':
+/home/np29/cteamsrc/nicksrc/strsubs.c:566: multiple definition of `openit'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:566: first defined here
+strsubs.o: In function `numlines':
+/home/np29/cteamsrc/nicksrc/strsubs.c:528: multiple definition of `numlines'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:528: first defined here
+strsubs.o: In function `ftest':
+/home/np29/cteamsrc/nicksrc/strsubs.c:555: multiple definition of `ftest'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:555: first defined here
+strsubs.o: In function `getxx':
+/home/np29/cteamsrc/nicksrc/strsubs.c:580: multiple definition of `getxx'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:580: first defined here
+strsubs.o: In function `clocktime':
+/home/np29/cteamsrc/nicksrc/strsubs.c:623: multiple definition of `clocktime'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:623: first defined here
+strsubs.o: In function `indxstring':
+/home/np29/cteamsrc/nicksrc/strsubs.c:634: multiple definition of `indxstring'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:634: first defined here
+strsubs.o: In function `indxstringr':
+/home/np29/cteamsrc/nicksrc/strsubs.c:645: multiple definition of `indxstringr'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:645: first defined here
+strsubs.o: In function `getnameslohi':
+/home/np29/cteamsrc/nicksrc/strsubs.c:656: multiple definition of `getnameslohi'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:656: first defined here
+strsubs.o: In function `getnames':
+/home/np29/cteamsrc/nicksrc/strsubs.c:709: multiple definition of `getnames'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:709: first defined here
+strsubs.o: In function `getxxnames':
+/home/np29/cteamsrc/nicksrc/strsubs.c:756: multiple definition of `getxxnames'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:756: first defined here
+strsubs.o: In function `getxxnamesf':
+/home/np29/cteamsrc/nicksrc/strsubs.c:807: multiple definition of `getxxnamesf'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:807: first defined here
+strsubs.o: In function `getss':
+/home/np29/cteamsrc/nicksrc/strsubs.c:856: multiple definition of `getss'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:856: first defined here
+strsubs.o: In function `loadlist':
+/home/np29/cteamsrc/nicksrc/strsubs.c:897: multiple definition of `loadlist'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:897: first defined here
+strsubs.o: In function `revchar':
+/home/np29/cteamsrc/nicksrc/strsubs.c:911: multiple definition of `revchar'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:911: first defined here
+strsubs.o: In function `crevcomp':
+/home/np29/cteamsrc/nicksrc/strsubs.c:924: multiple definition of `crevcomp'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:924: first defined here
+strsubs.o: In function `base2num':
+/home/np29/cteamsrc/nicksrc/strsubs.c:1017: multiple definition of `base2num'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:1017: first defined here
+strsubs.o: In function `num2base':
+/home/np29/cteamsrc/nicksrc/strsubs.c:1006: multiple definition of `num2base'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:1006: first defined here
+strsubs.o: In function `int_string':
+/home/np29/cteamsrc/nicksrc/strsubs.c:950: multiple definition of `int_string'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:950: first defined here
+strsubs.o: In function `binary_string':
+/home/np29/cteamsrc/nicksrc/strsubs.c:965: multiple definition of `binary_string'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:965: first defined here
+strsubs.o: In function `num2iub':
+/home/np29/cteamsrc/nicksrc/strsubs.c:980: multiple definition of `num2iub'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:980: first defined here
+strsubs.o: In function `iub2num':
+/home/np29/cteamsrc/nicksrc/strsubs.c:993: multiple definition of `iub2num'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:993: first defined here
+strsubs.o: In function `string_binary':
+/home/np29/cteamsrc/nicksrc/strsubs.c:1036: multiple definition of `string_binary'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:1036: first defined here
+strsubs.o: In function `copystrings':
+/home/np29/cteamsrc/nicksrc/strsubs.c:1064: multiple definition of `copystrings'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:1064: first defined here
+strsubs.o: In function `printstringsw':
+/home/np29/cteamsrc/nicksrc/strsubs.c:1072: multiple definition of `printstringsw'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:1072: first defined here
+strsubs.o: In function `printstrings':
+/home/np29/cteamsrc/nicksrc/strsubs.c:1093: multiple definition of `printstrings'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:1093: first defined here
+strsubs.o: In function `ridfile':
+/home/np29/cteamsrc/nicksrc/strsubs.c:1104: multiple definition of `ridfile'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:1104: first defined here
+strsubs.o: In function `compbase':
+/home/np29/cteamsrc/nicksrc/strsubs.c:1115: multiple definition of `compbase'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:1115: first defined here
+strsubs.o: In function `mkupper':
+/home/np29/cteamsrc/nicksrc/strsubs.c:1125: multiple definition of `mkupper'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:1125: first defined here
+strsubs.o: In function `mklower':
+/home/np29/cteamsrc/nicksrc/strsubs.c:1135: multiple definition of `mklower'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:1135: first defined here
+strsubs.o: In function `strstrx':
+/home/np29/cteamsrc/nicksrc/strsubs.c:1148: multiple definition of `strstrx'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:1148: first defined here
+strsubs.o: In function `getjjnames':
+/home/np29/cteamsrc/nicksrc/strsubs.c:1173: multiple definition of `getjjnames'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:1173: first defined here
+strsubs.o: In function `isiub':
+/home/np29/cteamsrc/nicksrc/strsubs.c:1219: multiple definition of `isiub'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:1219: first defined here
+strsubs.o: In function `iubdekode':
+/home/np29/cteamsrc/nicksrc/strsubs.c:1244: multiple definition of `iubdekode'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:1244: first defined here
+strsubs.o: In function `isiub2':
+/home/np29/cteamsrc/nicksrc/strsubs.c:1230: multiple definition of `isiub2'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:1230: first defined here
+strsubs.o: In function `iubcbases':
+/home/np29/cteamsrc/nicksrc/strsubs.c:1308: multiple definition of `iubcbases'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:1308: first defined here
+strsubs.o: In function `ishet':
+/home/np29/cteamsrc/nicksrc/strsubs.c:1327: multiple definition of `ishet'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:1327: first defined here
+strsubs.o: In function `lastff':
+/home/np29/cteamsrc/nicksrc/strsubs.c:1338: multiple definition of `lastff'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:1338: first defined here
+strsubs.o: In function `char2int':
+/home/np29/cteamsrc/nicksrc/strsubs.c:1346: multiple definition of `char2int'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:1346: first defined here
+strsubs.o: In function `int2char':
+/home/np29/cteamsrc/nicksrc/strsubs.c:1354: multiple definition of `int2char'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:1354: first defined here
+strsubs.o: In function `chomp':
+/home/np29/cteamsrc/nicksrc/strsubs.c:1361: multiple definition of `chomp'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:1361: first defined here
+strsubs.o: In function `numcmatch':
+/home/np29/cteamsrc/nicksrc/strsubs.c:1371: multiple definition of `numcmatch'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:1371: first defined here
+strsubs.o: In function `numcnomatch':
+/home/np29/cteamsrc/nicksrc/strsubs.c:1383: multiple definition of `numcnomatch'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:1383: first defined here
+strsubs.o: In function `findupper':
+/home/np29/cteamsrc/nicksrc/strsubs.c:1396: multiple definition of `findupper'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:1396: first defined here
+strsubs.o: In function `strnotchar':
+/home/np29/cteamsrc/nicksrc/strsubs.c:1412: multiple definition of `strnotchar'
+strsubs.o:/home/np29/cteamsrc/nicksrc/strsubs.c:1412: first defined here
+sortit.o: In function `setorder':
+/home/np29/cteamsrc/nicksrc/sortit.c:21: multiple definition of `setorder'
+sortit.o:/home/np29/cteamsrc/nicksrc/sortit.c:21: first defined here
+sortit.o: In function `isortit':
+/home/np29/cteamsrc/nicksrc/sortit.c:126: multiple definition of `isortit'
+sortit.o:/home/np29/cteamsrc/nicksrc/sortit.c:126: first defined here
+sortit.o: In function `median':
+/home/np29/cteamsrc/nicksrc/sortit.c:42: multiple definition of `median'
+sortit.o:/home/np29/cteamsrc/nicksrc/sortit.c:42: first defined here
+sortit.o: In function `sortit':
+/home/np29/cteamsrc/nicksrc/sortit.c:69: multiple definition of `sortit'
+sortit.o:/home/np29/cteamsrc/nicksrc/sortit.c:69: first defined here
+sortit.o: In function `compit':
+/home/np29/cteamsrc/nicksrc/sortit.c:94: multiple definition of `compit'
+sortit.o:/home/np29/cteamsrc/nicksrc/sortit.c:94: first defined here
+sortit.o: In function `lsortit':
+/home/np29/cteamsrc/nicksrc/sortit.c:101: multiple definition of `lsortit'
+sortit.o:/home/np29/cteamsrc/nicksrc/sortit.c:101: first defined here
+sortit.o: In function `lcompit':
+/home/np29/cteamsrc/nicksrc/sortit.c:151: multiple definition of `lcompit'
+sortit.o:/home/np29/cteamsrc/nicksrc/sortit.c:151: first defined here
+sortit.o: In function `icompit':
+/home/np29/cteamsrc/nicksrc/sortit.c:158: multiple definition of `icompit'
+sortit.o:/home/np29/cteamsrc/nicksrc/sortit.c:158: first defined here
+sortit.o: In function `invperm':
+/home/np29/cteamsrc/nicksrc/sortit.c:164: multiple definition of `invperm'
+sortit.o:/home/np29/cteamsrc/nicksrc/sortit.c:164: first defined here
+sortit.o: In function `ipsortit':
+/home/np29/cteamsrc/nicksrc/sortit.c:184: multiple definition of `ipsortit'
+sortit.o:/home/np29/cteamsrc/nicksrc/sortit.c:184: first defined here
+sortit.o: In function `ipsortitp':
+/home/np29/cteamsrc/nicksrc/sortit.c:195: multiple definition of `ipsortitp'
+sortit.o:/home/np29/cteamsrc/nicksrc/sortit.c:195: first defined here
+sortit.o: In function `ipcompit':
+/home/np29/cteamsrc/nicksrc/sortit.c:224: multiple definition of `ipcompit'
+sortit.o:/home/np29/cteamsrc/nicksrc/sortit.c:224: first defined here
+sortit.o: In function `compiarr':
+/home/np29/cteamsrc/nicksrc/sortit.c:231: multiple definition of `compiarr'
+sortit.o:/home/np29/cteamsrc/nicksrc/sortit.c:231: first defined here
+vsubs.o: In function `vsp':
+/home/np29/cteamsrc/nicksrc/vsubs.c:15: multiple definition of `vsp'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:15: first defined here
+vsubs.o: In function `vst':
+/home/np29/cteamsrc/nicksrc/vsubs.c:22: multiple definition of `vst'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:22: first defined here
+vsubs.o: In function `vvt':
+/home/np29/cteamsrc/nicksrc/vsubs.c:29: multiple definition of `vvt'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:29: first defined here
+vsubs.o: In function `vvp':
+/home/np29/cteamsrc/nicksrc/vsubs.c:36: multiple definition of `vvp'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:36: first defined here
+vsubs.o: In function `vvm':
+/home/np29/cteamsrc/nicksrc/vsubs.c:43: multiple definition of `vvm'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:43: first defined here
+vsubs.o: In function `vvd':
+/home/np29/cteamsrc/nicksrc/vsubs.c:50: multiple definition of `vvd'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:50: first defined here
+vsubs.o: In function `vsqrt':
+/home/np29/cteamsrc/nicksrc/vsubs.c:60: multiple definition of `vsqrt'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:60: first defined here
+vsubs.o: In function `vinvert':
+/home/np29/cteamsrc/nicksrc/vsubs.c:74: multiple definition of `vinvert'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:74: first defined here
+vsubs.o: In function `vabs':
+/home/np29/cteamsrc/nicksrc/vsubs.c:84: multiple definition of `vabs'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:84: first defined here
+vsubs.o: In function `vlog':
+/home/np29/cteamsrc/nicksrc/vsubs.c:92: multiple definition of `vlog'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:92: first defined here
+vsubs.o: In function `vlog2':
+/home/np29/cteamsrc/nicksrc/vsubs.c:102: multiple definition of `vlog2'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:102: first defined here
+vsubs.o: In function `NPlog2':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1120: multiple definition of `NPlog2'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1120: first defined here
+vsubs.o: In function `vexp':
+/home/np29/cteamsrc/nicksrc/vsubs.c:113: multiple definition of `vexp'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:113: first defined here
+vsubs.o: In function `vclear':
+/home/np29/cteamsrc/nicksrc/vsubs.c:121: multiple definition of `vclear'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:121: first defined here
+vsubs.o: In function `vzero':
+/home/np29/cteamsrc/nicksrc/vsubs.c:128: multiple definition of `vzero'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:128: first defined here
+vsubs.o: In function `cpzero':
+/home/np29/cteamsrc/nicksrc/vsubs.c:133: multiple definition of `cpzero'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:133: first defined here
+vsubs.o: In function `cclear':
+/home/np29/cteamsrc/nicksrc/vsubs.c:144: multiple definition of `cclear'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:144: first defined here
+vsubs.o: In function `ivvp':
+/home/np29/cteamsrc/nicksrc/vsubs.c:152: multiple definition of `ivvp'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:152: first defined here
+vsubs.o: In function `ivvm':
+/home/np29/cteamsrc/nicksrc/vsubs.c:159: multiple definition of `ivvm'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:159: first defined here
+vsubs.o: In function `ivsp':
+/home/np29/cteamsrc/nicksrc/vsubs.c:166: multiple definition of `ivsp'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:166: first defined here
+vsubs.o: In function `ivst':
+/home/np29/cteamsrc/nicksrc/vsubs.c:173: multiple definition of `ivst'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:173: first defined here
+vsubs.o: In function `ivclear':
+/home/np29/cteamsrc/nicksrc/vsubs.c:180: multiple definition of `ivclear'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:180: first defined here
+vsubs.o: In function `lvclear':
+/home/np29/cteamsrc/nicksrc/vsubs.c:187: multiple definition of `lvclear'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:187: first defined here
+vsubs.o: In function `ivzero':
+/home/np29/cteamsrc/nicksrc/vsubs.c:195: multiple definition of `ivzero'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:195: first defined here
+vsubs.o: In function `lvzero':
+/home/np29/cteamsrc/nicksrc/vsubs.c:201: multiple definition of `lvzero'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:201: first defined here
+vsubs.o: In function `clip':
+/home/np29/cteamsrc/nicksrc/vsubs.c:207: multiple definition of `clip'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:207: first defined here
+vsubs.o: In function `ivclip':
+/home/np29/cteamsrc/nicksrc/vsubs.c:215: multiple definition of `ivclip'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:215: first defined here
+vsubs.o: In function `vclip':
+/home/np29/cteamsrc/nicksrc/vsubs.c:228: multiple definition of `vclip'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:228: first defined here
+vsubs.o: In function `vmaxmin':
+/home/np29/cteamsrc/nicksrc/vsubs.c:239: multiple definition of `vmaxmin'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:239: first defined here
+vsubs.o: In function `vlmaxmin':
+/home/np29/cteamsrc/nicksrc/vsubs.c:256: multiple definition of `vlmaxmin'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:256: first defined here
+vsubs.o: In function `ivmaxmin':
+/home/np29/cteamsrc/nicksrc/vsubs.c:278: multiple definition of `ivmaxmin'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:278: first defined here
+vsubs.o: In function `minivec':
+/home/np29/cteamsrc/nicksrc/vsubs.c:292: multiple definition of `minivec'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:292: first defined here
+vsubs.o: In function `maxivec':
+/home/np29/cteamsrc/nicksrc/vsubs.c:301: multiple definition of `maxivec'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:301: first defined here
+vsubs.o: In function `ivlmaxmin':
+/home/np29/cteamsrc/nicksrc/vsubs.c:313: multiple definition of `ivlmaxmin'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:313: first defined here
+vsubs.o: In function `vdot':
+/home/np29/cteamsrc/nicksrc/vsubs.c:336: multiple definition of `vdot'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:336: first defined here
+vsubs.o: In function `corr':
+/home/np29/cteamsrc/nicksrc/vsubs.c:346: multiple definition of `corr'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:346: first defined here
+vsubs.o: In function `asum':
+/home/np29/cteamsrc/nicksrc/vsubs.c:596: multiple definition of `asum'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:596: first defined here
+vsubs.o: In function `asum2':
+/home/np29/cteamsrc/nicksrc/vsubs.c:656: multiple definition of `asum2'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:656: first defined here
+vsubs.o: In function `corrx':
+/home/np29/cteamsrc/nicksrc/vsubs.c:371: multiple definition of `corrx'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:371: first defined here
+vsubs.o: In function `variance':
+/home/np29/cteamsrc/nicksrc/vsubs.c:398: multiple definition of `variance'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:398: first defined here
+vsubs.o: In function `getdiag':
+/home/np29/cteamsrc/nicksrc/vsubs.c:417: multiple definition of `getdiag'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:417: first defined here
+vsubs.o: In function `setdiag':
+/home/np29/cteamsrc/nicksrc/vsubs.c:429: multiple definition of `setdiag'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:429: first defined here
+vsubs.o: In function `adddiag':
+/home/np29/cteamsrc/nicksrc/vsubs.c:441: multiple definition of `adddiag'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:441: first defined here
+vsubs.o: In function `copyarr':
+/home/np29/cteamsrc/nicksrc/vsubs.c:453: multiple definition of `copyarr'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:453: first defined here
+vsubs.o: In function `revarr':
+/home/np29/cteamsrc/nicksrc/vsubs.c:461: multiple definition of `revarr'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:461: first defined here
+vsubs.o: In function `revuiarr':
+/home/np29/cteamsrc/nicksrc/vsubs.c:472: multiple definition of `revuiarr'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:472: first defined here
+vsubs.o: In function `reviarr':
+/home/np29/cteamsrc/nicksrc/vsubs.c:486: multiple definition of `reviarr'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:486: first defined here
+vsubs.o: In function `copyiarr':
+/home/np29/cteamsrc/nicksrc/vsubs.c:498: multiple definition of `copyiarr'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:498: first defined here
+vsubs.o: In function `copylarr':
+/home/np29/cteamsrc/nicksrc/vsubs.c:506: multiple definition of `copylarr'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:506: first defined here
+vsubs.o: In function `copyiparr':
+/home/np29/cteamsrc/nicksrc/vsubs.c:514: multiple definition of `copyiparr'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:514: first defined here
+vsubs.o: In function `dpermute':
+/home/np29/cteamsrc/nicksrc/vsubs.c:521: multiple definition of `dpermute'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:521: first defined here
+vsubs.o: In function `ipermute':
+/home/np29/cteamsrc/nicksrc/vsubs.c:540: multiple definition of `ipermute'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:540: first defined here
+vsubs.o: In function `dppermute':
+/home/np29/cteamsrc/nicksrc/vsubs.c:557: multiple definition of `dppermute'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:557: first defined here
+vsubs.o: In function `ippermute':
+/home/np29/cteamsrc/nicksrc/vsubs.c:576: multiple definition of `ippermute'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:576: first defined here
+vsubs.o: In function `intsum':
+/home/np29/cteamsrc/nicksrc/vsubs.c:605: multiple definition of `intsum'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:605: first defined here
+vsubs.o: In function `longsum':
+/home/np29/cteamsrc/nicksrc/vsubs.c:614: multiple definition of `longsum'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:614: first defined here
+vsubs.o: In function `idot':
+/home/np29/cteamsrc/nicksrc/vsubs.c:623: multiple definition of `idot'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:623: first defined here
+vsubs.o: In function `iprod':
+/home/np29/cteamsrc/nicksrc/vsubs.c:635: multiple definition of `iprod'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:635: first defined here
+vsubs.o: In function `aprod':
+/home/np29/cteamsrc/nicksrc/vsubs.c:647: multiple definition of `aprod'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:647: first defined here
+vsubs.o: In function `trace':
+/home/np29/cteamsrc/nicksrc/vsubs.c:666: multiple definition of `trace'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:666: first defined here
+vsubs.o: In function `nnint':
+/home/np29/cteamsrc/nicksrc/vsubs.c:676: multiple definition of `nnint'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:676: first defined here
+vsubs.o: In function `countcat':
+/home/np29/cteamsrc/nicksrc/vsubs.c:685: multiple definition of `countcat'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:685: first defined here
+vsubs.o: In function `rowsum':
+/home/np29/cteamsrc/nicksrc/vsubs.c:696: multiple definition of `rowsum'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:696: first defined here
+vsubs.o: In function `colsum':
+/home/np29/cteamsrc/nicksrc/vsubs.c:706: multiple definition of `colsum'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:706: first defined here
+vsubs.o: In function `rrsum':
+/home/np29/cteamsrc/nicksrc/vsubs.c:716: multiple definition of `rrsum'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:716: first defined here
+vsubs.o: In function `ccsum':
+/home/np29/cteamsrc/nicksrc/vsubs.c:726: multiple definition of `ccsum'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:726: first defined here
+vsubs.o: In function `printmatfile':
+/home/np29/cteamsrc/nicksrc/vsubs.c:739: multiple definition of `printmatfile'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:739: first defined here
+vsubs.o: In function `printmatwfile':
+/home/np29/cteamsrc/nicksrc/vsubs.c:746: multiple definition of `printmatwfile'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:746: first defined here
+vsubs.o: In function `printmatx':
+/home/np29/cteamsrc/nicksrc/vsubs.c:763: multiple definition of `printmatx'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:763: first defined here
+vsubs.o: In function `printmatwx':
+/home/np29/cteamsrc/nicksrc/vsubs.c:778: multiple definition of `printmatwx'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:778: first defined here
+vsubs.o: In function `printmat':
+/home/np29/cteamsrc/nicksrc/vsubs.c:770: multiple definition of `printmat'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:770: first defined here
+vsubs.o: In function `printmatw':
+/home/np29/cteamsrc/nicksrc/vsubs.c:795: multiple definition of `printmatw'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:795: first defined here
+vsubs.o: In function `printmatl':
+/home/np29/cteamsrc/nicksrc/vsubs.c:812: multiple definition of `printmatl'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:812: first defined here
+vsubs.o: In function `printmatwl':
+/home/np29/cteamsrc/nicksrc/vsubs.c:820: multiple definition of `printmatwl'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:820: first defined here
+vsubs.o: In function `printmatwf':
+/home/np29/cteamsrc/nicksrc/vsubs.c:838: multiple definition of `printmatwf'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:838: first defined here
+vsubs.o: In function `int2c':
+/home/np29/cteamsrc/nicksrc/vsubs.c:858: multiple definition of `int2c'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:858: first defined here
+vsubs.o: In function `floatit':
+/home/np29/cteamsrc/nicksrc/vsubs.c:867: multiple definition of `floatit'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:867: first defined here
+vsubs.o: In function `printimatwfile':
+/home/np29/cteamsrc/nicksrc/vsubs.c:877: multiple definition of `printimatwfile'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:877: first defined here
+vsubs.o: In function `printimatw':
+/home/np29/cteamsrc/nicksrc/vsubs.c:894: multiple definition of `printimatw'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:894: first defined here
+vsubs.o: In function `printimatx':
+/home/np29/cteamsrc/nicksrc/vsubs.c:912: multiple definition of `printimatx'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:912: first defined here
+vsubs.o: In function `printimatfile':
+/home/np29/cteamsrc/nicksrc/vsubs.c:928: multiple definition of `printimatfile'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:928: first defined here
+vsubs.o: In function `printimat':
+/home/np29/cteamsrc/nicksrc/vsubs.c:936: multiple definition of `printimat'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:936: first defined here
+vsubs.o: In function `printimatlfile':
+/home/np29/cteamsrc/nicksrc/vsubs.c:953: multiple definition of `printimatlfile'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:953: first defined here
+vsubs.o: In function `printimatl':
+/home/np29/cteamsrc/nicksrc/vsubs.c:971: multiple definition of `printimatl'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:971: first defined here
+vsubs.o: In function `printstringf':
+/home/np29/cteamsrc/nicksrc/vsubs.c:986: multiple definition of `printstringf'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:986: first defined here
+vsubs.o: In function `printstringbasepos':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1006: multiple definition of `printstringbasepos'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1006: first defined here
+vsubs.o: In function `printstring':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1030: multiple definition of `printstring'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1030: first defined here
+vsubs.o: In function `rndit':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1036: multiple definition of `rndit'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1036: first defined here
+vsubs.o: In function `fixit':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1046: multiple definition of `fixit'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1046: first defined here
+vsubs.o: In function `findfirst':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1053: multiple definition of `findfirst'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1053: first defined here
+vsubs.o: In function `findfirstl':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1061: multiple definition of `findfirstl'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1061: first defined here
+vsubs.o: In function `findfirstu':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1069: multiple definition of `findfirstu'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1069: first defined here
+vsubs.o: In function `findlastu':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1078: multiple definition of `findlastu'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1078: first defined here
+vsubs.o: In function `findlast':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1087: multiple definition of `findlast'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1087: first defined here
+vsubs.o: In function `binsearch':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1096: multiple definition of `binsearch'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1096: first defined here
+vsubs.o: In function `idperm':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1114: multiple definition of `idperm'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1114: first defined here
+vsubs.o: In function `logfac':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1129: multiple definition of `logfac'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1129: first defined here
+vsubs.o: In function `logbino':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1138: multiple definition of `logbino'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1138: first defined here
+vsubs.o: In function `loghprob':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1149: multiple definition of `loghprob'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1149: first defined here
+vsubs.o: In function `log2fac':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1173: multiple definition of `log2fac'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1173: first defined here
+vsubs.o: In function `addlog':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1181: multiple definition of `addlog'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1181: first defined here
+vsubs.o: In function `vldot':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1209: multiple definition of `vldot'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1209: first defined here
+vsubs.o: In function `ipow2':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1227: multiple definition of `ipow2'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1227: first defined here
+vsubs.o: In function `pow10':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1233: multiple definition of `pow10'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1233: first defined here
+vsubs.o: In function `vpow10':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1238: multiple definition of `vpow10'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1238: first defined here
+vsubs.o: In function `vlog10':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1245: multiple definition of `vlog10'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1245: first defined here
+vsubs.o: In function `transpose':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1259: multiple definition of `transpose'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1259: first defined here
+vsubs.o: In function `initarray_2Dint':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1279: multiple definition of `initarray_2Dint'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1279: first defined here
+vsubs.o: In function `initarray_2Dlong':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1293: multiple definition of `initarray_2Dlong'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1293: first defined here
+vsubs.o: In function `free2Dint':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1309: multiple definition of `free2Dint'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1309: first defined here
+vsubs.o: In function `free_darray':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1322: multiple definition of `free_darray'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1322: first defined here
+vsubs.o: In function `free_iarray':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1328: multiple definition of `free_iarray'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1328: first defined here
+vsubs.o: In function `initarray_2Ddouble':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1335: multiple definition of `initarray_2Ddouble'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1335: first defined here
+vsubs.o: In function `initarray_2Dlongdouble':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1350: multiple definition of `initarray_2Dlongdouble'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1350: first defined here
+vsubs.o: In function `clear2D':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1370: multiple definition of `clear2D'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1370: first defined here
+vsubs.o: In function `iclear2D':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1382: multiple definition of `iclear2D'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1382: first defined here
+vsubs.o: In function `free2D':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1396: multiple definition of `free2D'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1396: first defined here
+vsubs.o: In function `free2Dlongdouble':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1409: multiple definition of `free2Dlongdouble'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1409: first defined here
+vsubs.o: In function `addoutmul':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1423: multiple definition of `addoutmul'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1423: first defined here
+vsubs.o: In function `addouter':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1440: multiple definition of `addouter'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1440: first defined here
+vsubs.o: In function `subouter':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1451: multiple definition of `subouter'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1451: first defined here
+vsubs.o: In function `bal1':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1458: multiple definition of `bal1'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1458: first defined here
+vsubs.o: In function `logmultinom':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1470: multiple definition of `logmultinom'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1470: first defined here
+vsubs.o: In function `flipiarr':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1488: multiple definition of `flipiarr'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1488: first defined here
+vsubs.o: In function `fliparr':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1504: multiple definition of `fliparr'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1504: first defined here
+vsubs.o: In function `vcompl':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1521: multiple definition of `vcompl'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1521: first defined here
+vsubs.o: In function `setidmat':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1534: multiple definition of `setidmat'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1534: first defined here
+vsubs.o: In function `stripit':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1545: multiple definition of `stripit'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1545: first defined here
+vsubs.o: In function `istripit':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1560: multiple definition of `istripit'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1560: first defined here
+vsubs.o: In function `cstripit':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1575: multiple definition of `cstripit'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1575: first defined here
+vsubs.o: In function `mapit':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1589: multiple definition of `mapit'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1589: first defined here
+vsubs.o: In function `ifall':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1600: multiple definition of `ifall'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1600: first defined here
+vsubs.o: In function `hlife':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1612: multiple definition of `hlife'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1612: first defined here
+vsubs.o: In function `topheap':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1619: multiple definition of `topheap'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1619: first defined here
+vsubs.o: In function `swap':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1625: multiple definition of `swap'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1625: first defined here
+vsubs.o: In function `iswap':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1635: multiple definition of `iswap'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1635: first defined here
+vsubs.o: In function `cswap':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1645: multiple definition of `cswap'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1645: first defined here
+vsubs.o: In function `kodeitb':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1655: multiple definition of `kodeitb'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1655: first defined here
+vsubs.o: In function `dekodeitb':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1666: multiple definition of `dekodeitb'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1666: first defined here
+vsubs.o: In function `copyarr2D':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1680: multiple definition of `copyarr2D'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1680: first defined here
+vsubs.o: In function `copyiarr2D':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1690: multiple definition of `copyiarr2D'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1690: first defined here
+vsubs.o: In function `plus2Dint':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1701: multiple definition of `plus2Dint'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1701: first defined here
+vsubs.o: In function `minus2Dint':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1710: multiple definition of `minus2Dint'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1710: first defined here
+vsubs.o: In function `plus2D':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1719: multiple definition of `plus2D'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1719: first defined here
+vsubs.o: In function `minus2D':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1728: multiple definition of `minus2D'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1728: first defined here
+vsubs.o: In function `sum2D':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1737: multiple definition of `sum2D'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1737: first defined here
+vsubs.o: In function `total2D':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1746: multiple definition of `total2D'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1746: first defined here
+vsubs.o: In function `total2Dint':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1759: multiple definition of `total2Dint'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1759: first defined here
+vsubs.o: In function `lkodeitbb':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1775: multiple definition of `lkodeitbb'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1775: first defined here
+vsubs.o: In function `ldekodeitbb':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1789: multiple definition of `ldekodeitbb'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1789: first defined here
+vsubs.o: In function `kodeitbb':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1805: multiple definition of `kodeitbb'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1805: first defined here
+vsubs.o: In function `dekodeitbb':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1818: multiple definition of `dekodeitbb'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1818: first defined here
+vsubs.o: In function `nextprime':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1834: multiple definition of `nextprime'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1834: first defined here
+vsubs.o: In function `isprime':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1846: multiple definition of `isprime'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1846: first defined here
+vsubs.o: In function `irevcomp':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1863: multiple definition of `irevcomp'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1863: first defined here
+vsubs.o: In function `lrevcomp':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1882: multiple definition of `lrevcomp'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1882: first defined here
+vsubs.o: In function `ismatch':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1900: multiple definition of `ismatch'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1900: first defined here
+vsubs.o: In function `pmult':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1912: multiple definition of `pmult'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1912: first defined here
+vsubs.o: In function `pdiff':
+/home/np29/cteamsrc/nicksrc/vsubs.c:1933: multiple definition of `pdiff'
+vsubs.o:/home/np29/cteamsrc/nicksrc/vsubs.c:1933: first defined here
+statsubs.o: In function `nordis':
+/home/np29/cteamsrc/nicksrc/statsubs.c:45: multiple definition of `nordis'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:45: first defined here
+statsubs.o: In function `ndens':
+/home/np29/cteamsrc/nicksrc/statsubs.c:58: multiple definition of `ndens'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:58: first defined here
+statsubs.o: In function `ntail':
+/home/np29/cteamsrc/nicksrc/statsubs.c:67: multiple definition of `ntail'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:67: first defined here
+statsubs.o: In function `medchi':
+/home/np29/cteamsrc/nicksrc/statsubs.c:115: multiple definition of `medchi'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:115: first defined here
+statsubs.o: In function `conchi':
+/home/np29/cteamsrc/nicksrc/statsubs.c:323: multiple definition of `conchi'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:323: first defined here
+statsubs.o: In function `ks2':
+/home/np29/cteamsrc/nicksrc/statsubs.c:156: multiple definition of `ks2'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:156: first defined here
+statsubs.o: In function `probks':
+/home/np29/cteamsrc/nicksrc/statsubs.c:221: multiple definition of `probks'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:221: first defined here
+statsubs.o: In function `conchiv':
+/home/np29/cteamsrc/nicksrc/statsubs.c:241: multiple definition of `conchiv'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:241: first defined here
+statsubs.o: In function `z2x2':
+/home/np29/cteamsrc/nicksrc/statsubs.c:283: multiple definition of `z2x2'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:283: first defined here
+statsubs.o: In function `chitest':
+/home/np29/cteamsrc/nicksrc/statsubs.c:359: multiple definition of `chitest'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:359: first defined here
+statsubs.o: In function `zprob':
+/home/np29/cteamsrc/nicksrc/statsubs.c:400: multiple definition of `zprob'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:400: first defined here
+statsubs.o: In function `setzptable':
+/home/np29/cteamsrc/nicksrc/statsubs.c:433: multiple definition of `setzptable'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:433: first defined here
+statsubs.o: In function `firstgt':
+/home/np29/cteamsrc/nicksrc/statsubs.c:483: multiple definition of `firstgt'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:483: first defined here
+statsubs.o: In function `ifirstgt':
+/home/np29/cteamsrc/nicksrc/statsubs.c:472: multiple definition of `ifirstgt'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:472: first defined here
+statsubs.o: In function `mleg':
+/home/np29/cteamsrc/nicksrc/statsubs.c:494: multiple definition of `mleg'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:494: first defined here
+statsubs.o: In function `psi':
+/home/np29/cteamsrc/nicksrc/statsubs.c:541: multiple definition of `psi'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:541: first defined here
+statsubs.o: In function `tau':
+/home/np29/cteamsrc/nicksrc/statsubs.c:564: multiple definition of `tau'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:564: first defined here
+statsubs.o: In function `bernload':
+/home/np29/cteamsrc/nicksrc/statsubs.c:690: multiple definition of `bernload'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:690: first defined here
+statsubs.o: In function `bernum':
+/home/np29/cteamsrc/nicksrc/statsubs.c:705: multiple definition of `bernum'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:705: first defined here
+statsubs.o: In function `logbessi1':
+/home/np29/cteamsrc/nicksrc/statsubs.c:586: multiple definition of `logbessi1'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:586: first defined here
+statsubs.o: In function `bessi1':
+/home/np29/cteamsrc/nicksrc/statsubs.c:614: multiple definition of `bessi1'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:614: first defined here
+statsubs.o: In function `logbessi0':
+/home/np29/cteamsrc/nicksrc/statsubs.c:636: multiple definition of `logbessi0'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:636: first defined here
+statsubs.o: In function `bessi0':
+/home/np29/cteamsrc/nicksrc/statsubs.c:663: multiple definition of `bessi0'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:663: first defined here
+statsubs.o: In function `dilog':
+/home/np29/cteamsrc/nicksrc/statsubs.c:712: multiple definition of `dilog'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:712: first defined here
+statsubs.o: In function `li2':
+/home/np29/cteamsrc/nicksrc/statsubs.c:717: multiple definition of `li2'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:717: first defined here
+statsubs.o: In function `hwstat':
+/home/np29/cteamsrc/nicksrc/statsubs.c:744: multiple definition of `hwstat'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:744: first defined here
+statsubs.o: In function `bprob':
+/home/np29/cteamsrc/nicksrc/statsubs.c:778: multiple definition of `bprob'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:778: first defined here
+statsubs.o: In function `lbeta':
+/home/np29/cteamsrc/nicksrc/statsubs.c:801: multiple definition of `lbeta'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:801: first defined here
+statsubs.o: In function `gammprob':
+/home/np29/cteamsrc/nicksrc/statsubs.c:790: multiple definition of `gammprob'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:790: first defined here
+statsubs.o: In function `xlgamma':
+/home/np29/cteamsrc/nicksrc/statsubs.c:936: multiple definition of `xlgamma'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:936: first defined here
+statsubs.o: In function `dawson':
+/home/np29/cteamsrc/nicksrc/statsubs.c:813: multiple definition of `dawson'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:813: first defined here
+statsubs.o: In function `binlogtail':
+/home/np29/cteamsrc/nicksrc/statsubs.c:847: multiple definition of `binlogtail'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:847: first defined here
+statsubs.o: In function `genlogbin':
+/home/np29/cteamsrc/nicksrc/statsubs.c:911: multiple definition of `genlogbin'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:911: first defined here
+statsubs.o: In function `binomtail':
+/home/np29/cteamsrc/nicksrc/statsubs.c:870: multiple definition of `binomtail'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:870: first defined here
+statsubs.o: In function `genbin':
+/home/np29/cteamsrc/nicksrc/statsubs.c:890: multiple definition of `genbin'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:890: first defined here
+statsubs.o: In function `rtlchsq':
+/home/np29/cteamsrc/nicksrc/statsubs.c:963: multiple definition of `rtlchsq'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:963: first defined here
+statsubs.o: In function `rtlg':
+/home/np29/cteamsrc/nicksrc/statsubs.c:1180: multiple definition of `rtlg'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:1180: first defined here
+statsubs.o: In function `critchi':
+/home/np29/cteamsrc/nicksrc/statsubs.c:1038: multiple definition of `critchi'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:1038: first defined here
+statsubs.o: In function `rtlf':
+/home/np29/cteamsrc/nicksrc/statsubs.c:1090: multiple definition of `rtlf'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:1090: first defined here
+statsubs.o: In function `ltlg':
+/home/np29/cteamsrc/nicksrc/statsubs.c:1173: multiple definition of `ltlg'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:1173: first defined here
+statsubs.o: In function `twdens':
+/home/np29/cteamsrc/nicksrc/statsubs.c:1251: multiple definition of `twdens'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:1251: first defined here
+statsubs.o: In function `gettw':
+/home/np29/cteamsrc/nicksrc/statsubs.c:1451: multiple definition of `gettw'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:1451: first defined here
+statsubs.o: In function `twtail':
+/home/np29/cteamsrc/nicksrc/statsubs.c:1261: multiple definition of `twtail'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:1261: first defined here
+statsubs.o: In function `twdensx':
+/home/np29/cteamsrc/nicksrc/statsubs.c:1280: multiple definition of `twdensx'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:1280: first defined here
+statsubs.o: In function `twtailx':
+/home/np29/cteamsrc/nicksrc/statsubs.c:1294: multiple definition of `twtailx'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:1294: first defined here
+statsubs.o: In function `twfree':
+/home/np29/cteamsrc/nicksrc/statsubs.c:1308: multiple definition of `twfree'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:1308: first defined here
+statsubs.o: In function `twnorm':
+/home/np29/cteamsrc/nicksrc/statsubs.c:1322: multiple definition of `twnorm'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:1322: first defined here
+statsubs.o: In function `dotwcalc':
+/home/np29/cteamsrc/nicksrc/statsubs.c:1340: multiple definition of `dotwcalc'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:1340: first defined here
+statsubs.o: In function `numgtz':
+/home/np29/cteamsrc/nicksrc/statsubs.c:1383: multiple definition of `numgtz'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:1383: first defined here
+statsubs.o: In function `firstgtx':
+/home/np29/cteamsrc/nicksrc/statsubs.c:1410: multiple definition of `firstgtx'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:1410: first defined here
+statsubs.o: In function `jfirstgtx':
+/home/np29/cteamsrc/nicksrc/statsubs.c:1429: multiple definition of `jfirstgtx'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:1429: first defined here
+statsubs.o: In function `settwxtable':
+/home/np29/cteamsrc/nicksrc/statsubs.c:1434: multiple definition of `settwxtable'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:1434: first defined here
+statsubs.o: In function `cinterp':
+/home/np29/cteamsrc/nicksrc/statsubs.c:1512: multiple definition of `cinterp'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:1512: first defined here
+statsubs.o: In function `dirmult':
+/home/np29/cteamsrc/nicksrc/statsubs.c:1551: multiple definition of `dirmult'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:1551: first defined here
+statsubs.o: In function `betaix':
+/home/np29/cteamsrc/nicksrc/statsubs.c:1578: multiple definition of `betaix'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:1578: first defined here
+statsubs.o: In function `betai':
+/home/np29/cteamsrc/nicksrc/statsubs.c:1592: multiple definition of `betai'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:1592: first defined here
+statsubs.o: In function `bpars':
+/home/np29/cteamsrc/nicksrc/statsubs.c:1654: multiple definition of `bpars'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:1654: first defined here
+statsubs.o: In function `bmoments':
+/home/np29/cteamsrc/nicksrc/statsubs.c:1676: multiple definition of `bmoments'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:1676: first defined here
+statsubs.o: In function `unbiasedest':
+/home/np29/cteamsrc/nicksrc/statsubs.c:1687: multiple definition of `unbiasedest'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:1687: first defined here
+statsubs.o: In function `weightjack':
+/home/np29/cteamsrc/nicksrc/statsubs.c:1769: multiple definition of `weightjack'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:1769: first defined here
+statsubs.o: In function `modehprob':
+/home/np29/cteamsrc/nicksrc/statsubs.c:1844: multiple definition of `modehprob'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:1844: first defined here
+statsubs.o: In function `calcfc':
+/home/np29/cteamsrc/nicksrc/statsubs.c:1880: multiple definition of `calcfc'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:1880: first defined here
+statsubs.o: In function `circconv':
+/home/np29/cteamsrc/nicksrc/statsubs.c:1913: multiple definition of `circconv'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:1913: first defined here
+statsubs.o: In function `bino':
+/home/np29/cteamsrc/nicksrc/statsubs.c:1932: multiple definition of `bino'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:1932: first defined here
+statsubs.o: In function `setbino':
+/home/np29/cteamsrc/nicksrc/statsubs.c:1943: multiple definition of `setbino'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:1943: first defined here
+statsubs.o: In function `destroy_bino':
+/home/np29/cteamsrc/nicksrc/statsubs.c:1957: multiple definition of `destroy_bino'
+statsubs.o:/home/np29/cteamsrc/nicksrc/statsubs.c:1957: first defined here
+linsubs.o: In function `setcalcdet':
+/home/np29/cteamsrc/nicksrc/linsubs.c:13: multiple definition of `setcalcdet'
+linsubs.o:/home/np29/cteamsrc/nicksrc/linsubs.c:13: first defined here
+linsubs.o: In function `bal':
+/home/np29/cteamsrc/nicksrc/linsubs.c:20: multiple definition of `bal'
+linsubs.o:/home/np29/cteamsrc/nicksrc/linsubs.c:20: first defined here
+linsubs.o: In function `mulmat':
+/home/np29/cteamsrc/nicksrc/linsubs.c:31: multiple definition of `mulmat'
+linsubs.o:/home/np29/cteamsrc/nicksrc/linsubs.c:31: first defined here
+linsubs.o: In function `imulmat':
+/home/np29/cteamsrc/nicksrc/linsubs.c:48: multiple definition of `imulmat'
+linsubs.o:/home/np29/cteamsrc/nicksrc/linsubs.c:48: first defined here
+linsubs.o: In function `pdinv':
+/home/np29/cteamsrc/nicksrc/linsubs.c:69: multiple definition of `pdinv'
+linsubs.o:/home/np29/cteamsrc/nicksrc/linsubs.c:69: first defined here
+linsubs.o: In function `choldc':
+/home/np29/cteamsrc/nicksrc/linsubs.c:243: multiple definition of `choldc'
+linsubs.o:/home/np29/cteamsrc/nicksrc/linsubs.c:243: first defined here
+linsubs.o: In function `vzclear':
+/home/np29/cteamsrc/nicksrc/linsubs.c:120: multiple definition of `vzclear'
+linsubs.o:/home/np29/cteamsrc/nicksrc/linsubs.c:120: first defined here
+linsubs.o: In function `solvitfix':
+/home/np29/cteamsrc/nicksrc/linsubs.c:135: multiple definition of `solvitfix'
+linsubs.o:/home/np29/cteamsrc/nicksrc/linsubs.c:135: first defined here
+linsubs.o: In function `cholsl':
+/home/np29/cteamsrc/nicksrc/linsubs.c:215: multiple definition of `cholsl'
+linsubs.o:/home/np29/cteamsrc/nicksrc/linsubs.c:215: first defined here
+linsubs.o: In function `solvit':
+/home/np29/cteamsrc/nicksrc/linsubs.c:178: multiple definition of `solvit'
+linsubs.o:/home/np29/cteamsrc/nicksrc/linsubs.c:178: first defined here
+linsubs.o: In function `pmat':
+/home/np29/cteamsrc/nicksrc/linsubs.c:283: multiple definition of `pmat'
+linsubs.o:/home/np29/cteamsrc/nicksrc/linsubs.c:283: first defined here
+linsubs.o: In function `cholesky':
+/home/np29/cteamsrc/nicksrc/linsubs.c:307: multiple definition of `cholesky'
+linsubs.o:/home/np29/cteamsrc/nicksrc/linsubs.c:307: first defined here
+linsubs.o: In function `linsolv':
+/home/np29/cteamsrc/nicksrc/linsubs.c:343: multiple definition of `linsolv'
+linsubs.o:/home/np29/cteamsrc/nicksrc/linsubs.c:343: first defined here
+getpars.o: In function `openpars':
+/home/np29/cteamsrc/nicksrc/getpars.c:28: multiple definition of `openpars'
+getpars.o:/home/np29/cteamsrc/nicksrc/getpars.c:28: first defined here
+getpars.o: In function `stripcomment':
+/home/np29/cteamsrc/nicksrc/getpars.c:128: multiple definition of `stripcomment'
+getpars.o:/home/np29/cteamsrc/nicksrc/getpars.c:128: first defined here
+getpars.o: In function `closepars':
+/home/np29/cteamsrc/nicksrc/getpars.c:109: multiple definition of `closepars'
+getpars.o:/home/np29/cteamsrc/nicksrc/getpars.c:109: first defined here
+getpars.o: In function `getstring':
+/home/np29/cteamsrc/nicksrc/getpars.c:144: multiple definition of `getstring'
+getpars.o:/home/np29/cteamsrc/nicksrc/getpars.c:144: first defined here
+getpars.o: In function `findpname':
+/home/np29/cteamsrc/nicksrc/getpars.c:290: multiple definition of `findpname'
+getpars.o:/home/np29/cteamsrc/nicksrc/getpars.c:290: first defined here
+getpars.o: In function `getint':
+/home/np29/cteamsrc/nicksrc/getpars.c:159: multiple definition of `getint'
+getpars.o:/home/np29/cteamsrc/nicksrc/getpars.c:159: first defined here
+getpars.o: In function `getints':
+/home/np29/cteamsrc/nicksrc/getpars.c:184: multiple definition of `getints'
+getpars.o:/home/np29/cteamsrc/nicksrc/getpars.c:184: first defined here
+getpars.o: In function `subcolon':
+/home/np29/cteamsrc/nicksrc/getpars.c:266: multiple definition of `subcolon'
+getpars.o:/home/np29/cteamsrc/nicksrc/getpars.c:266: first defined here
+getpars.o: In function `getintss':
+/home/np29/cteamsrc/nicksrc/getpars.c:206: multiple definition of `getintss'
+getpars.o:/home/np29/cteamsrc/nicksrc/getpars.c:206: first defined here
+getpars.o: In function `getdbls':
+/home/np29/cteamsrc/nicksrc/getpars.c:226: multiple definition of `getdbls'
+getpars.o:/home/np29/cteamsrc/nicksrc/getpars.c:226: first defined here
+getpars.o: In function `getdblss':
+/home/np29/cteamsrc/nicksrc/getpars.c:245: multiple definition of `getdblss'
+getpars.o:/home/np29/cteamsrc/nicksrc/getpars.c:245: first defined here
+getpars.o: In function `getdbl':
+/home/np29/cteamsrc/nicksrc/getpars.c:277: multiple definition of `getdbl'
+getpars.o:/home/np29/cteamsrc/nicksrc/getpars.c:277: first defined here
+getpars.o: In function `writepars':
+/home/np29/cteamsrc/nicksrc/getpars.c:300: multiple definition of `writepars'
+getpars.o:/home/np29/cteamsrc/nicksrc/getpars.c:300: first defined here
+getpars.o: In function `fwritepars':
+/home/np29/cteamsrc/nicksrc/getpars.c:308: multiple definition of `fwritepars'
+getpars.o:/home/np29/cteamsrc/nicksrc/getpars.c:308: first defined here
+getpars.o: In function `dostrsub':
+/home/np29/cteamsrc/nicksrc/getpars.c:318: multiple definition of `dostrsub'
+getpars.o:/home/np29/cteamsrc/nicksrc/getpars.c:318: first defined here
+getpars.o: In function `upstring':
+/home/np29/cteamsrc/nicksrc/getpars.c:389: multiple definition of `upstring'
+getpars.o:/home/np29/cteamsrc/nicksrc/getpars.c:389: first defined here
+xsearch.o: In function `xhcreate':
+/home/np29/cteamsrc/nicksrc/xsearch.c:20: multiple definition of `xhcreate'
+xsearch.o:/home/np29/cteamsrc/nicksrc/xsearch.c:20: first defined here
+xsearch.o: In function `xhdestroy':
+/home/np29/cteamsrc/nicksrc/xsearch.c:37: multiple definition of `xhdestroy'
+xsearch.o:/home/np29/cteamsrc/nicksrc/xsearch.c:37: first defined here
+xsearch.o: In function `xhsearch':
+/home/np29/cteamsrc/nicksrc/xsearch.c:44: multiple definition of `xhsearch'
+xsearch.o:/home/np29/cteamsrc/nicksrc/xsearch.c:44: first defined here
+xsearch.o: In function `xlookup':
+/home/np29/cteamsrc/nicksrc/xsearch.c:70: multiple definition of `xlookup'
+xsearch.o:/home/np29/cteamsrc/nicksrc/xsearch.c:70: first defined here
+xsearch.o: In function `xhash':
+/home/np29/cteamsrc/nicksrc/xsearch.c:92: multiple definition of `xhash'
+xsearch.o:/home/np29/cteamsrc/nicksrc/xsearch.c:92: first defined here
+xsearch.o: In function `stringhash':
+/home/np29/cteamsrc/nicksrc/xsearch.c:99: multiple definition of `stringhash'
+xsearch.o:/home/np29/cteamsrc/nicksrc/xsearch.c:99: first defined here
+xsearch.o: In function `xcshift':
+/home/np29/cteamsrc/nicksrc/xsearch.c:173: multiple definition of `xcshift'
+xsearch.o:/home/np29/cteamsrc/nicksrc/xsearch.c:173: first defined here
+xsearch.o: In function `xhash1':
+/home/np29/cteamsrc/nicksrc/xsearch.c:145: multiple definition of `xhash1'
+xsearch.o:/home/np29/cteamsrc/nicksrc/xsearch.c:145: first defined here
+xsearch.o: In function `xhash2':
+/home/np29/cteamsrc/nicksrc/xsearch.c:159: multiple definition of `xhash2'
+xsearch.o:/home/np29/cteamsrc/nicksrc/xsearch.c:159: first defined here
+xsearch.o: In function `xdestroy':
+/home/np29/cteamsrc/nicksrc/xsearch.c:185: multiple definition of `xdestroy'
+xsearch.o:/home/np29/cteamsrc/nicksrc/xsearch.c:185: first defined here
+xsearch.o: In function `xloadsearchx':
+/home/np29/cteamsrc/nicksrc/xsearch.c:204: multiple definition of `xloadsearchx'
+xsearch.o:/home/np29/cteamsrc/nicksrc/xsearch.c:204: first defined here
+xsearch.o: In function `xloadsearch':
+/home/np29/cteamsrc/nicksrc/xsearch.c:228: multiple definition of `xloadsearch'
+xsearch.o:/home/np29/cteamsrc/nicksrc/xsearch.c:228: first defined here
+xsearch.o: In function `xfindit':
+/home/np29/cteamsrc/nicksrc/xsearch.c:248: multiple definition of `xfindit'
+xsearch.o:/home/np29/cteamsrc/nicksrc/xsearch.c:248: first defined here
+xsearch.o: In function `finddup':
+/home/np29/cteamsrc/nicksrc/xsearch.c:262: multiple definition of `finddup'
+xsearch.o:/home/np29/cteamsrc/nicksrc/xsearch.c:262: first defined here
+gauss.o: In function `gauss':
+/home/np29/cteamsrc/nicksrc/gauss.c:5: multiple definition of `gauss'
+gauss.o:/home/np29/cteamsrc/nicksrc/gauss.c:5: first defined here
+gauss.o: In function `gaussa':
+/home/np29/cteamsrc/nicksrc/gauss.c:34: multiple definition of `gaussa'
+gauss.o:/home/np29/cteamsrc/nicksrc/gauss.c:34: first defined here
+gds.o: In function `gds':
+/home/np29/cteamsrc/nicksrc/gds.c:19: multiple definition of `gds'
+gds.o:/home/np29/cteamsrc/nicksrc/gds.c:19: first defined here
+gds.o: In function `rangam':
+/home/np29/cteamsrc/nicksrc/gds.c:101: multiple definition of `rangam'
+gds.o:/home/np29/cteamsrc/nicksrc/gds.c:101: first defined here
+gds.o: In function `drand2':
+/home/np29/cteamsrc/nicksrc/gds.c:410: multiple definition of `drand2'
+gds.o:/home/np29/cteamsrc/nicksrc/gds.c:410: first defined here
+gds.o: In function `ranexp':
+/home/np29/cteamsrc/nicksrc/gds.c:89: multiple definition of `ranexp'
+gds.o:/home/np29/cteamsrc/nicksrc/gds.c:89: first defined here
+gds.o: In function `ranpoiss':
+/home/np29/cteamsrc/nicksrc/gds.c:121: multiple definition of `ranpoiss'
+gds.o:/home/np29/cteamsrc/nicksrc/gds.c:121: first defined here
+gds.o: In function `poidev':
+/home/np29/cteamsrc/nicksrc/gds.c:143: multiple definition of `poidev'
+gds.o:/home/np29/cteamsrc/nicksrc/gds.c:143: first defined here
+gds.o: In function `ranpoissx':
+/home/np29/cteamsrc/nicksrc/gds.c:127: multiple definition of `ranpoissx'
+gds.o:/home/np29/cteamsrc/nicksrc/gds.c:127: first defined here
+gds.o: In function `randis':
+/home/np29/cteamsrc/nicksrc/gds.c:179: multiple definition of `randis'
+gds.o:/home/np29/cteamsrc/nicksrc/gds.c:179: first defined here
+gds.o: In function `ransamp':
+/home/np29/cteamsrc/nicksrc/gds.c:208: multiple definition of `ransamp'
+gds.o:/home/np29/cteamsrc/nicksrc/gds.c:208: first defined here
+gds.o: In function `pick2':
+/home/np29/cteamsrc/nicksrc/gds.c:250: multiple definition of `pick2'
+gds.o:/home/np29/cteamsrc/nicksrc/gds.c:250: first defined here
+gds.o: In function `ranperm':
+/home/np29/cteamsrc/nicksrc/gds.c:269: multiple definition of `ranperm'
+gds.o:/home/np29/cteamsrc/nicksrc/gds.c:269: first defined here
+gds.o: In function `ranmod':
+/home/np29/cteamsrc/nicksrc/gds.c:283: multiple definition of `ranmod'
+gds.o:/home/np29/cteamsrc/nicksrc/gds.c:283: first defined here
+gds.o: In function `ranbeta':
+/home/np29/cteamsrc/nicksrc/gds.c:296: multiple definition of `ranbeta'
+gds.o:/home/np29/cteamsrc/nicksrc/gds.c:296: first defined here
+gds.o: In function `ranbinom':
+/home/np29/cteamsrc/nicksrc/gds.c:306: multiple definition of `ranbinom'
+gds.o:/home/np29/cteamsrc/nicksrc/gds.c:306: first defined here
+gds.o: In function `ewens':
+/home/np29/cteamsrc/nicksrc/gds.c:346: multiple definition of `ewens'
+gds.o:/home/np29/cteamsrc/nicksrc/gds.c:346: first defined here
+gds.o: In function `genmultgauss':
+/home/np29/cteamsrc/nicksrc/gds.c:399: multiple definition of `genmultgauss'
+gds.o:/home/np29/cteamsrc/nicksrc/gds.c:399: first defined here
+gds.o: In function `ranmultinom':
+/home/np29/cteamsrc/nicksrc/gds.c:434: multiple definition of `ranmultinom'
+gds.o:/home/np29/cteamsrc/nicksrc/gds.c:434: first defined here
+gds.o: In function `ranchi':
+/home/np29/cteamsrc/nicksrc/gds.c:456: multiple definition of `ranchi'
+gds.o:/home/np29/cteamsrc/nicksrc/gds.c:456: first defined here
+gds.o: In function `raninvwis':
+/home/np29/cteamsrc/nicksrc/gds.c:468: multiple definition of `raninvwis'
+gds.o:/home/np29/cteamsrc/nicksrc/gds.c:468: first defined here
+gds.o: In function `uniform':
+/home/np29/cteamsrc/nicksrc/gds.c:515: multiple definition of `uniform'
+gds.o:/home/np29/cteamsrc/nicksrc/gds.c:515: first defined here
+gds.o: In function `randirichlet':
+/home/np29/cteamsrc/nicksrc/gds.c:534: multiple definition of `randirichlet'
+gds.o:/home/np29/cteamsrc/nicksrc/gds.c:534: first defined here
+gds.o: In function `randirmult':
+/home/np29/cteamsrc/nicksrc/gds.c:549: multiple definition of `randirmult'
+gds.o:/home/np29/cteamsrc/nicksrc/gds.c:549: first defined here
+gds.o: In function `prob1':
+/home/np29/cteamsrc/nicksrc/gds.c:570: multiple definition of `prob1'
+gds.o:/home/np29/cteamsrc/nicksrc/gds.c:570: first defined here
+gds.o: In function `rant':
+/home/np29/cteamsrc/nicksrc/gds.c:581: multiple definition of `rant'
+gds.o:/home/np29/cteamsrc/nicksrc/gds.c:581: first defined here
+gds.o: In function `samppow':
+/home/np29/cteamsrc/nicksrc/gds.c:599: multiple definition of `samppow'
+gds.o:/home/np29/cteamsrc/nicksrc/gds.c:599: first defined here
+gds.o: In function `rantruncnorm':
+/home/np29/cteamsrc/nicksrc/gds.c:632: multiple definition of `rantruncnorm'
+gds.o:/home/np29/cteamsrc/nicksrc/gds.c:632: first defined here
+gds.o: In function `ranhprob':
+/home/np29/cteamsrc/nicksrc/gds.c:652: multiple definition of `ranhprob'
+gds.o:/home/np29/cteamsrc/nicksrc/gds.c:652: first defined here
+collect2: ld returned 1 exit status
+make: *** [cpulldown] Error 1

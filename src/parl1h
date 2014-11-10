@@ -1,0 +1,16 @@
+BIN: /home/np29/biology/neander/nickdir/xwdir/may12src/altai/bin
+regname:   17
+lopos:     500000  
+hipos:    1500000  
+abxmode:             0
+poplistname:       l1pops
+usehref:             NO 
+readbam:             BIN/readbam
+bindir:              BIN
+xtrapops:            Chimp
+threshtable:         defaultthresh
+polarize:            YES
+vcfmode:             YES
+FD:  /files/Genetics/1000Genomes/nean_altai_jul12/hg19
+maskdir:             FD/fa95   ## 95 percentile on file
+hengqual:            YES
