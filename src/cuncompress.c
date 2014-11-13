@@ -28,7 +28,7 @@ FILE *fff ;
 
 
 //char *iname = "S_Korean-2"  ; 
-char *iname = "LP6005519-DNA_C05"  ; 
+char *iname = "S_Irula-1"  ; 
 //char *wkdir = "." ;
 char *wkdir = "../data" ;
 char *tempout ;
