@@ -1,4 +1,5 @@
-#include <unistd.h>
+#
+nclude <unistd.h>
 #include <nicksam.h>
 #include <getpars.h>
 #include "bam.h"
@@ -13,9 +14,12 @@ char *regstring = NULL ;
 faidx_t *fai;
 
 int chimpmode = NO ;
-char *parflist = "/home/np29/biology/neander/nickdir/xwdir/may12src/parfxlm" ;
-char *iubfile = "/home/np29/cteam/release/hetfaplus.dblist" ;
-char *iubmaskfile = "/home/np29/cteam/release/maskplus.dblist" ;
+//char *parflist = "/home/np29/biology/neander/nickdir/xwdir/may12src/parfxlm" ;
+//char *iubfile = "/home/np29/cteam/release/hetfaplus.dblist" ;
+//char *iubmaskfile = "/home/np29/cteam/release/maskplus.dblist" ;
+char *parflist = "../parfxlm" ;
+char *iubfile = "../dblist/hetfa_1.dblist" ;
+char *iubmaskfile = "../dblist/mask_1.dblist" ;
 phandle *ph  = NULL ;
 
 void loadfilebase(char *parname) ;
