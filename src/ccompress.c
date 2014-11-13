@@ -29,7 +29,7 @@ FILE *fff ;
 
 //char *iname = "S_Korean-2"  ; 
 char *iname = "S_Irula-1"  ; 
-char *wkdir = "." ;
+char *wkdir = "../data" ;	// writing directory
 char *tempout ;
 
 void readcommands(int argc, char **argv) ;

@@ -1,5 +1,4 @@
-#
-nclude <unistd.h>
+#include <unistd.h>
 #include <nicksam.h>
 #include <getpars.h>
 #include "bam.h"
@@ -28,8 +27,10 @@ char *myfai_fetch(faidx_t *fai, char *reg, int  *plen) ;
 FILE *fff ; 
 
 
-char *iname = "S_Korean-2"  ; 
-char *wkdir = "." ;
+//char *iname = "S_Korean-2"  ; 
+char *iname = "LP6005519-DNA_C05"  ; 
+//char *wkdir = "." ;
+char *wkdir = "../data" ;
 char *tempout ;
 
 void readcommands(int argc, char **argv) ;
