@@ -16,7 +16,7 @@ int chimpmode = NO ;
 //char *parflist = "/home/np29/biology/neander/nickdir/xwdir/may12src/parfxlm" ;
 //char *iubfile = "/home/np29/cteam/release/hetfaplus.dblist" ;
 //char *iubmaskfile = "/home/np29/cteam/release/maskplus.dblist" ;
-char *parflist = "../parfxlm" ;
+//char *parflist = "../parfxlm" ;
 char *iubfile = "../dblist/hetfa_1.dblist" ;
 char *iubmaskfile = "../dblist/mask_1.dblist" ;
 phandle *ph  = NULL ;
@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
 
  regname = strdup("22") ;
  readcommands(argc, argv);
- loadfilebase(parflist) ;
+ //loadfilebase(parflist) ;
 
   poplist[0] = strdup("Href") ;
   poplist[1] = strdup(iname) ;
@@ -86,8 +86,8 @@ int main(int argc, char *argv[])
   for (k=0; k<nregs; ++k) { 
 
    regname = reglist[k] ;
-fprintf(stderr, "iublist[0]: %s\niublist[1]: %s\n", iublist[0], iublist[1]);
-fprintf(stderr, "iublist: %s\n", iublist);
+//fprintf(stderr, "iublist[0]: %s\niublist[1]: %s\n", iublist[0], iublist[1]);
+//fprintf(stderr, "iublist: %s\n", iublist);
    readfa(iublist, fasta, flen, 2) ; 
 
    len = MIN(flen[0], flen[1]) ;
@@ -212,8 +212,6 @@ int getfalist(char **poplist, int npops, char *dbfile, char **iublist)
  FILE *fff ;
  char *scolon ; 
   
-//fprintf(stderr, "here!\n");
-//fprintf(stderr, "dbfile: %s\n", dbfile);
   if (dbfile == NULL) return 0 ;
   openit(dbfile, &fff, "r") ;
 
@@ -225,17 +223,13 @@ int getfalist(char **poplist, int npops, char *dbfile, char **iublist)
     freeup(spt, nsplit) ;
     continue ;
    }
-//fprintf(stderr, "spt[0]: %s\n", spt[0]);
    t = indxstring(poplist, npops, spt[0]) ; 
-//fprintf(stderr, "t: %d\n", t);
    if (t<0) { 
     freeup(spt, nsplit) ; 
     continue ;
    }
     sx = spt[2] ;
-//fprintf(stderr, "sx: %s\n", sx);
     iublist[t] = strdup(sx) ;
-//fprintf(stderr, "*iublist[%d]: %s\n", t, iublist[t]);
     ++nx ;
     freeup(spt, nsplit) ;
   }
@@ -258,7 +252,7 @@ int readfa(char **falist, char **fasta, int *flen, int n)
    continue ;
   }
   if (fasta[k] != NULL) freestring(&fasta[k]) ;
-fprintf(stderr, "falist[%d]: %s\n", k, falist[k]);
+//fprintf(stderr, "falist[%d]: %s\n", k, falist[k]);
   fai = fai_load(falist[k]) ;
   fasta[k] = myfai_fetch(fai, regname, &len) ;
   flen[k] = len ;
