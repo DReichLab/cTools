@@ -1,3 +1,11 @@
+/*
+ * cuncompress.c: use gunzip to uncompress hetfa files (*.hetfa) and mask files (*.fa)
+ * Author: Nick Patterson
+ * Revised by: Mengyao Zhao
+ * Last revise date: 2014-11-17
+ * Contact: mengyao_zhao@hms.harvard.edu 
+ */
+
 #include <unistd.h>
 #include <nicksam.h>
 #include <getpars.h>
@@ -16,7 +24,7 @@ int chimpmode = NO ;
 //char *parflist = "/home/np29/biology/neander/nickdir/xwdir/may12src/parfxlm" ;
 //char *iubfile = "/home/np29/cteam/release/hetfaplus.dblist" ;
 //char *iubmaskfile = "/home/np29/cteam/release/maskplus.dblist" ;
-char *parflist = "../parfxlm" ;
+//char *parflist = "../parfxlm" ;
 char *iubfile = "../dblist/hetfa_1.dblist" ;
 char *iubmaskfile = "../dblist/mask_1.dblist" ;
 phandle *ph  = NULL ;
@@ -30,13 +38,23 @@ FILE *fff ;
 //char *iname = "S_Korean-2"  ; 
 char *iname = "S_Irula-1"  ; 
 //char *wkdir = "." ;
-char *wkdir = "../data" ;
+char *wkdir = "../data" ;	// writing dir; filter.fa.fai is needed currently in this dir
 char *tempout ;
 
 void readcommands(int argc, char **argv) ;
 int setstring(char *iname, unsigned char *ketfa, unsigned char *countfa, int len)  ;
 void writefa(FILE *fff, char *regname, char *rrr)  ;
 
+static int usage()
+{
+	fprintf(stderr, "\n");
+	fprintf(stderr, "Usage:   cuncompress <sample name>\n\n");
+	fprintf(stderr, "Notes:\n\
+\n\
+     The <sample name> is a string like \"S_Irula-1\".\n\
+\n");
+	return 1;
+}
 
 int main(int argc, char *argv[])
 {
@@ -62,7 +80,7 @@ int main(int argc, char *argv[])
 
  regname = strdup("22") ;
  readcommands(argc, argv);
- loadfilebase(parflist) ;
+// loadfilebase(parflist) ;
 
   poplist[0] = strdup("Href") ;
   poplist[1] = strdup(iname) ;
