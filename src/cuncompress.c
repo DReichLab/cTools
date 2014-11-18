@@ -2,7 +2,7 @@
  * cuncompress.c: use gunzip to uncompress hetfa files (*.hetfa) and mask files (*.fa)
  * Author: Nick Patterson
  * Revised by: Mengyao Zhao
- * Last revise date: 2014-11-17
+ * Last revise date: 2014-11-18
  * Contact: mengyao_zhao@hms.harvard.edu 
  */
 
@@ -21,7 +21,6 @@ char *regstring = NULL ;
 faidx_t *fai;
 
 int chimpmode = NO ;
-//char *parflist = "/home/np29/biology/neander/nickdir/xwdir/may12src/parfxlm" ;
 //char *iubfile = "/home/np29/cteam/release/hetfaplus.dblist" ;
 //char *iubmaskfile = "/home/np29/cteam/release/maskplus.dblist" ;
 //char *parflist = "../parfxlm" ;
@@ -34,9 +33,8 @@ char *myfai_fetch(faidx_t *fai, char *reg, int  *plen) ;
 
 FILE *fff ; 
 
-
-//char *iname = "S_Korean-2"  ; 
-char *iname = "S_Irula-1"  ; 
+//char *iname = "S_Irula-1"  ; 
+char *iname; 
 //char *wkdir = "." ;
 char *wkdir = "../data" ;	// writing dir; filter.fa.fai is needed currently in this dir
 char *tempout ;
@@ -80,7 +78,10 @@ int main(int argc, char *argv[])
 
  regname = strdup("22") ;
  readcommands(argc, argv);
-// loadfilebase(parflist) ;
+
+	if (argc < 2) return usage();
+	iname = (char*) malloc(128 * sizeof(char));
+	strcpy(iname, argv[1]);
 
   poplist[0] = strdup("Href") ;
   poplist[1] = strdup(iname) ;
