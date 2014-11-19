@@ -2,7 +2,7 @@
  * ccompress.c: use gzip to compress hetfa files (*.hetfa) and mask files (*.fa)
  * Author: Nick Patterson
  * Revised by: Mengyao Zhao
- * Last revise date: 2014-11-18
+ * Last revise date: 2014-11-19
  * Contact: mengyao_zhao@hms.harvard.edu 
  */
 
@@ -19,24 +19,11 @@ int reglen ;
 char *regname = NULL ; 
 char *regstring = NULL ;
 faidx_t *fai;
-
-static int usage()
-{
-	fprintf(stderr, "\n");
-	fprintf(stderr, "Usage:   ccompress <sample name>\n\n");
-	fprintf(stderr, "Notes:\n\
-\n\
-     The <sample name> is a string like \"S_Irula-1\".\n\
-\n");
-	return 1;
-}
-
 int chimpmode = NO ;
 //char *iubfile = "/home/np29/cteam/release/hetfaplus.dblist" ;
 //char *iubmaskfile = "/home/np29/cteam/release/maskplus.dblist" ;
-//char *parflist = "../parfxlm" ;
-char *iubfile = "../dblist/hetfa_1.dblist" ;
-char *iubmaskfile = "../dblist/mask_1.dblist" ;
+char *iubfile = "/home/mz128/cteam/dblist/hetfa_postmigration.dblist" ;
+char *iubmaskfile = "/home/mz128/cteam/dblist/mask_postmigration.dblist" ;
 phandle *ph  = NULL ;
 
 void loadfilebase(char *parname) ;
@@ -44,8 +31,8 @@ char *myfai_fetch(faidx_t *fai, char *reg, int  *plen) ;
 
 FILE *fff ; 
 
-char *iname; 
-char *wkdir = "../data" ;	// writing directory
+char *iname = "S_Irula-1" ;  
+char *wkdir = "./" ;	// default writing directory
 char *tempout ;
 
 void readcommands(int argc, char **argv) ;
@@ -73,12 +60,8 @@ int main(int argc, char *argv[])
  char **reglist ;
  int nregs, k ;
 
- regname = strdup("22") ;
+// regname = strdup("22") ;
  readcommands(argc, argv);
-
-	if (argc < 2) return usage();
-	iname = (char*) malloc(128 * sizeof(char));
-	strcpy(iname, argv[1]);
 
   poplist[0] = strdup("Href") ;
 
@@ -216,7 +199,7 @@ void readcommands(int argc, char **argv)
 
       case '?':
 	printf ("Usage: bad params.... %c\n", i) ;
-	fatalx("bad params\ flag:%c\n, i") ;
+	fatalx("bad params flag:%c\n, i") ;
       }
   }
 
@@ -243,7 +226,10 @@ int getfalist(char **poplist, int npops, char *dbfile, char **iublist)
     freeup(spt, nsplit) ;
     continue ;
    }
-   t = indxstring(poplist, npops, spt[0]) ; 
+
+//	npops is the length of the array poplist. 
+//	if spt[0] is the t th element of poplist, return t; spt[0] is not in poplist, return -1.
+   t = indxstring(poplist, npops, spt[0]) ;	
    if (t<0) { 
     freeup(spt, nsplit) ; 
     continue ;
