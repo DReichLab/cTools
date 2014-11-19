@@ -39,6 +39,17 @@ void readcommands(int argc, char **argv) ;
 int setstring(char *iname, unsigned char *ketfa, unsigned char *countfa, int len)  ;
 void writefa(FILE *fff, char *regname, char *rrr)  ;
 
+static int usage()
+{
+	fprintf(stderr, "\n");
+	fprintf(stderr, "Usage:   ccompress [options] \n\n");
+	fprintf(stderr, "Options:\n");
+	fprintf(stderr, "\t-i <sample name> [default: S_Irula-1]\n");
+	fprintf(stderr, "\t-w <working dir / output dir> [default: ./]\n");
+//	fprintf(stderr, "\t-r <chromosome number> \t The chromosome number can be 1-22, X, Y, MT. [default:	all chromosomes]\n\n");
+	return 1;
+}
+
 
 int main(int argc, char *argv[])
 {
@@ -180,7 +191,7 @@ void readcommands(int argc, char **argv)
   int n, kode ;
   int pops[2] ;
 
-  while ((i = getopt (argc, argv, "i:r:w:")) != -1) {
+  while ((i = getopt (argc, argv, "i:r:w:?")) != -1) {
 
     switch (i)
       {
@@ -193,12 +204,16 @@ void readcommands(int argc, char **argv)
 	wkdir = strdup(optarg) ;
 	break;
 
-      case 'r':
+      case 'r':	// Currently this doesn't work.
 	regname = strdup(optarg) ;
 	break;
 
       case '?':
-	printf ("Usage: bad params.... %c\n", i) ;
+	exit(usage());
+	break;
+
+	default:
+//	printf ("Usage: bad params.... %c\n", i) ;
 	fatalx("bad params flag:%c\n, i") ;
       }
   }
