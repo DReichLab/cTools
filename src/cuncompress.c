@@ -2,7 +2,7 @@
  * cuncompress.c: use gunzip to uncompress hetfa files (*.hetfa) and mask files (*.fa)
  * Author: Nick Patterson
  * Revised by: Mengyao Zhao
- * Last revise date: 2014-11-18
+ * Last revise date: 2014-11-19
  * Contact: mengyao_zhao@hms.harvard.edu 
  */
 
@@ -33,10 +33,8 @@ char *myfai_fetch(faidx_t *fai, char *reg, int  *plen) ;
 
 FILE *fff ; 
 
-//char *iname = "S_Irula-1"  ; 
-char *iname; 
-//char *wkdir = "." ;
-char *wkdir = "../data" ;	// writing dir; filter.fa.fai is needed currently in this dir
+char *iname = "S_Irula-1"  ; 
+char *wkdir = "." ;	// writing dir; filter.fa.fai is needed currently in this dir
 char *tempout ;
 
 void readcommands(int argc, char **argv) ;
@@ -47,10 +45,9 @@ static int usage()
 {
 	fprintf(stderr, "\n");
 	fprintf(stderr, "Usage:   cuncompress <sample name>\n\n");
-	fprintf(stderr, "Notes:\n\
-\n\
-     The <sample name> is a string like \"S_Irula-1\".\n\
-\n");
+	fprintf(stderr, "Options:\n");
+	fprintf(stderr, "\t-i <sample name> [default: S_Irula-1]\n");
+	fprintf(stderr, "\t-w <working dir / output dir> [default: ./]\n\n");
 	return 1;
 }
 
@@ -76,12 +73,12 @@ int main(int argc, char *argv[])
  int nregs, k ;
  
 
- regname = strdup("22") ;
+// regname = strdup("22") ;
  readcommands(argc, argv);
 
-	if (argc < 2) return usage();
-	iname = (char*) malloc(128 * sizeof(char));
-	strcpy(iname, argv[1]);
+//	if (argc < 2) return usage();
+//	iname = (char*) malloc(128 * sizeof(char));
+//	strcpy(iname, argv[1]);
 
   poplist[0] = strdup("Href") ;
   poplist[1] = strdup(iname) ;
@@ -203,7 +200,7 @@ void readcommands(int argc, char **argv)
   int n, kode ;
   int pops[2] ;
 
-  while ((i = getopt (argc, argv, "i:r:w:")) != -1) {
+  while ((i = getopt (argc, argv, "i:r:w:?")) != -1) {
 
     switch (i)
       {
@@ -221,7 +218,11 @@ void readcommands(int argc, char **argv)
 	break;
 
       case '?':
-	printf ("Usage: bad params.... \n") ;
+	exit(usage());
+	break;
+//	printf ("Usage: bad params.... \n") ;
+
+	default:
 	fatalx("bad params\n") ;
       }
   }

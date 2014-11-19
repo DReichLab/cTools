@@ -45,7 +45,7 @@ static int usage()
 	fprintf(stderr, "Usage:   ccompress [options] \n\n");
 	fprintf(stderr, "Options:\n");
 	fprintf(stderr, "\t-i <sample name> [default: S_Irula-1]\n");
-	fprintf(stderr, "\t-w <working dir / output dir> [default: ./]\n");
+	fprintf(stderr, "\t-w <working dir / output dir> [default: ./]\n\n");
 //	fprintf(stderr, "\t-r <chromosome number> \t The chromosome number can be 1-22, X, Y, MT. [default:	all chromosomes]\n\n");
 	return 1;
 }
