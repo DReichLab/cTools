@@ -47,7 +47,8 @@ static int usage()
 	fprintf(stderr, "Usage:   cuncompress <sample name>\n\n");
 	fprintf(stderr, "Options:\n");
 	fprintf(stderr, "\t-i <sample name> [default: S_Irula-1]\n");
-	fprintf(stderr, "\t-w <working dir / output dir> [default: ./]\n\n");
+	fprintf(stderr, "\t-w <working dir / output dir> [default: ./]\n");
+	fprintf(stderr, "\t-? Show the instruction.\n\n");
 	return 1;
 }
 

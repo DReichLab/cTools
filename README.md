@@ -31,21 +31,37 @@ These can be accessed by the software just as though they are part of C-team
 ##How to download the SGDP lite sample files?
 ##Configuration (Only needed when you customized the architecture of your downloaded file folders.)
 ##How to access the data using cTools?
+To access the sample files using cascertain, cpulldown and cpoly, these downloaded sample files (\*.ccomp.fa.gz and *.ccompmask.fa.gz) need to be uncompressed using cuncompress first. Moreover, Samtools is needed (accessable by command "Samtools") to run cuncompress properly. 
 
-1) cascertain -p parfile
-Input: criteria to ascertain SNP.   Output .snp file (Reich lab format)
+1. cuncompress -i sgdpsampname [-w workdir] <br />
+cuncompress uncompress the \*.ccomp.fa.gz and *.ccompmask.fa.gz files. <br />
 
-Sample parfile
-snpname:      ssout.snp
-ascertain:    S_Yoruba-1::1:2,Altai::1:1;S_Yoruba-1::1:2,Denisova::1:1
-noascertain:  Altai::1:2,Denisova::1:2
+Inputs: \*.ccomp.fa.gz, *.ccompmask.fa.gz <br />
+Outputs: <br />
 
+Notes: The compressed input files are required in the workdir to allow cuncompress work properly. The output files are in the workdir. Samtools is required by cuncompress.
+
+2. cascertain -p parfile <br />
+Inputs: criteria to ascertain SNP. <br />  
+Outputs: .snp file (Reich lab format)
+
+Sample parfile: <br />
+
+```
+snpname: ssout.snp 
+ascertain: S_Yoruba-1::1:2,Altai::1:1;S_Yoruba-1::1:2,Denisova::1:1 
+noascertain: Altai::1:2,Denisova::1:2
+```
+In the above sample parfile, <br />  
+snpname: gives name to the output .snp file.
+
+ascertain:
 There is a mini-language for ascertainment.  Allele 1 = derived, 0 = ancestral (where Chimp allele is ancestral)
 In the ascertainment string we have substrings separated by ';'  each is an ascertainment rule.
 Then each rule has substrings separated by ',' ;
-Each substring is of form Sample_ID::a:b  This means we require sample to have a derived alleles out of b.
+Each substring is of form Sample_ID::a:b  This means we require sample to have a derived allele out of b.
 
-noascertain: has same syntax.   If this "hits" then the SNP is rejected.
+noascertain: has the same syntax.   If this "hits" then the SNP is rejected.
 Thus the example above means
 ascertain if S_Yoruba_1 is a het and either Altai or Denisova has a derived allele (chosen at random)
  EXCEPT don't ascertain if both Altai and Denisova are hets.
@@ -58,7 +74,7 @@ Note that the extended C-team files such as Altai have manifesto filters (made i
 that are just 0, 1.  If you are using extended C -team do not set minfilterval.
 
 =============================================================================================================
-2) cpulldown  -p parfile
+3. cpulldown  -p parfile
 Input: .snp file (Reich lab format)
 
 Sample parfile
@@ -88,14 +104,12 @@ Of course any .snp file is OK here, it needn't be output from cascertain
 Running time: Linear in number of samples in indivname.  10 samples pull down
 in about 1 hour on orchestra, so a pull down of the whole C-team is about 24 hours.
 
-3) cpoly
+4. cpoly
 DOCUMENTATION NEEDED
-
+<!--
 4) ccompress -i sgdpsampname [-w workdir]
 Makes files workdir/sgdpampname.comp.fa.gz and workdir/ssgdpname/compmask.fa.gz
-
-5) cuncompress -i sgdpsampname [-w workdir]
-Reverse ccompress, but output file left in workdir
+-->
 ##Related file formats
 
 6/15/14
