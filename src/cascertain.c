@@ -1,3 +1,11 @@
+/*
+* cpulldown.c: use gunzip to uncompress hetfa files (*.hetfa) and mask files (*.fa)
+* Author: Nick Patterson
+* Revised by: Mengyao Zhao
+* Last revise date: 2014-11-21
+* Contact: mengyao_zhao@hms.harvard.edu
+*/
+
 #include <sys/wait.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -20,9 +28,13 @@ typedef struct {
 
 char *regname = NULL ; 
 char *snpname = NULL ; 
-char *parflist = "/home/np29/biology/neander/nickdir/xwdir/may12src/parfxlm" ;
-char *iubfile = "/home/np29/cteam/release/hetfaplus.dblist" ;
-char *iubmaskfile = "/home/np29/cteam/release/maskplus.dblist" ;
+//char *parflist = "/home/np29/biology/neander/nickdir/xwdir/may12src/parfxlm" ;	// may not needed
+//char *parflist = "../parfxlm" ;	// may not needed
+//char *iubfile = "/home/np29/cteam/release/hetfaplus.dblist" ;
+//char *iubmaskfile = "/home/np29/cteam/release/maskplus.dblist" ;
+char *iubfile = "/home/mz128/cteam/dblist/hetfa_postmigration.dblist" ;
+char *iubmaskfile = "/home/mz128/cteam/dblist/mask_postmigration.dblist" ;
+
 char *parname = NULL ;
 int  pagesize = 20*1000*1000 ;  // page size for getiub
 int minfilterval = 1 ;
@@ -139,7 +151,7 @@ int main(int argc, char **argv)
   ascpt = noasctable[k] ;
   printasc(ascpt)  ;
  }}
- regname = strdup("22") ;
+ regname = strdup("22") ; 	// default chromosome 
  reg = regname ;
  ZALLOC(hasmask, npops+1, int) ;
 
@@ -404,7 +416,7 @@ int setnoasc(char *ascstring)
 
  if (ascstring == NULL) return 0 ;
 
- nonasc = splitupx(ascstring, spt, MAXFF, ';') ;
+ nonasc = splitupx(ascstring, spt, MAXFF, ';') ; //Split string ascstring with. spt contains the suffix of the splited ascstring. Returns the number of fregments.	
  if (nonasc==0) return 0 ;
  ZALLOC(noasctable, nonasc, ASC *) ;
  for (k=0; k<nonasc; ++k) { 

@@ -301,7 +301,7 @@ int splitup(char *strin, char **spt, int maxpt)
   free(qpt) ;
   return num;
 }
-int splitupx(char *strin, char **spt, int maxpt, char splitc)  
+int splitupx(char *strin, char **spt, int maxpt, char splitc)	//Split string strin with splitc. spt contains the suffix of the splited strin 
 {
   char *bigb, **qpt ;  
   int num, len, k ;
@@ -326,7 +326,7 @@ numpt is number of words returned  (1 or 2)
 */
 {
   char rest[MAXSTR],str[MAXSTR],ww[MAXSTR]  ;
-  int  len, i, l ;
+  int  len, i, l
 
   strncpy(str,strin,MAXSTR) ; 
   len = strlen(strin) ;

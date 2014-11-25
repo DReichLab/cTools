@@ -1,3 +1,11 @@
+/*
+* cpulldown.c: use gunzip to uncompress hetfa files (*.hetfa) and mask files (*.fa)
+* Author: Nick Patterson
+* Revised by: Mengyao Zhao
+* Last revise date: 2014-11-21
+* Contact: mengyao_zhao@hms.harvard.edu
+*/
+
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -22,8 +30,11 @@
 #define MAXFL  50   
 #define MAXSTR  512
 
-char *iubfile = "/home/np29/cteam/release/hetfaplus.dblist" ;
-char *iubmaskfile = "/home/np29/cteam/release/maskplus.dblist" ;
+//char *iubfile = "/home/np29/cteam/release/hetfaplus.dblist" ;
+//char *iubmaskfile = "/home/np29/cteam/release/maskplus.dblist" ;
+
+char *iubfile = "../dblist/hetfa_1.dblist" ;
+char *iubmaskfile = "../dblist/hetfa_1.dblist" ;
 
 extern enum outputmodetype outputmode  ;
 extern int checksizemode ;

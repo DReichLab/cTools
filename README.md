@@ -1,24 +1,36 @@
 #cTools
 
-This is ~np29/biology/cteam/progs.info
+<!--This is ~np29/biology/cteam/progs.info
 Executables in ~np29/bin
 List of accessible samples: /home/np29/cteam/release/cteam.ind
-## This is Reich lab only.  Need to make smaller file for public
-
+This is Reich lab only.  Need to make smaller file for public
+-->
+This document is the instruction of using the cTools to access the light version (compressed) Simon's genomic diversity project (SGDP lite) files. The cTools include:
+1. cuncompress
+2. cascertain
+3. cpulldown
+4. cpoly
+<!-- 
 Two programs (cascertain, cpulldown) to access C team
 This is an alpha release and some options surely need to be added.
+-->
 
-I use a database I call the "extended C-team" which in addition to the full C team
+SGDP lite includes the full C team data and the following high quality ancient genomes:
+<!--I use a database I call the "extended C-team" which in addition to the full C team
 has high quality ancient genomes:
+-->
                Altai  F            Altai
             Denisova  F        Denisovan
            Loschbour  M              WHG
            Stuttgart  F              LBK
            Ust_Ishim  M        Ust_Ishim
-## the above are "extended C-team files";  max filter value 1.  Reich lab only (!)
+
+<!--the above are "extended C-team files";  max filter value 1.  Reich lab only (!)
 These can be accessed by the software just as though they are part of C-team
-
-
+-->
+##How to download the SGDP lite sample files?
+##Configuration (Only needed when you customized the architecture of your downloaded file folders.)
+##How to access the data using cTools?
 
 1) cascertain -p parfile
 Input: criteria to ascertain SNP.   Output .snp file (Reich lab format)
@@ -84,5 +96,6 @@ Makes files workdir/sgdpampname.comp.fa.gz and workdir/ssgdpname/compmask.fa.gz
 
 5) cuncompress -i sgdpsampname [-w workdir]
 Reverse ccompress, but output file left in workdir
+##Related file formats
 
 6/15/14
