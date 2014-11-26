@@ -88,6 +88,17 @@ ASC **asctable ;
 ASC **noasctable ;
 int nasc, nonasc ;
 
+static int usage()
+{
+	fprintf(stderr, "\n");
+	fprintf(stderr, "Usage:   cascertain -p <parameter file> [options] \n\n");
+	fprintf(stderr, "Options:\n");
+	fprintf(stderr, "\t-V	verbose\n");
+	fprintf(stderr, "\t-v	Show version information.\n");
+	fprintf(stderr, "\t-? 	Show the instruction. (For detailed instruction, please see the document here: https://github.com/mengyao/cTools)\n\n");
+	return 1;
+}
+
 int main(int argc, char **argv)
 {
 
@@ -672,7 +683,7 @@ void readcommands(int argc, char **argv)
   int n, kode ;
   int pops[2] ;
 
-  while ((i = getopt (argc, argv, "p:vV")) != -1) {
+  while ((i = getopt (argc, argv, "p:vV?")) != -1) {
 
     switch (i)
       {
@@ -691,12 +702,16 @@ void readcommands(int argc, char **argv)
 
 
       case '?':
-	printf ("Usage: bad params.... \n") ;
-	fatalx("bad params\n") ;
+	default:
+	exit(usage());
+
+//	printf ("Usage: bad params.... \n") ;
+//	fatalx("bad params\n") ;
       }
   }
          
-   if (parname == NULL) return ;
+   if (parname == NULL) //return ;
+		exit(usage());
    printf("parameter file: %s\n", parname) ;
    ph = openpars(parname) ;
    dostrsub(ph) ;

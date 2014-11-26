@@ -1,3 +1,11 @@
+/*
+ * cpoly.c:
+ * Author: Nick Patterson
+ * Revised by: Mengyao Zhao
+ * Last revise date: 2014-11-25
+ * Contact: mengyao_zhao@hms.harvard.edu 
+ */
+
 #include <sys/wait.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -17,9 +25,11 @@ typedef struct {
 } ASC ;
 
 char *regname = NULL ; 
-char *parflist = "/home/np29/biology/neander/nickdir/xwdir/may12src/parfxlm" ;
-char *iubfile = "/home/np29/cteam/release/hetfaplus.dblist" ;
-char *iubmaskfile = "/home/np29/cteam/release/maskplus.dblist" ;
+//char *parflist = "/home/np29/biology/neander/nickdir/xwdir/may12src/parfxlm" ;
+//char *iubfile = "/home/np29/cteam/release/hetfaplus.dblist" ;
+//char *iubmaskfile = "/home/np29/cteam/release/maskplus.dblist" ;
+char *iubfile = "/home/mz128/cteam/dblist/hetfa_postmigration.dblist" ;
+char *iubmaskfile = "/home/mz128/cteam/dblist/mask_postmigration.dblist" ;
 char *parname = NULL ;
 int  pagesize = -1 ;  // page size for getiub
 int minfilterval = 1 ;

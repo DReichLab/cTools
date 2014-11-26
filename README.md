@@ -15,7 +15,7 @@ Two programs (cascertain, cpulldown) to access C team
 This is an alpha release and some options surely need to be added.
 -->
 
-SGDP lite includes the full C team data and the following high quality ancient genomes:
+SGDP lite includes the full C team data and the following high quality ancient genomes (extended C-team):
 <!--I use a database I call the "extended C-team" which in addition to the full C team
 has high quality ancient genomes:
 -->
@@ -35,49 +35,85 @@ To access the sample files using cascertain, cpulldown and cpoly, these download
 
 1. cuncompress -i sgdpsampname [-w workdir] <br />
 cuncompress uncompress the \*.ccomp.fa.gz and *.ccompmask.fa.gz files. <br />
-
-Inputs: \*.ccomp.fa.gz, *.ccompmask.fa.gz <br />
+<br/>
+   Inputs: \*.ccomp.fa.gz, \*.ccompmask.fa.gz <br />
 Outputs: <br />
 
-Notes: The compressed input files are required in the workdir to allow cuncompress work properly. The output files are in the workdir. Samtools is required by cuncompress.
+   Notes: The compressed input files are required in the workdir to allow cuncompress work properly. The output files are in the workdir. Samtools is required by cuncompress.
 
-2. cascertain -p parfile <br />
-Inputs: criteria to ascertain SNP. <br />  
-Outputs: .snp file (Reich lab format)
+2. cascertain -p parfile [] <br />
+   Inputs: criteria to ascertain SNP.<br/>
+   Outputs: .snp file (Reich lab format)
 
-Sample parfile: <br />
+   Sample parfile: <br />
 
-```
-snpname: ssout.snp 
-ascertain: S_Yoruba-1::1:2,Altai::1:1;S_Yoruba-1::1:2,Denisova::1:1 
-noascertain: Altai::1:2,Denisova::1:2
-```
-In the above sample parfile, <br />  
-snpname: gives name to the output .snp file.
+   ```
+   snpname: ssout.snp 
+   ascertain: S_Yoruba-1::1:2,Altai::1:1;S_Yoruba-1::1:2,Denisova::1:1 
+   noascertain: Altai::1:2,Denisova::1:2
+   ```
+   In the above sample parfile, <br />  
+   snpname: gives name to the output .snp file.
 
-ascertain:
+   ascertain:
 There is a mini-language for ascertainment.  Allele 1 = derived, 0 = ancestral (where Chimp allele is ancestral)
 In the ascertainment string we have substrings separated by ';'  each is an ascertainment rule.
 Then each rule has substrings separated by ',' ;
-Each substring is of form Sample_ID::a:b  This means we require sample to have a derived allele out of b.
+Each substring is of form Sample_ID::a:b  This means we require sample to have a derived allele(s) out of b. a is the number of derived alleles; b is the total number of alleles in the sample. 
 
-noascertain: has the same syntax.   If this "hits" then the SNP is rejected.
+   noascertain: has the same syntax.   If this "hits" then the SNP is rejected.
 Thus the example above means
 ascertain if S_Yoruba_1 is a het and either Altai or Denisova has a derived allele (chosen at random)
  EXCEPT don't ascertain if both Altai and Denisova are hets.
 
-C team has base quality in range (0-9) or no value => don't use.
-Select bases with
-minfilterval: 3 (say)   This selects bases with base quality >=3
-1 is default and recommended for most applications.
-Note that the extended C-team files such as Altai have manifesto filters (made in Leipzig)
-that are just 0, 1.  If you are using extended C -team do not set minfilterval.
+   A full parameter list of the parfile:
 
-=============================================================================================================
+   
+ <!--  
+   regname:	chromosome name [default: all the chromosomes]
+   snpname:	the output snp file name (.snp)
+   pagesize:
+   minfilterval:	the base quality threshold for taking the genotype information; The 					quality values are in the mask file. C team has base quality in range 					(0-9) or no value (N/?) => don't use. Select bases with minfilterval: 3 					(say) This selects bases with base quality >=3. [1 is default and 					recommended for most applications]. Note that the extended C-team files 					such as Altai have manifesto filters (made in Leipzig) that are just 0, 1.  					If you are using extended C-team do not set minfilterval.
+   seed:
+   ascertain:	ascertain criteria
+   noascertain: rejection criteria
+   dbhetfa:	table of hetfa files (.dblist); [default: /home/mz128/cteam/dblist/			hetfa_postmigration.dblist] 
+   dbmask: table of mask files (.dblist); [default: /home/mz128/cteam/dblist/			mask_postmigration.dblis]
+   transitions:	work on transitions; [default: Yes]
+   transversions:	work on transversions; [default: Yes]
+   abxmode:
+   minchrom:
+   maxchrom:
+   chrom:
+   monosamples:
+   monoval:
+   lopos:	beginning coordinate of the region	[default: the beginning of the chromosome]
+   hipos:	endding coordinate of the region [default: the end of the chromosome]
+   -->
+   
+   | parameter     | description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+|---------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| regname       | chromosome name [default: all the chromosomes]                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| lopos         | beginning coordinate of the region,[default: the beginning of the chromosome]                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| hipos         | endding coordinate of the region [default: the end of the chromosome]                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| snpname       | the output snp file name (.snp)                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| minfilterval  | the base quality threshold for taking the genotype information; The,quality values are in the mask file. C team has base quality in range,(0-9) or no value (N/?) => don't use. Select bases with minfilterval: 3 (say). This selects bases with base quality >=3. [1 is default and,recommended for most applications]. Note that the extended C-team files,such as Altai have manifesto filters (made in Leipzig) that are just 0, 1. If you are using extended C-team do not set minfilterval. |
+| ascertain     | ascertain criteria                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| noascertain   | rejection criteria                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| dbhetfa       | table of hetfa files (.dblist); [default: /home/mz128/cteam/dblist/,hetfa_postmigration.dblist]                                                                                                                                                                                                                                                                                                                                                                                                  |
+| dbmask        | table of mask files (.dblist); [default: /home/mz128/cteam/dblist/,mask_postmigration.dblis]                                                                                                                                                                                                                                                                                                                                                                                                     |
+| transitions   | work on transitions; [default: Yes]                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| transversions | work on transversions; [default: Yes]   
+
+   
+   Notes: You can write comments in the parameter file by `#comments`.
+
 3. cpulldown  -p parfile
-Input: .snp file (Reich lab format)
+   Input: .snp file (Reich lab format)
 
-Sample parfile
+   Sample parfile
+   
+   ```
 D1:          /home/np29/biology/cteam/mixdir
 D2:          D1
 S2:           sc
@@ -88,7 +124,7 @@ snpoutname:       D2/S2.snp
 genotypeoutname:  D2/S2.geno
 outputformat:     eigenstrat
 maxchrom:         22
-
+```
 This is very similar to the parameter file for convertf which most of you will have used.
  indivname should be a .ind file (Reich lab format).
 See /home/np29/biology/cteam/info/cteamsmall.ind for the current extended C-team list.

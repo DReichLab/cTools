@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
 
   printf("## end of ccompress\n") ;
 
-	free(iname);
+//	free(iname);
   return 0 ;
 
 }
