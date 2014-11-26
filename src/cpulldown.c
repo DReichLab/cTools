@@ -1,8 +1,8 @@
 /*
-* cpulldown.c:
+* cpulldown.c:	get the genotypes of the given individuls at the given SNP loci
 * Author: Nick Patterson
 * Revised by: Mengyao Zhao
-* Last revise date: 2014-11-25
+* Last revise date: 2014-11-26
 * Contact: mengyao_zhao@hms.harvard.edu
 */
 
@@ -94,6 +94,18 @@ int getfalist(char **poplist, int npops, char *dbfile, char **iublist)  ;
 int checkr(char **samplist, int nsamps, char **iublist, char **iubmask) ;
 char fixval(char iub, char cm) ; 
 void getfasta(char **pfasta, char **pmask, int *rlen, int *mlen, int kk) ;
+
+static int usage()
+{
+	fprintf(stderr, "\n");
+	fprintf(stderr, "Usage:   cpulldown -p <parameter file> [options] \n\n");
+	fprintf(stderr, "Options:\n");
+	fprintf(stderr, "\t-V	verbose\n");
+	fprintf(stderr, "\t-c	checkmode\n");
+	fprintf(stderr, "\t-v	Show version information.\n");
+	fprintf(stderr, "\t-? 	Show the instruction. (For detailed instruction, please see the document here: https://github.com/mengyao/cTools)\n\n");
+	return 1;
+}
 
 int main(int argc, char **argv)
 {
@@ -241,7 +253,7 @@ void readcommands(int argc, char **argv)
   char *tempname ;
   int n ;
 
-  while ((i = getopt (argc, argv, "p:cvV")) != -1) {
+  while ((i = getopt (argc, argv, "p:cvV?")) != -1) {
 
     switch (i)
       {
@@ -264,13 +276,18 @@ void readcommands(int argc, char **argv)
 	break; 
 
       case '?':
-	printf ("Usage: bad params.... \n") ;
-	fatalx("bad params\n") ;
+	default:
+	exit(usage());
+
+//	printf ("Usage: bad params.... \n") ;
+//	fatalx("bad params\n") ;
       }
   }
 
          
-   pcheck(parname,'p') ;
+   if (parname == NULL) //return ;
+		exit(usage());
+  // pcheck(parname,'p') ;
    printf("parameter file: %s\n", parname) ;
    ph = openpars(parname) ;
    dostrsub(ph) ;
@@ -279,11 +296,11 @@ void readcommands(int argc, char **argv)
    getstring(ph, "genotypename:", &genotypename) ;
    getstring(ph, "snpname:", &snpname) ;
    getstring(ph, "indivname:", &indivname) ;
-   getstring(ph, "indoutfilename:", &indoutfilename) ;
+ //  getstring(ph, "indoutfilename:", &indoutfilename) ;
    getstring(ph, "indivoutname:", &indoutfilename) ; /* changed 11/02/06 */
-   getstring(ph, "snpoutfilename:", &snpoutfilename) ;
+ //  getstring(ph, "snpoutfilename:", &snpoutfilename) ;
    getstring(ph, "snpoutname:", &snpoutfilename) ; /* changed 11/02/06 */
-   getstring(ph, "genooutfilename:", &genooutfilename) ; 
+  // getstring(ph, "genooutfilename:", &genooutfilename) ; 
    getstring(ph, "genotypeoutname:", &genooutfilename) ; /* changed 11/02/06 */
    getstring(ph, "outputformat:", &omode) ;  
    getint(ph, "minchrom:", &minchrom) ;

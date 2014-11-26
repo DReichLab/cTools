@@ -24,8 +24,8 @@ int chimpmode = NO ;
 //char *iubfile = "/home/np29/cteam/release/hetfaplus.dblist" ;
 //char *iubmaskfile = "/home/np29/cteam/release/maskplus.dblist" ;
 //char *parflist = "../parfxlm" ;
-char *iubfile = "../dblist/hetfa_1.dblist" ;
-char *iubmaskfile = "../dblist/mask_1.dblist" ;
+char *iubfile = "/home/mz128/cteam/dblist/hetfa_1.dblist" ;
+char *iubmaskfile = "/home/mz128/cteam/dblist/mask_1.dblist" ;
 phandle *ph  = NULL ;
 
 void loadfilebase(char *parname) ;
