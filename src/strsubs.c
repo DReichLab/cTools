@@ -326,7 +326,7 @@ numpt is number of words returned  (1 or 2)
 */
 {
   char rest[MAXSTR],str[MAXSTR],ww[MAXSTR]  ;
-  int  len, i, l
+  int  len, i, l;
 
   strncpy(str,strin,MAXSTR) ; 
   len = strlen(strin) ;
