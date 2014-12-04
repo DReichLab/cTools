@@ -1,8 +1,8 @@
 /*
-* cpulldown.c:	get the genotypes of the given individuls at the given SNP loci
+* cpulldown.c:	get the genotypes of the given individuls at the given SNP loci from a set of bams
 * Author: Nick Patterson
 * Revised by: Mengyao Zhao
-* Last revise date: 2014-11-26
+* Last revise date: 2014-12-03
 * Contact: mengyao_zhao@hms.harvard.edu
 */
 
@@ -33,8 +33,8 @@
 //char *iubfile = "/home/np29/cteam/release/hetfaplus.dblist" ;
 //char *iubmaskfile = "/home/np29/cteam/release/maskplus.dblist" ;
 
-char *iubfile = "/home/mz128/cteam/dblist/hetfa_postmigration.dblist" ;
-char *iubmaskfile = "/home/mz128/cteam/dblist/mask_postmigration.dblist" ;
+//char *iubfile = "/home/mz128/cteam/dblist/hetfa_postmigration.dblist" ;
+//char *iubmaskfile = "/home/mz128/cteam/dblist/mask_postmigration.dblist" ;
 
 extern enum outputmodetype outputmode  ;
 extern int checksizemode ;
@@ -145,8 +145,8 @@ int main(int argc, char **argv)
 
   ZALLOC(iublist, nsamps, char *) ;
   ZALLOC(iubmask, nsamps, char *) ;
-  getfalist(samplist,nsamps, iubfile, iublist)  ;
-  getfalist(samplist,nsamps, iubmaskfile, iubmask)  ;
+  getfalist(samplist,nsamps, ".fa", iublist)  ;
+  getfalist(samplist,nsamps, ".filter.fa", iubmask)  ;
 
    for (k=0; k<nsamps; ++k) {
     hasmask[k] = YES ;
@@ -226,8 +226,7 @@ int main(int argc, char **argv)
        if (verbose) printf("triallelic: %s %s %c %c %c %c\n",  cupt -> ID, indx -> ID, c1, c2, cbases[0], cbases[1]) ;
        continue ;
       }
-      t = 0 ;
-      if (cbases[0] == c1) ++t ;
+      t = 0       if (cbases[0] == c1) ++t ;
       if (cbases[1] == c1) ++t ;
       putgtypes(cupt, k, t) ;
 //    printf("zz %d %d %d %c %c %c\n", j, k, t, iub, cbases[0], cbases[1]) ;
@@ -312,6 +311,7 @@ void readcommands(int argc, char **argv)
    closepars(ph) ;
 
 }
+
 long setgenoblank (SNP **snpmarkers, int numsnps, int numindivs)   
 {
   double y ;

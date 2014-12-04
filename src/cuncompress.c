@@ -2,7 +2,7 @@
  * cuncompress.c: use gunzip to uncompress hetfa files (*.hetfa) and mask files (*.fa)
  * Author: Nick Patterson
  * Revised by: Mengyao Zhao
- * Last revise date: 2014-11-19
+ * Last revise date: 2014-12-02
  * Contact: mengyao_zhao@hms.harvard.edu 
  */
 
@@ -44,7 +44,7 @@ void writefa(FILE *fff, char *regname, char *rrr)  ;
 static int usage()
 {
 	fprintf(stderr, "\n");
-	fprintf(stderr, "Usage:   cuncompress <sample name>\n\n");
+	fprintf(stderr, "Usage:   cuncompress <sample name> [options]\n\n");
 	fprintf(stderr, "Options:\n");
 	fprintf(stderr, "\t-i <sample name> [default: S_Irula-1]\n");
 	fprintf(stderr, "\t-w <working dir / output dir> [default: ./]\n");

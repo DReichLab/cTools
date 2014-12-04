@@ -2,7 +2,7 @@
  * cpoly.c:
  * Author: Nick Patterson
  * Revised by: Mengyao Zhao
- * Last revise date: 2014-11-25
+ * Last revise date: 2014-12-03
  * Contact: mengyao_zhao@hms.harvard.edu 
  */
 
@@ -125,14 +125,14 @@ int main(int argc, char **argv)
   else xchrom = atoi(regname) ;
  }
 
-  npops = numlines(indivname) ; 
+  npops = numlines(indivname) ;	// npops is the count of samples 
   ZALLOC(poplist, npops, char *) ;
   npops = getss(poplist, indivname) ;
   
  if (npops > 1000) fatalx("too many samples\n") ;
 
  printf("samplist:\n") ;
- printstrings(poplist, npops) ;
+ printstrings(poplist, npops) ;	// poplist is the sample list
 
   if (indoutfilename != NULL) {  
     sprintf(ss, "cp %s %s", indivname, indoutfilename) ;
@@ -164,7 +164,7 @@ int main(int argc, char **argv)
  reg = regname ;
  lo = lopos ; 
  hi = MIN(hipos, lo+pagesize) ;
- loadfa(poplist, npops, &fainfo, reg, lo, hi)  ;
+ loadfa(poplist, npops, &fainfo, reg, lo, hi)  ; 	// fainfo[sample count] is the output of this function, it contains the hetfa and mask file info of that sample in the given region
  printf("npops: %d\n", npops) ;
   for (k=0;  k< npops; ++k) { 
    fapt = fainfo[k] ;

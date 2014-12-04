@@ -2,7 +2,7 @@
 * cpulldown.c: use gunzip to uncompress hetfa files (*.hetfa) and mask files (*.fa)
 * Author: Nick Patterson
 * Revised by: Mengyao Zhao
-* Last revise date: 2014-11-21
+* Last revise date: 2014-12-03
 * Contact: mengyao_zhao@hms.harvard.edu
 */
 
@@ -26,14 +26,13 @@ typedef struct {
  int np ;
 } ASC ;
 
+char *table_path = NULL;
 char *regname = NULL ; 
 char *snpname = NULL ; 
-//char *parflist = "/home/np29/biology/neander/nickdir/xwdir/may12src/parfxlm" ;	// may not needed
-//char *parflist = "../parfxlm" ;	// may not needed
-//char *iubfile = "/home/np29/cteam/release/hetfaplus.dblist" ;
-//char *iubmaskfile = "/home/np29/cteam/release/maskplus.dblist" ;
-char *iubfile = "/home/mz128/cteam/dblist/hetfa_postmigration.dblist" ;
-char *iubmaskfile = "/home/mz128/cteam/dblist/mask_postmigration.dblist" ;
+//char *iubfile = "/home/mz128/cteam/dblist/hetfa_postmigration.dblist" ;
+//char *iubmaskfile = "/home/mz128/cteam/dblist/mask_postmigration.dblist" ;
+//char *iubfile = NULL;
+//char *iubmaskfile = NULL; 
 
 char *parname = NULL ;
 int  pagesize = 20*1000*1000 ;  // page size for getiub
@@ -88,12 +87,13 @@ ASC **asctable ;
 ASC **noasctable ;
 int nasc, nonasc ;
 
-static int usage()
+static int usage() 
 {
 	fprintf(stderr, "\n");
 	fprintf(stderr, "Usage:   cascertain -p <parameter file> [options] \n\n");
 	fprintf(stderr, "Options:\n");
-	fprintf(stderr, "\t-V	verbose\n");
+	fprintf(stderr, "\t-d	directory of the data files [default: ./]\n");
+	fprintf(stderr, "\t-V	Print more information while running.\n");
 	fprintf(stderr, "\t-v	Show version information.\n");
 	fprintf(stderr, "\t-? 	Show the instruction. (For detailed instruction, please see the document here: https://github.com/mengyao/cTools)\n\n");
 	return 1;
@@ -118,6 +118,10 @@ int main(int argc, char **argv)
  lopos = 0 ;
  int numout = 0 ;
  int abxkode ;
+//	iubfile = (char*) malloc(256);
+//	iubfile = strcpy(iubfile, "hetfa.dblist") ;
+//	iubmaskfile = (char*) malloc(256); 
+//	iubmaskfile = strcpy(iubmaskfile, "mask.dblist") ;
  
  readcommands(argc, argv) ;
 
@@ -212,8 +216,14 @@ int main(int argc, char **argv)
  if (snpname != NULL) fclose(fff) ;
  
  printf("## end of cascertain\n") ;
+
+//	free(iubmaskfile);
+//	free(iubfile);
+	free(table_path);
+
  return 0 ;
 }
+
 void prints(FILE *fff, int pos, char c1, char c2) 
 {
   char sss[100]  ;
@@ -459,14 +469,16 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
   if (ncall==1) {
    ZALLOC(falist, npops, char *) ;
    ZALLOC(famasklist, npops, char *) ;
-   numfalist = getfalist(poplist, npops, iubfile, falist) ; 
+   //numfalist = getfalist(poplist, npops, iubfile, falist) ;	// set falist with the absolute path of hetfa files in .dblist file
+   numfalist = getfalist(poplist, npops, ".fa", falist) ;
    if (numfalist != npops) {
       for (k=0; k<npops; ++k) { 
         if (falist[k] == NULL) printf("no fasta file for: %s\n", poplist[k]) ;
       }
       fatalx("pop not found in fasta database\n") ;
    }
-   t = getfalist(poplist, npops, iubmaskfile, famasklist) ; 
+   //t = getfalist(poplist, npops, iubmaskfile, famasklist) ; 
+   t = getfalist(poplist, npops, ".filter.fa", famasklist) ; 
 
    for (k=0; k<npops; ++k) {
     hasmask[k] = YES ;
@@ -677,19 +689,28 @@ int getiub(char *cc, char *ccmask, FATYPE **fainfo, char *reg, int pos)
 void readcommands(int argc, char **argv) 
 
 {
-  int i, t;
+  int i, t = NO;
   phandle *ph ;
   char str[512]  ;
   int n, kode ;
   int pops[2] ;
+//	char *tmp;
 
-  while ((i = getopt (argc, argv, "p:vV?")) != -1) {
+  while ((i = getopt (argc, argv, "p:d:vV?")) != -1) {
 
     switch (i)
       {
 
       case 'p':
 	parname = strdup(optarg) ;
+	break;
+
+      case 'd':
+	table_path = strdup(optarg) ;
+	if (strcmp(strrchr(table_path, 1), "/")) {
+		table_path = (char*)realloc(table_path, 256);
+		table_path = strcat(table_path, "/");
+	}
 	break;
 
       case 'V':
@@ -723,8 +744,8 @@ void readcommands(int argc, char **argv)
    getint(ph, "seed:", &seed) ;
    getstring(ph, "ascertain:", &ascstring) ;
    getstring(ph, "noascertain:", &noascstring) ;
-   getstring(ph, "dbhetfa:", &iubfile) ;
-   getstring(ph, "dbmask:", &iubmaskfile) ;
+//   getstring(ph, "dbhetfa:", &iubfile) ;
+ //  getstring(ph, "dbmask:", &iubmaskfile) ;
    getint(ph, "transitions:", &t) ; if (t==YES) abxmode = 3 ;
    getint(ph, "transversions:", &t) ; if (t==YES) abxmode = 2 ;
    getint(ph, "abxmode:", &abxmode) ; 
@@ -748,14 +769,25 @@ void readcommands(int argc, char **argv)
 int getfalist(char **poplist, int npops, char *dbfile, char **iublist)  
 
 {
- char line[MAXSTR+1] ;
+/* char line[MAXSTR+1] ;
  char *spt[MAXFF], *sx ;
  char c ;
  int nsplit ;
  int  t, k, s, nx = 0  ;
  FILE *fff ;
  char *scolon ; 
-  
+ */
+	int t;
+	for (t = 0; t < npops; ++t) {
+		iublist[t] = strdup(table_path);
+		iublist[t] = (char*) realloc(iublist[t], 64);
+		iublist[t] = strcat(iublist[t], poplist[t]);
+		if (strcmp (poplist[t], "Chimp") && strcmp (poplist[t], "Href"))
+			iublist[t] = strcat(iublist[t], dbfile);
+		else 
+			iublist[t] = strcat(iublist[t], ".fa");
+	}
+/* 
   if (dbfile == NULL) return 0 ;
   openit(dbfile, &fff, "r") ;
 
@@ -780,8 +812,9 @@ int getfalist(char **poplist, int npops, char *dbfile, char **iublist)
 
    fclose(fff) ;
    return nx ;
-
+*/
 }
+
 char *myfai_fetch(faidx_t *fai, char *reg, int  *plen)
 {
   char *treg, *s ;
