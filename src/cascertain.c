@@ -718,7 +718,7 @@ void readcommands(int argc, char **argv)
 		char* p;
 		table_path = strdup(optarg) ;
 		p = strrchr(table_path, '/');
-		if (p || strcmp(p, "/")) {
+		if (!p || strcmp(p, "/")) {
 			table_path = (char*)realloc(table_path, 256);
 			table_path = strcat(table_path, "/");
 		}
