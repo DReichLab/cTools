@@ -2,7 +2,7 @@
 * cpulldown.c:	get the genotypes of the given individuls at the given SNP loci from a set of bams
 * Author: Nick Patterson
 * Revised by: Mengyao Zhao
-* Last revise date: 2014-12-03
+* Last revise date: 2014-12-04
 * Contact: mengyao_zhao@hms.harvard.edu
 */
 
@@ -30,8 +30,9 @@
 #define MAXFL  50   
 #define MAXSTR  512
 
-//char *iubfile = "/home/np29/cteam/release/hetfaplus.dblist" ;
-//char *iubmaskfile = "/home/np29/cteam/release/maskplus.dblist" ;
+char *iubfile = NULL ;
+char *iubmaskfile = NULL;
+char *table_path = NULL;
 
 //char *iubfile = "/home/mz128/cteam/dblist/hetfa_postmigration.dblist" ;
 //char *iubmaskfile = "/home/mz128/cteam/dblist/mask_postmigration.dblist" ;
@@ -71,6 +72,7 @@ int *hasmask ;
 int minchrom = 1 ;
 int maxchrom = 97 ;
 int xchrom = -1 ;
+int db = 1;	// Use .dblist
 
 char *outputname = NULL ;
 FILE *ofile ;
@@ -100,7 +102,8 @@ static int usage()
 	fprintf(stderr, "\n");
 	fprintf(stderr, "Usage:   cpulldown -p <parameter file> [options] \n\n");
 	fprintf(stderr, "Options:\n");
-	fprintf(stderr, "\t-V	verbose\n");
+	fprintf(stderr, "\t-d	directory of the data files (Please set this parameter, if you do not set .dblist files. If this parameter is used to give the data file location, .dblist files will not be used.)\n");
+	fprintf(stderr, "\t-V	Print more information while the program is running.\n");
 	fprintf(stderr, "\t-c	checkmode\n");
 	fprintf(stderr, "\t-v	Show version information.\n");
 	fprintf(stderr, "\t-? 	Show the instruction. (For detailed instruction, please see the document here: https://github.com/mengyao/cTools)\n\n");
@@ -145,8 +148,14 @@ int main(int argc, char **argv)
 
   ZALLOC(iublist, nsamps, char *) ;
   ZALLOC(iubmask, nsamps, char *) ;
-  getfalist(samplist,nsamps, ".fa", iublist)  ;
-  getfalist(samplist,nsamps, ".filter.fa", iubmask)  ;
+
+	if (db == 0) {
+	   setfalist(poplist, npops, ".fa", falist) ;
+	   setfalist(poplist, npops, ".filter.fa", famasklist) ;
+	} else {
+	   getfalist(poplist, npops, iubfile, falist) ;	// set falist with the absolute path of hetfa files in .dblist file
+	   getfalist(poplist, npops, iubmaskfile, famasklist) ; 
+	}
 
    for (k=0; k<nsamps; ++k) {
     hasmask[k] = YES ;
@@ -252,13 +261,27 @@ void readcommands(int argc, char **argv)
   char *tempname ;
   int n ;
 
-  while ((i = getopt (argc, argv, "p:cvV?")) != -1) {
+  while ((i = getopt (argc, argv, "p:d:cvV?")) != -1) {
 
     switch (i)
       {
 
       case 'p':
 	parname = strdup(optarg) ;
+	break;
+
+      case 'd':
+	{
+		char* p;
+		table_path = strdup(optarg) ;
+		p = strrchr(table_path, '/');
+		if (!p || strcmp(p, "/")) {
+			table_path = (char*)realloc(table_path, 256);
+			table_path = strcat(table_path, "/");
+		}
+		db = 0;	// Don't use .dblist
+//		fprintf(stderr, "db: %d\n", db);	
+	}
 	break;
 
       case 'v':
@@ -291,22 +314,26 @@ void readcommands(int argc, char **argv)
    ph = openpars(parname) ;
    dostrsub(ph) ;
 
+	if (db == 1) {
+	   getstring(ph, "dbhetfa:", &iubfile) ;
+	   getstring(ph, "dbmask:", &iubmaskfile) ;
+		if (! (iubfile && iubmaskfile))
+			fprintf(stderr, "Please use -d option to specify the directory of hetfa and mask files.\nAlternatively, please give values to dbhetfa and dbmask in the parameter file.\n");
+	}
+
    getint(ph, "minfilterval:", &minfilterval) ;
    getstring(ph, "genotypename:", &genotypename) ;
    getstring(ph, "snpname:", &snpname) ;
    getstring(ph, "indivname:", &indivname) ;
- //  getstring(ph, "indoutfilename:", &indoutfilename) ;
    getstring(ph, "indivoutname:", &indoutfilename) ; /* changed 11/02/06 */
- //  getstring(ph, "snpoutfilename:", &snpoutfilename) ;
    getstring(ph, "snpoutname:", &snpoutfilename) ; /* changed 11/02/06 */
-  // getstring(ph, "genooutfilename:", &genooutfilename) ; 
    getstring(ph, "genotypeoutname:", &genooutfilename) ; /* changed 11/02/06 */
    getstring(ph, "outputformat:", &omode) ;  
    getint(ph, "minchrom:", &minchrom) ;
    getint(ph, "maxchrom:", &maxchrom) ;
    getint(ph, "chrom:", &xchrom) ;
- //  getstring(ph, "dbhetfa:", &iubfile) ;
- //  getstring(ph, "dbmask:", &iubmaskfile) ;
+//   getstring(ph, "dbhetfa:", &iubfile) ;
+  // getstring(ph, "dbmask:", &iubmaskfile) ;
    writepars(ph) ;
    closepars(ph) ;
 
@@ -379,6 +406,21 @@ int readfa1(char *faname, char **pfasta, int *flen)
 
 }
 
+int setfalist(char **poplist, int npops, char *dbfile, char **iublist) {
+	int t;
+	for (t = 0; t < npops; ++t) {
+		iublist[t] = strdup(table_path);
+		iublist[t] = (char*) realloc(iublist[t], 64);
+		iublist[t] = strcat(iublist[t], poplist[t]);
+		if ((!strcmp (poplist[t], "Chimp") || !strcmp (poplist[t], "Href")) && strcmp (dbfile, ".fa")) {
+			free (iublist[t]);
+			iublist[t] = "NULL";
+		} else 
+			iublist[t] = strcat(iublist[t], dbfile);
+	}
+	return npops;
+}
+  
 int getfalist(char **poplist, int npops, char *dbfile, char **iublist)  
 
 {
