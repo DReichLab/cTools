@@ -2,7 +2,7 @@
  * cpoly.c: This program is used to extract heterozygote SNPs from multiple samples
  * Author: Nick Patterson
  * Revised by: Mengyao Zhao
- * Last revise date: 2014-12-04
+ * Last revise date: 2014-12-05
  * Contact: mengyao_zhao@hms.harvard.edu 
  */
 
@@ -59,6 +59,7 @@ char *poplistname = NULL ;
 char **poplist ; 
 int *hasmask ;
 int npops = 0 ;
+int db = 1;	// Use .dblist
 
 #define VERSION  "210"    
 
@@ -236,6 +237,7 @@ int main(int argc, char **argv)
  printf("## end of cpoly\n") ;
  return 0 ;
 }
+
 int gvalm(char cc, char cm, char c1, char c2) 
 {
    int x=0, t ;
@@ -366,14 +368,25 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
   if (ncall==1) {
    ZALLOC(falist, npops, char *) ;
    ZALLOC(famasklist, npops, char *) ;
-   numfalist = getfalist(poplist, npops, iubfile, falist) ; 
+
+	if (db == 0) {
+	   numfalist = setfalist(poplist, npops, ".fa", falist) ;
+	   t = setfalist(poplist, npops, ".filter.fa", famasklist) ;
+	//fprintf(stderr, "numfalist: %d\n", numfalist); 
+	} else {
+	   numfalist = getfalist(poplist, npops, iubfile, falist) ;	// set falist with the absolute path of hetfa files in .dblist file
+	   t = getfalist(poplist, npops, iubmaskfile, famasklist) ; 
+	}
+
+//   numfalist = getfalist(poplist, npops, iubfile, falist) ; 
    if (numfalist != npops) {
       for (k=0; k<npops; ++k) { 
         if (falist[k] == NULL) printf("no fasta file for: %s\n", poplist[k]) ;
       }
-      fatalx("pop not found in fasta database\n") ;
+      //fatalx("pop not found in fasta database\n") ;
+      fatalx("Do not find the data files. Please use -d option or set dbhetfa and dbmask in your parameter file.\n") ;
    }
-   t = getfalist(poplist, npops, iubmaskfile, famasklist) ; 
+  // t = getfalist(poplist, npops, iubmaskfile, famasklist) ; 
    for (k=0; k<npops; ++k) {
     hasmask[k] = YES ;
     if (famasklist[k] == NULL) {  
@@ -584,7 +597,7 @@ void readcommands(int argc, char **argv)
   int n, kode ;
   int pops[2] ;
 
-  while ((i = getopt (argc, argv, "p:d:vV")) != -1) {
+  while ((i = getopt (argc, argv, "p:d:vV?")) != -1) {
 
     switch (i)
       {
@@ -623,7 +636,8 @@ void readcommands(int argc, char **argv)
       }
   }
          
-   if (parname == NULL) return ;
+   if (parname == NULL) //return ;
+		exit(usage());
    printf("parameter file: %s\n", parname) ;
    ph = openpars(parname) ;
    dostrsub(ph) ;
@@ -640,16 +654,15 @@ void readcommands(int argc, char **argv)
    getint(ph, "minfilterval:", &minfilterval) ;
    getint(ph, "allowmissing:", &allowmissing) ;
    getint(ph, "allowhets:", &allowhets) ;
-  // getstring(ph, "dbhetfa:", &iubfile) ;
-  // getstring(ph, "dbmask:", &iubmaskfile) ;
+ //  getstring(ph, "dbhetfa:", &iubfile) ;
+ //  getstring(ph, "dbmask:", &iubmaskfile) ;
    getint(ph, "transitions:", &t) ; if (t==YES) abxmode = 3 ;
    getint(ph, "transversions:", &t) ; if (t==YES) abxmode = 2 ;
    getint(ph, "abxmode:", &abxmode) ; 
    getint(ph, "minchrom:", &minchrom) ;
    getint(ph, "maxchrom:", &maxchrom) ;
    getint(ph, "chrom:", &xchrom) ;
-etstring(ph, "polarize:", &polarid) ;
-
+	getstring(ph, "polarize:", &polarid) ;
    getstring(ph, "indivname:", &indivname) ;
    getstring(ph, "indivoutname:", &indoutfilename) ; /* changed 11/02/06 */
    getstring(ph, "snpoutname:", &snpoutfilename) ; /* changed 11/02/06 */
@@ -665,8 +678,23 @@ etstring(ph, "polarize:", &polarid) ;
    fflush(stdout) ;
 
 }
-int getfalist(char **poplist, int npops, char *dbfile, char **iublist)  
 
+int setfalist(char **poplist, int npops, char *dbfile, char **iublist) {
+	int t;
+	for (t = 0; t < npops; ++t) {
+		iublist[t] = strdup(table_path);
+		iublist[t] = (char*) realloc(iublist[t], 64);
+		iublist[t] = strcat(iublist[t], poplist[t]);
+		if ((!strcmp (poplist[t], "Chimp") || !strcmp (poplist[t], "Href")) && strcmp (dbfile, ".fa")) {
+			free (iublist[t]);
+			iublist[t] = "NULL";
+		} else 
+			iublist[t] = strcat(iublist[t], dbfile);
+	}
+	return npops;
+}  
+
+int getfalist(char **poplist, int npops, char *dbfile, char **iublist)  
 {
  char line[MAXSTR+1] ;
  char *spt[MAXFF], *sx ;

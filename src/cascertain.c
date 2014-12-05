@@ -485,7 +485,8 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
       for (k=0; k<npops; ++k) { 
         if (falist[k] == NULL) printf("no fasta file for: %s\n", poplist[k]) ;
       }
-      fatalx("pop not found in fasta database\n") ;
+      //fatalx("pop not found in fasta database\n") ;
+      fatalx("Do not find the data files. Please use -d option or set dbhetfa and dbmask in your parameter file.\n") ;
    }
 
    for (k=0; k<npops; ++k) {
