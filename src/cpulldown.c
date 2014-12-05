@@ -150,11 +150,11 @@ int main(int argc, char **argv)
   ZALLOC(iubmask, nsamps, char *) ;
 
 	if (db == 0) {
-	   setfalist(poplist, npops, ".fa", falist) ;
-	   setfalist(poplist, npops, ".filter.fa", famasklist) ;
+	   setfalist(samplist, nsamps, ".fa", iublist) ;
+	   setfalist(samplist, nsamps, ".filter.fa", iubmask) ;
 	} else {
-	   getfalist(poplist, npops, iubfile, falist) ;	// set falist with the absolute path of hetfa files in .dblist file
-	   getfalist(poplist, npops, iubmaskfile, famasklist) ; 
+	   getfalist(samplist, nsamps, iubfile, iublist) ;	// set falist with the absolute path of hetfa files in .dblist file
+	   getfalist(samplist, nsamps, iubmaskfile, iubmask) ; 
 	}
 
    for (k=0; k<nsamps; ++k) {
@@ -235,7 +235,8 @@ int main(int argc, char **argv)
        if (verbose) printf("triallelic: %s %s %c %c %c %c\n",  cupt -> ID, indx -> ID, c1, c2, cbases[0], cbases[1]) ;
        continue ;
       }
-      t = 0       if (cbases[0] == c1) ++t ;
+      t = 0;       
+		if (cbases[0] == c1) ++t ;
       if (cbases[1] == c1) ++t ;
       putgtypes(cupt, k, t) ;
 //    printf("zz %d %d %d %c %c %c\n", j, k, t, iub, cbases[0], cbases[1]) ;
