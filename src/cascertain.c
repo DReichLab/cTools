@@ -1,8 +1,8 @@
 /*
-* cpulldown.c: use gunzip to uncompress hetfa files (*.hetfa) and mask files (*.fa)
+* cascertain.c: Pull down the SNPs that match the ascertain criterion.
 * Author: Nick Patterson
 * Revised by: Mengyao Zhao
-* Last revise date: 2014-12-04
+* Last revise date: 2014-12-05
 * Contact: mengyao_zhao@hms.harvard.edu
 */
 

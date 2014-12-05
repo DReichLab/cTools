@@ -1,71 +1,47 @@
 # cTools
 
 This document is the instruction of using the cTools to access the light
-version (compressed) Simon's genomic diversity project (SGDP lite) files. The
+version (compressed) Simons genomic diversity project (SGDP lite) files. The
 cTools include:
 
-1. [cuncompress](#cuncompress)
+1. uncompress.pl
 2. cascertain
 3. cpulldown
 4. cpoly
 
-SGDP lite includes the full C team data and the following high quality ancient
-genomes (extended C-team):
+##Download the programs
+`git clone https://github.com/mengyao/cTools.git`
 
-               Altai  F            Altai
-            Denisova  F        Denisovan
-           Loschbour  M              WHG
-           Stuttgart  F              LBK
-           Ust_Ishim  M        Ust_Ishim
+or click the "Download ZIP" button of this web page:
+https://github.com/mengyao/cTools
 
-Currently, there are 340 samples in SGDP lite:
+##Compile cTools
+In the src floder:
+1. `make clean`
+2. `make`
 
-- FullyPublicGeneral: 163 samples (including the above ancient genomes)
-- FullyPublicHGDP: 120 samples
-- SignedLetterGeneral: 9 samples
-- SignedLetterDiRienzo: 4 samples
-- SignedLetterTishkoff: 44 samples
-
-Size of the data:
-
-- The size of the downloaded data (compressed):
-  - One sample: ~379M
-  - All the public data (183 samples in FullyPublicGeneral and FullyPublicHGDP): ~108G
-  - All the 340 samples: ~130G
-
-
-- The size of the data after uncompress:
-  - One sample: ~6G
-  - All the public data (183 samples in FullyPublicGeneral and FullyPublicHGDP): ~1,700G
-  - All the 340 samples: ~2,040G
-
-##How to download the SGDP lite sample files?
-##Compile the source code
-##Configuration (Only needed when you customized the architecture of your downloaded file folders.)
-##How to access the data using cTools?
+##Run cTools
 
 To access the sample files using cascertain, cpulldown and cpoly, these
 downloaded sample files (`*.ccomp.fa.gz` and `*.ccompmask.fa.gz`) need to be
-uncompressed using cuncompress first. Moreover, Samtools is needed (accessable
-by command "Samtools") to run cuncompress properly.
+uncompressed using uncompress.pl first. Moreover, Samtools is needed (accessable
+by command "Samtools") to run uncompress.pl properly.
 
-#### <a name="cuncompress"></a>1. cuncompress -i sgdpsampname [options]
+### <a name="uncompress.pl"></a>1. uncompress.pl
 
-cuncompress uncompress the `*.ccomp.fa.gz` and `*.ccompmask.fa.gz` files.
+uncompress.pl uncompress the `*.ccomp.fa.gz` and `*.ccompmask.fa.gz` files.
 ```
-options:
--w working dir / output dir [default: ./]
--? Show the instruction.
-
+Usage: uncompress.pl <reference.fa> <sample.ccomp.fa.gz> (compressed hetfa file)
 Inputs: .ccomp.fa.gz, .ccompmask.fa.gz
-Outputs: .hetfa (fasta format), hetfa.fai, .mask.fa, .mask.fa.fai
+Outputs: .fa (uncompressed hetfa file), .fa.fai, .mask.fa (uncompressed mask file), .mask.fa.fai
 ```
 
-***Notes***: The compressed input files are required in the workdir to allow
-cuncompress work properly. The output files are in the workdir. Samtools is
-required by cuncompress.
+***Notes***: The  Samtools is
+required by uncompress.pl.
 
-#### 2. cascertain
+### 2. cascertain
+cascertain pulls down the SNPs that match the ascertain criterion.
+
 ```
 Usage: cascertain -p parfile [options]
 
@@ -119,7 +95,7 @@ A full parameter list of the parfile:
 
 Notes: You can write comments in the parameter file by `#comments`.
 
-#### 3. cpulldown  -p parfile [options]
+### 3. cpulldown  -p parfile [options]
 
 options:
  -V	verbose
@@ -168,7 +144,7 @@ A full parameter list of the parfile:
 Notes: Running time: Linear in number of samples in indivname.  10 samples pull down
 in about 1 hour on orchestra.
 
-#### 4. cpoly
+### 4. cpoly
 DOCUMENTATION NEEDED
 
 ##Related file formats
