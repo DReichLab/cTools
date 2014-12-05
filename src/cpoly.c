@@ -1,8 +1,8 @@
 /*
- * cpoly.c:
+ * cpoly.c: This program is used to extract heterozygote SNPs from multiple samples
  * Author: Nick Patterson
  * Revised by: Mengyao Zhao
- * Last revise date: 2014-12-03
+ * Last revise date: 2014-12-04
  * Contact: mengyao_zhao@hms.harvard.edu 
  */
 
@@ -24,12 +24,12 @@ typedef struct {
  int np ;
 } ASC ;
 
+char *table_path = NULL;
+char *iubfile = NULL ;
+char *iubmaskfile = NULL ;
 char *regname = NULL ; 
-//char *parflist = "/home/np29/biology/neander/nickdir/xwdir/may12src/parfxlm" ;
-//char *iubfile = "/home/np29/cteam/release/hetfaplus.dblist" ;
-//char *iubmaskfile = "/home/np29/cteam/release/maskplus.dblist" ;
-char *iubfile = "/home/mz128/cteam/dblist/hetfa_postmigration.dblist" ;
-char *iubmaskfile = "/home/mz128/cteam/dblist/mask_postmigration.dblist" ;
+//char *iubfile = "/home/mz128/cteam/dblist/hetfa_postmigration.dblist" ;
+//char *iubmaskfile = "/home/mz128/cteam/dblist/mask_postmigration.dblist" ;
 char *parname = NULL ;
 int  pagesize = -1 ;  // page size for getiub
 int minfilterval = 1 ;
@@ -88,6 +88,18 @@ int abxmode = 0 ;
 ASC **asctable ;
 ASC **noasctable ;
 int nasc, nonasc ;
+
+static int usage() 
+{
+	fprintf(stderr, "\n");
+	fprintf(stderr, "Usage:   cpoly -p <parameter file> [options] \n\n");
+	fprintf(stderr, "Options:\n");
+	fprintf(stderr, "\t-d	directory of the data files (Please set this parameter, if you do not set .dblist files. If this parameter is used to give the data file location, .dblist files will not be used.)\n");
+	fprintf(stderr, "\t-V	Print more information while the program is running.\n");
+	fprintf(stderr, "\t-v	Show version information.\n");
+	fprintf(stderr, "\t-? 	Show the instruction. (For detailed instruction, please see the document here: https://github.com/mengyao/cTools)\n\n");
+	return 1;
+}
 
 int main(int argc, char **argv)
 {
@@ -572,13 +584,26 @@ void readcommands(int argc, char **argv)
   int n, kode ;
   int pops[2] ;
 
-  while ((i = getopt (argc, argv, "p:vV")) != -1) {
+  while ((i = getopt (argc, argv, "p:d:vV")) != -1) {
 
     switch (i)
       {
 
       case 'p':
 	parname = strdup(optarg) ;
+	break;
+
+      case 'd':
+	{
+		char* p;
+		table_path = strdup(optarg) ;
+		p = strrchr(table_path, '/');
+		if (!p || strcmp(p, "/")) {
+			table_path = (char*)realloc(table_path, 256);
+			table_path = strcat(table_path, "/");
+		}
+		db = 0;	// Don't use .dblist
+	}
 	break;
 
       case 'V':
@@ -591,8 +616,10 @@ void readcommands(int argc, char **argv)
 
 
       case '?':
-	printf ("Usage: bad params.... \n") ;
-	fatalx("bad params\n") ;
+	//printf ("Usage: bad params.... \n") ;
+//	fatalx("bad params\n") ;
+	default:
+	exit(usage());
       }
   }
          
@@ -601,22 +628,27 @@ void readcommands(int argc, char **argv)
    ph = openpars(parname) ;
    dostrsub(ph) ;
 
+		if (db == 1) {
+	   getstring(ph, "dbhetfa:", &iubfile) ;
+	   getstring(ph, "dbmask:", &iubmaskfile) ;
+		if (! (iubfile && iubmaskfile))
+			fprintf(stderr, "Please use -d option to specify the directory of hetfa and mask files.\nAlternatively, please give values to dbhetfa and dbmask in the parameter file.\n");
+	}
+
    getstring(ph, "regname:", &regname) ;
    getint(ph, "pagesize:", &pagesize) ;
    getint(ph, "minfilterval:", &minfilterval) ;
    getint(ph, "allowmissing:", &allowmissing) ;
    getint(ph, "allowhets:", &allowhets) ;
-//   getstring(ph, "samplistname:", &poplistname) ;
-//   getstring(ph, "poplistname:", &poplistname) ;
-   getstring(ph, "dbhetfa:", &iubfile) ;
-   getstring(ph, "dbmask:", &iubmaskfile) ;
+  // getstring(ph, "dbhetfa:", &iubfile) ;
+  // getstring(ph, "dbmask:", &iubmaskfile) ;
    getint(ph, "transitions:", &t) ; if (t==YES) abxmode = 3 ;
    getint(ph, "transversions:", &t) ; if (t==YES) abxmode = 2 ;
    getint(ph, "abxmode:", &abxmode) ; 
    getint(ph, "minchrom:", &minchrom) ;
    getint(ph, "maxchrom:", &maxchrom) ;
    getint(ph, "chrom:", &xchrom) ;
-   getstring(ph, "polarize:", &polarid) ;
+etstring(ph, "polarize:", &polarid) ;
 
    getstring(ph, "indivname:", &indivname) ;
    getstring(ph, "indivoutname:", &indoutfilename) ; /* changed 11/02/06 */
