@@ -2,7 +2,7 @@ HOMEL=$(PWD)
 TOP=./bin
 ## binary for install  
 # DEBUG_OPTIONS= -g -pg
-DEBUG_OPTIONS= -g -pg
+DEBUG_OPTIONS= -g #-pg
 BIN=$(HOMEL)/bin
 PERLDIR=$(HOMEL)/perlsrc
 
@@ -10,10 +10,9 @@ NLIB=$(HOMEL)/lib/nicklib.a
 BLIB=$(HOMEL)/lib/bamlib.a
 IDIR=$(HOMEL)/include
 ##VPATH=.:nicksrc:bamsrc
-DEBUG_OPTIONS= -g -pg
 
-CFLAGS= -g -pg -DHAVE_CONFIG_H -I. -I$(IDIR)  -Wimplicit-int \
-  -L. -L -lm  -g -pg -D_IOLIB=2  
+CFLAGS= -g  -DHAVE_CONFIG_H -I. -I$(IDIR)  -Wimplicit-int \
+   -L. -lm  -g -D_IOLIB=2 -O3 
 
 
 OBJ=strsubs.o sortit.o vsubs.o statsubs.o linsubs.o getpars.o xsearch.o gauss.o	gds.o
@@ -59,7 +58,7 @@ $(Q4I): nicklib $(Q4IO)
 	gcc -o $(Q4I) $(Q4IO)  -lm -lz -lncurses 
 
 Q5I=uncompress 
-Q5IO=uncompress.o $(sam_OBJ) $(OBJ)
+Q5IO=uncomp.o $(sam_OBJ) $(OBJ)
 
 $(Q5I): nicklib $(Q5IO) 
 	gcc -o $(Q5I) $(Q5IO)  -lm -lz -lncurses 

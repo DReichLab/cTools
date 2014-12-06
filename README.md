@@ -32,6 +32,7 @@ by command "Samtools") to run uncompress.pl properly.
 uncompress.pl uncompress the `*.ccomp.fa.gz` and `*.ccompmask.fa.gz` files.
 ```
 Usage: uncompress.pl <reference.fa> <sample.ccomp.fa.gz> (compressed hetfa file)
+
 Inputs: .ccomp.fa.gz, .ccompmask.fa.gz
 Outputs: .fa (uncompressed hetfa file), .fa.fai, .mask.fa (uncompressed mask file), .mask.fa.fai
 ```
@@ -40,27 +41,30 @@ Outputs: .fa (uncompressed hetfa file), .fa.fai, .mask.fa (uncompressed mask fil
 required by uncompress.pl.
 
 ### 2. cascertain
-cascertain pulls down the SNPs that match the ascertain criterion.
+cascertain pulls down the SNPs that match the ascertain rule(s).
 
 ```
-Usage: cascertain -p parfile [options]
+Usage:   cascertain -p <parameter file> [options]
 
-Options: -V    verbose
-         -v    show version information.
-         -?    show the instruction.
+Options:
+  -d	directory of the data files (Please set this parameter, if you do not set .dblist files. If this parameter is used to give the data file location, .dblist files will not be used.)
+  -V	Print more information while the program is running.
+  -v	Show version information.
+  -?    show the instruction.
 
-Inputs: criteria to ascertain SNP.
+Input: parameter_file
 Outputs: .snp file (Reich lab format)
 ```
 
-Sample parfile:
+Sample parameter_file:
 
 ```
 snpname: ssout.snp
 ascertain: S_Yoruba-1::1:2,Altai::1:1;S_Yoruba-1::1:2,Denisova::1:1
 noascertain: Altai::1:2,Denisova::1:2
 ```
-In the above sample parfile,
+In the above sample parameter_file,
+
 snpname: the output .snp file.
 
 ascertain: There is a mini-language for ascertainment.  Allele 1 = derived, 0 =
@@ -71,7 +75,7 @@ This means we require sample to have a derived allele(s) out of b. a is the
 number of derived alleles; b is the total number of alleles in the sample.
 
 noascertain: has the same syntax.   If this "hits" then the SNP is rejected.
-Thus the example above means ascertain if `S_Yoruba_1` is a het and either
+Thus the example above means ascertain (out put the SNP) if `S_Yoruba_1` is a het and either
 Altai or Denisova has a derived allele (chosen at random) EXCEPT don't
 ascertain if both Altai and Denisova are hets.
 
@@ -83,30 +87,40 @@ A full parameter list of the parfile:
 | lopos         | the beginning coordinate of the region [default: the beginning of the chromosome] |
 | hipos         | the ending coordinate of the region [default: the end of the chromosome] |
 | snpname       | the output snp file name (.snp) |
-| minfilterval  | the base quality threshold for taking the genotype information; The,quality values are in the mask file. C team has base quality in range,(0-9) or no value (N/?) => don't use. Select bases with minfilterval: 3 (say). This selects bases with base quality >=3. [1 is default and,recommended for most applications]. Note that the extended C-team files,such as Altai have manifesto filters (made in Leipzig) that are just 0, 1. If you are using extended C-team do not set minfilterval. |
-| ascertain     | ascertain criteria  |
-| noascertain   | rejection criteria  |
-| dbhetfa       | table of hetfa files (.dblist); [default: `/home/mz128/cteam/dblist/,hetfa_postmigration.dblist`]  |
-| dbmask        | table of mask files (.dblist); [default: `/home/mz128/cteam/dblist/,mask_postmigration.dblis`]  |
+| minfilterval  | the base quality threshold for taking the genotype information; The,quality values are in the mask file. C team has base quality in range,(0-9) or no value (N/?) => don't use. Select bases with minfilterval: 3 (say). This selects bases with base quality >=3. [1 is default and,recommended for most applications]. Note that the extended C-team files, such as Altai have manifesto filters (made in Leipzig) that are just 0, 1. If you are using extended C-team do not set minfilterval. |
+| ascertain     | If the SNP matches the rule(s) here, this SNP will be out put.  |
+| noascertain   | If the SNP matches the rule(s) here, it will NOT be out put.  |
+| dbhetfa       | .dblist file that specify the hetfa file, refrence.fa and chimp.fa location. If the -d option is not used, this parameter is mandatory.  |
+| dbmask        | .dblist file that specify the mask file location. If the -d option is not used, this parameter is mandatory.|
 | transitions   | work on transitions; [default: Yes]  |
 | transversions | work on transversions; [default: Yes] |
 |  minchrom:	| the beginning chromosome |
 |  maxchrom:	| the ending chromosome |
+|pagesize|cascertain "pages" through the genome in chunks of size pagesize bases. The default is 20M bases, but this can be overwritten.  Larger pages will run faster (and use more memory).|
+|seed|For hets and some ascertainments a random allele must be chosen.  This is picked be a pseudo-random generator.  Set seed:  SEED where SEED is a generator if you wish the runs to be reproducible.|
 
 Notes: You can write comments in the parameter file by `#comments`.
 
-### 3. cpulldown  -p parfile [options]
+### 3. cpulldown
+cpulldown out puts the genotypes of the given individuls at the given SNP loci from a set of bams.
 
-options:
- -V	verbose
- -c	checkmode
- -v	Show version information.
- -? 	Show the instruction.
+```
+Usage:   cpulldown -p <parameter file> [options]
+
+Options:
+  -d  directory of the data files (Please set this parameter, if you do not set .dblist files. If this parameter is used to give the data file location, .dblist files will not be used.)
+  -V  Print more information while the program is running.
+  -c  checkmode
+  -v  Show version information.
+  -?  Show the instruction.
 
 
-Inputs: .snp file, .ind file (Reich lab format)
+Inputs: parameter_file, .snp file, .ind file (Reich lab format)
+Outputs: .snp file, .ind file, .geno file
 
-Sample parfile
+```
+
+Sample parameter_file:
 
 ```
 D1:          /home/np29/biology/cteam/mixdir
@@ -125,7 +139,7 @@ have used.  indivname should be a .ind file (Reich lab format). Any .snp file
 is OK here, it needn't be output from cascertain.
 
 
-A full parameter list of the parfile:
+A full parameter list of the parameter_file:
 
 | parameter       | description        |
 |-----------------|--------------------|
@@ -145,12 +159,68 @@ Notes: Running time: Linear in number of samples in indivname.  10 samples pull 
 in about 1 hour on orchestra.
 
 ### 4. cpoly
-DOCUMENTATION NEEDED
+cpoly pulls down all the heterozygote SNPs from one or multiple bams. In default mode only bases with no  missing
+data are considered, so you need to be careful if you use many samples.
+
+```
+Usage:   cpoly -p <parameter file> [options]
+
+Options:
+  -d	directory of the data files (Please set this parameter, if you do not set .dblist files. If this parameter is used to give the data file location, .dblist files will not be used.)
+  -V	Print more information while the program is running.
+  -v	Show version information.
+  -? 	Show the instruction.
+
+Inputs: parameter_file, .ind file
+Outputs:  .ind file, .snp file, .geno file
+```
+
+Sample parameter_file:
+
+```
+D1:          /home/mz128/cteam/mixdir
+D2:          .
+S2:           qpoly2
+indivname:       D1/mix1.ind
+indivoutname:     D2/S2.ind
+snpoutname:       D2/S2.snp
+genooutname:     D2/S2.geno
+##polarize:         Href
+## If this is used Href must be present in indivname file
+##chrom:            24
+###  23 = X 24 = Y 90 = MT
+##lopos:            46300000
+##hipos:            46610000
+minfilterval:       1
+allowmissing:          NO
+## default YES
+allowhets:          NO
+## default YES;  may be useful for Male X, Y
+## transversions:   YES
+## transitions:     YES
+## dbhetfa:
+## dbmask:
+```
+
+A full parameter list of the parameter_file:
+
+| parameter       | description        |
+|-----------------|--------------------|
+| snpname         | input .snp file    |
+| indivname       | input .ind file    |
+| indivoutname    | output .ind file   |
+| snpoutname      | output .snp file   |
+| genotypeoutname | output .geno file  |
+| outputformat    | output format      |
+| minfilterval    | similar to the minfilterval of  cascertain, but [default is 0] |
+|  minchrom:	| the beginning chromosome
+|  maxchrom:	| the ending chromosome
+
 
 ##Related file formats
 
 <!--
 Written by Nick on 6/15/14
 Revised by Mengyao Zhao
-Last revision: 11/26/14
+Last revision: 12/05/14
 -->
