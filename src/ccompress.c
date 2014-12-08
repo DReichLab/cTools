@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <nicksam.h>
 #include <getpars.h>
+#include <ctype.h>
 #include "bam.h"
 #include "faidx.h"
 

@@ -2,7 +2,7 @@
 * cpulldown.c:	get the genotypes of the given individuls at the given SNP loci from a set of bams
 * Author: Nick Patterson
 * Revised by: Mengyao Zhao
-* Last revise date: 2014-12-04
+* Last revise date: 2014-12-08
 * Contact: mengyao_zhao@hms.harvard.edu
 */
 
@@ -328,7 +328,7 @@ void readcommands(int argc, char **argv)
    getstring(ph, "indivname:", &indivname) ;
    getstring(ph, "indivoutname:", &indoutfilename) ; /* changed 11/02/06 */
    getstring(ph, "snpoutname:", &snpoutfilename) ; /* changed 11/02/06 */
-   getstring(ph, "genotypeoutname:", &genooutfilename) ; /* changed 11/02/06 */
+   getstring(ph, "genooutname:", &genooutfilename) ; /* changed 11/02/06 */
    getstring(ph, "outputformat:", &omode) ;  
    getint(ph, "minchrom:", &minchrom) ;
    getint(ph, "maxchrom:", &maxchrom) ;

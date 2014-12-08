@@ -684,7 +684,7 @@ int getiub(char *cc, char *ccmask, FATYPE **fainfo, char *reg, int pos)
 
   ++ncnt ;
   if (ncnt == 1) { 
-   printf("zz pos: %d %d %d\n", cc, ccmask) ;
+   printf("zz pos: %s %s\n", cc, ccmask) ;
    for (k=0; k<npops; ++k) { 
     fapt = fainfo[k] ;
     printfapt(fapt) ;
@@ -894,7 +894,7 @@ void printfapt(FATYPE *fapt)
   char cc ;
 
   printf("fapt: %s %s\n",  fapt->faname, fapt->alias) ;
-  printf("%x %d %d n", fapt -> fai, fapt -> lopos, fapt -> hipos) ;
+  printf("%p %d %d n", fapt -> fai, fapt -> lopos, fapt -> hipos) ;
   printf("len: %d rlen: %d\n", fapt -> len, fapt -> rlen) ;
   printf("mask: %s %d\n", fapt -> famask, fapt -> mlen) ;
   printnl() ;

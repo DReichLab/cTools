@@ -83,7 +83,7 @@ A full parameter list of the parfile:
 
 | parameter     | description |
 |---------|--------------------------------------------------|
-| regname       | chromosome name [default: all the chromosomes] |
+| chrom       | chromosome name [default: all the chromosomes] |
 | lopos         | the beginning coordinate of the region [default: the beginning of the chromosome] |
 | hipos         | the ending coordinate of the region [default: the end of the chromosome] |
 | snpname       | the output snp file name (.snp) |
@@ -147,8 +147,8 @@ A full parameter list of the parameter_file:
 | indivname       | input .ind file    |
 | indivoutname    | output .ind file   |
 | snpoutname      | output .snp file   |
-| genotypeoutname | output .geno file  |
-| outputformat    | output format      |
+| genooutname | output .geno file  |
+| outputformat    | [eigenstrat]      |
 | minfilterval    | similar to the minfilterval of  cascertain, but [default is 0] |
 |  minchrom:	| the beginning chromosome
 |  maxchrom:	| the ending chromosome
@@ -159,7 +159,7 @@ Notes: Running time: Linear in number of samples in indivname.  10 samples pull 
 in about 1 hour on orchestra.
 
 ### 4. cpoly
-cpoly pulls down all the heterozygote SNPs from one or multiple bams. In default mode only bases with no  missing
+cpoly pulls down all the SNP sites that are polymorphic in sample list from one or multiple bams. In default mode only bases with no  missing
 data are considered, so you need to be careful if you use many samples.
 
 ```
@@ -206,21 +206,96 @@ A full parameter list of the parameter_file:
 
 | parameter       | description        |
 |-----------------|--------------------|
-| snpname         | input .snp file    |
 | indivname       | input .ind file    |
 | indivoutname    | output .ind file   |
 | snpoutname      | output .snp file   |
-| genotypeoutname | output .geno file  |
-| outputformat    | output format      |
+| genooutname | output .geno file  |
 | minfilterval    | similar to the minfilterval of  cascertain, but [default is 0] |
-|  minchrom:	| the beginning chromosome
-|  maxchrom:	| the ending chromosome
-
+| chrom       | chromosome name [default: all the chromosomes] |
+|  minchrom:	| the beginning chromosome|
+|  maxchrom:	| the ending chromosome|
+| lopos         | the beginning coordinate of the region [default: the beginning of the chromosome] |
+| hipos         | the ending coordinate of the region [default: the end of the chromosome] |
+| dbhetfa       | .dblist file that specify the hetfa file, refrence.fa and chimp.fa location. If the -d option is not used, this parameter is mandatory.  |
+| dbmask        | .dblist file that specify the mask file location. If the -d option is not used, this parameter is mandatory.|
+|pagesize|cascertain "pages" through the genome in chunks of size pagesize bases. The default is 20M bases, but this can be overwritten.  Larger pages will run faster (and use more memory).|
+| transitions   | work on transitions; [default: Yes]  |
+| transversions | work on transversions; [default: Yes] |
+| allowmissing| The output may contain sites that for some samples the data are missing.|
+| allowhet | The output may contain sites that for some samples the alleles are hetrozygote.|
+|polarize| The polarize parameter is optional.  If present the parameter should be a sample name present in the indivname file. Then only homozygotes of this sample are considered, and the first allele of any snp is the base for the poliarize sample. As an example: "polarize: Href", the first allele of every snp in snpoutname will be the Href allele. Usually the polarize sample will be a pseudo-diploid such as Href or Chimp. |
 
 ##Related file formats
+###1. .ind file
+example.ind:
+```
+#FullyPublicGeneral
+Altai   F   Altai
+Denisova    F   Denisovan
+Loschbour   M   WHG
+Stuttgart   F   LBK
+```
+- Every thing after '#' is comment.
+- 1st column: sample name
+- 2nd column: gender
+- 3rd column: population
+
+###2. .snp file
+example.snp:
+```
+X:21_15838960    21        0.158390        15838960 C T
+X:21_16081858    21        0.160819        16081858 T C
+X:21_16495307    21        0.164953        16495307 G A
+...
+```
+- 1st column: name of the SNP site (if the SNP site is in DBSNP: DBSNP name; else: arbitrary name)
+- 2nd column: chromosome name
+- 3rd column: genetic location
+- 4th column: coordinate
+- 5th column: base allele
+- 6th column: derived allele
+
+###3. .geno file
+example.geno
+```
+00002
+00002
+22220
+...
+```
+- .geno file is used together with .ind file and .snp file.
+- The count of columns in .geno file is the count of individuals in .ind file. From left to right, each column of .geno corresponds to one individual (from top to bottom) in .ind file.
+- The count of lines in .geno file is the count of SNP sites in .snp file. Each line of .geno corresponds to one line in .snp file.
+- Each number in .geno denotes the count of base alleles (the allele of the 5th column of .snp file) of the corresponding individual at the corresponding SNP site.
+
+###4. .dblist
+
+hetfa.example.dblist:
+```
+Href    -   /home/mz128/cteam/usr/data/Href.fa
+Chimp   -   /home/mz128/cteam/usr/data/Chimp.fa
+S_Albanian-1    -   /home/mz128/cteam/usr/data/S_Albanian-1.fa
+S_Dai-1 -   /home/mz128/cteam/usr/data/S_Dai-1.fa
+S_Yoruba-1  -   /home/mz128/cteam/usr/data/S_Yoruba-1.fa
+```
+- 1st column: sample name
+- 2nd column: -
+- 3rd column: location of the hetfa files (/absolute_path/sample.fa)
+
+mask.example.dblist:
+```
+Href    -   NULL
+Chimp   -   NULL
+S_Albanian-1    -   /home/mz128/cteam/usr/data/S_Albanian-1.filter.fa
+S_Dai-1 -   /home/mz128/cteam/usr/data/S_Dai-1.filter.fa
+S_Yoruba-1  -   /home/mz128/cteam/usr/data/S_Yoruba-1.filter.fa
+```
+- The 1st and 2nd columns are the same as the .dblist file for hetfa files.
+- For chimp and human references - 3rd column: NULL
+- For samples - 3rd column: location of the mask files (/absolute_path/sample.filter.fa)
 
 <!--
 Written by Nick on 6/15/14
 Revised by Mengyao Zhao
-Last revision: 12/05/14
+Last revision: 12/08/14
 -->
