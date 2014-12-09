@@ -17,8 +17,10 @@ https://github.com/mengyao/cTools
 
 ##Compile cTools
 In the src floder:
+
 1. `make clean`
 2. `make`
+3. `make install`
 
 ##Run cTools
 
