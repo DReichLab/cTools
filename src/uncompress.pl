@@ -18,7 +18,7 @@ if ($ARGV[1] =~ /(\w+\/)?(\S+)\.ccomp\.fa\.gz/) {
 	warn "Your uncompressed files will be uncompress.fa, uncompress.fai, uncompress.filter.fa and uncompress.filter.fai\n";
 }
 
-my $file = &gwhich ("uncomp") || die;
+my $file = &gwhich ("uncompress") || die;
 
 if (defined $1) {
 	system("$file $ARGV[0] $ARGV[1] > $1$sample.fa");
