@@ -222,7 +222,6 @@ A full parameter list of the parameter_file:
 | transitions   | work on transitions; [default: Yes]  |
 | transversions | work on transversions; [default: Yes] |
 | allowmissing| The output may contain sites that for some samples the data are missing.|
-| allowhet | The output may contain sites that for some samples the alleles are hetrozygote.|
 |polarize| The polarize parameter is optional.  If present the parameter should be a sample name present in the indivname file. Then only homozygotes of this sample are considered, and the first allele of any snp is the base for the poliarize sample. As an example: "polarize: Href", the first allele of every snp in snpoutname will be the Href allele. Usually the polarize sample will be a pseudo-diploid such as Href or Chimp. |
 
 ##Related file formats

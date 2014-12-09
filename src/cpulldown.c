@@ -451,7 +451,7 @@ int getfalist(char **poplist, int npops, char *dbfile, char **iublist)
    }
     sx = spt[2] ;
     tt = strcmp(sx, "NULL") ; 
-    if (tt = 0) {  
+    if (tt == 0) {  
      iublist[t] = NULL ;
     }
     else iublist[t] = strdup(sx) ;
@@ -504,7 +504,7 @@ void printfapt(FATYPE *fapt)
   char cc ;
 
   printf("fapt: %s %s\n",  fapt->faname, fapt->alias) ;
-  printf("%x %d %d n", fapt -> fai, fapt -> lopos, fapt -> hipos) ;
+  printf("%p %d %d n", fapt -> fai, fapt -> lopos, fapt -> hipos) ;
   printf("len: %d rlen: %d\n", fapt -> len, fapt -> rlen) ;
   printf("mask: %s %d\n", fapt -> famask, fapt -> mlen) ;
   printnl() ;

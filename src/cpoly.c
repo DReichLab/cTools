@@ -447,7 +447,7 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
       len = hi-lo + 1 ;
       ZALLOC(fapt -> rstring, len+1, char) ;
       strncpy(fapt -> rstring, ttfasta+lo-1, len) ; // indexing is base 1
-      fapt -> rstring[len] == CNULL  ;
+      fapt -> rstring[len] = CNULL  ;
       freestring(&ttfasta) ;
       fapt -> regname = strdup(reg) ;
       fapt -> len = len ;
@@ -558,7 +558,7 @@ int getiub(char *cc, char *ccmask, FATYPE **fainfo, char *reg, int pos)
    lastlo = MAX(lastlo, lopos) ;
    lasthi = MAX(lasthi, hipos) ;
    loadfa(poplist, npops, &fainfo, regname, lastlo, lasthi)  ;
-   printf("newpage: %d %x %d %d\n", pos, topheap(), lastlo, lasthi) ;
+   printf("newpage: %d %p %d %d\n", pos, topheap(), lastlo, lasthi) ;
    fflush(stdout) ;
   }
 
@@ -784,7 +784,7 @@ void printfapt(FATYPE *fapt)
   char cc ;
 
   printf("fapt: %s %s\n",  fapt->faname, fapt->alias) ;
-  printf("%x %d %d n", fapt -> fai, fapt -> lopos, fapt -> hipos) ;
+  printf("%p %d %d n", fapt -> fai, fapt -> lopos, fapt -> hipos) ;
   printf("len: %d rlen: %d\n", fapt -> len, fapt -> rlen) ;
   printf("mask: %s %d\n", fapt -> famask, fapt -> mlen) ;
   printnl() ;

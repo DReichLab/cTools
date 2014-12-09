@@ -1,7 +1,6 @@
 HOMEL=$(PWD)
 TOP=./bin
 ## binary for install  
-# DEBUG_OPTIONS= -g -pg
 DEBUG_OPTIONS= -g #-pg
 BIN=$(HOMEL)/bin
 PERLDIR=$(HOMEL)/perlsrc
@@ -15,16 +14,16 @@ CFLAGS= -g  -DHAVE_CONFIG_H -I. -I$(IDIR)  -Wimplicit-int \
    -L. -lm  -g -D_IOLIB=2 -O3 
 
 
-OBJ=strsubs.o sortit.o vsubs.o statsubs.o linsubs.o getpars.o xsearch.o gauss.o	gds.o
+OBJ= nicklib/strsubs.o nicklib/sortit.o nicklib/vsubs.o nicklib/statsubs.o nicklib/linsubs.o nicklib/getpars.o nicklib/xsearch.o nicklib/gauss.o	nicklib/gds.o
 TWTAB=\"$(HOMEL)/tables/twtable\"
 
 ##statsubs.o:     tables	statsubs.c
 ##	$(CC)  $(CFLAGS) -DTWTAB=$(TWTAB) -o statsubs.o statsubs.c
 
-sam_OBJ = bam.o bam_aux.o bam_import.o bam_index.o \
-				   bam_lpileup.o bam_maqcns.o bam_mate.o bam_md.o bam_pileup.o \
-				   bam_plcmd.o bam_rmdup.o bam_sort.o bam_stat.o bam_rmdupse.o \
-				   bam_tview.o bgzf.o faidx.o glf.o kstring.o razf.o sam.o sam_view.o 
+sam_OBJ = samtools_api/bam.o samtools_api/bam_aux.o samtools_api/bam_import.o samtools_api/bam_index.o \
+				   samtools_api/bam_lpileup.o samtools_api/bam_maqcns.o samtools_api/bam_mate.o samtools_api/bam_md.o samtools_api/bam_pileup.o \
+				   samtools_api/bam_plcmd.o samtools_api/bam_rmdup.o samtools_api/bam_sort.o samtools_api/bam_stat.o samtools_api/bam_rmdupse.o \
+				   samtools_api/bam_tview.o samtools_api/bgzf.o samtools_api/faidx.o samtools_api/glf.o samtools_api/kstring.o samtools_api/razf.o samtools_api/sam.o samtools_api/sam_view.o 
 
 
 IDIR=$(HOMEL)/include  
@@ -91,7 +90,9 @@ dirs:
 	cp  *.h  $(IDIR)
 
 clean: 
-	rm -f *.o 
+	rm -f *.o
+	rm -f samtools_api/*.o 
+	rm -f nicklib/*.o 
 	rm -f core
 	rm -f libnick.a
 	rm -f $(PROGS)
