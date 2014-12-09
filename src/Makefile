@@ -66,7 +66,7 @@ all: $(PROGS)
 
 install:	all	
 	mkdir -p $(TOP)
-	cp $(PROGS) $(TOP)
+	cp $(PROGS) uncompress.pl $(TOP)
 
 uninstall:
 	rm -rf $(NLIB) 

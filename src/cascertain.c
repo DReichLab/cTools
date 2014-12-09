@@ -2,7 +2,7 @@
 * cascertain.c: Pull down the SNPs that match the ascertain criterion.
 * Author: Nick Patterson
 * Revised by: Mengyao Zhao
-* Last revise date: 2014-12-05
+* Last revise date: 2014-12-09
 * Contact: mengyao_zhao@hms.harvard.edu
 */
 
@@ -239,6 +239,7 @@ int checkasc1(ASC *ascpt, int *cnt, int *cnt1)
  }
  return YES ;
 }
+
 void mkcnt1(int *cnt1, int *cnt2, int npops, char *cc, char cbase, char *regname, int pos) 
 // deterministic hash -> mapdown hets   cb[x]  
 {
@@ -264,6 +265,7 @@ void mkcnt1(int *cnt1, int *cnt2, int npops, char *cc, char cbase, char *regname
    cnt1[k] = (2-v)/2 ;
   }
 }
+
 int checkasc(ASC **asct, int nasct, char *cc, char *ccmask, char *pc1, char *pc2, char *regname, int pos) 
 // regname, pos used for hash to find single allele of het
 {
@@ -696,7 +698,6 @@ void readcommands(int argc, char **argv)
 	printf("version: %s\n", VERSION) ; 
 	break; 
 
-
       case '?':
 	default:
 	exit(usage());
@@ -868,7 +869,6 @@ int fvalid(char cm)
   if (t<minfilterval) return NO ;
   return YES ; 
 }
-
 
 char fixval(char iub, char cm) 
 {
