@@ -28,7 +28,7 @@ sam_OBJ = samtools_api/bam.o samtools_api/bam_aux.o samtools_api/bam_import.o sa
 
 IDIR=$(HOMEL)/include  
 
-PROGS=cpulldown cpoly cascertain ccompress uncompress
+PROGS=cpulldown cpoly cascertain ccompress puncompress
 
 Q1I=cpulldown 
 Q1IO=cpulldown.o mcio.o admutils.o  $(sam_OBJ) $(OBJ)
@@ -56,7 +56,7 @@ Q4IO=ccompress.o $(sam_OBJ) $(OBJ)
 $(Q4I): nicklib $(Q4IO) 
 	gcc -o $(Q4I) $(Q4IO)  -lm -lz -lncurses 
 
-Q5I=uncompress 
+Q5I=puncompress 
 Q5IO=uncomp.o $(sam_OBJ) $(OBJ)
 
 $(Q5I): nicklib $(Q5IO) 

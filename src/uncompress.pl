@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #This program is used to uncompress the compressed hetfa and mask files.  
-#by Mengyao Zhao, 2014-12-05
+#by Mengyao Zhao, 2014-12-09
 
 use strict;
 use warnings;
@@ -18,18 +18,28 @@ if ($ARGV[1] =~ /(\w+\/)?(\S+)\.ccomp\.fa\.gz/) {
 	warn "Your uncompressed files will be uncompress.fa, uncompress.fai, uncompress.filter.fa and uncompress.filter.fai\n";
 }
 
-my $file = &gwhich ("uncompress") || die;
+my $file = &gwhich ("puncompress") || die;
 
 if (defined $1) {
-	system("$file $ARGV[0] $ARGV[1] > $1$sample.fa");
+	my $name = $1.$sample;
+	my $state = $file." ".$ARGV[0]." ".$ARGV[1]." > ".$name.".fa";
+	system($state);
+	&command($name);
 } else {
-	system("$file $ARGV[0] $ARGV[1] > $sample.fa");
+	my $state = $file." ".$ARGV[0]." ".$ARGV[1]." > ".$sample.".fa";
+#warn "$state\n";
+	system($state);
+	&command($sample);
 }
-system("samtools faidx $sample.fa");
-#system("gunzip -f $sample.ccompmask.fa.gz");
-system ("mv $sample.ccompmask.fa $sample.filter.fa");
-system("samtools faidx $sample.filter.fa");
-system("rm $sample.ccomp.fa");
+
+sub command {
+	my $name = shift;
+	system("samtools faidx $name.fa");
+	system("gunzip -f $name.ccompmask.fa.gz");
+	system ("mv $name.ccompmask.fa $name.filter.fa");
+	system("samtools faidx $name.filter.fa");
+	system("rm $name.ccomp.fa.gz");
+}
 
 sub which
 {
@@ -67,7 +77,7 @@ sub gwhich {
 sub dirname {
 	my $prog = shift;
 	return '.' if (!($prog =~ /\//));
-	$prog =~ s/\/[^\s\/]$//g;
+	$prog =~ s/\/[^\s\/]+$//g;
 	return $prog;
 }
 
