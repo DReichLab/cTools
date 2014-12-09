@@ -26,9 +26,10 @@ if (defined $1) {
 	system("$file $ARGV[0] $ARGV[1] > $sample.fa");
 }
 system("samtools faidx $sample.fa");
-system("gunzip -f $sample.ccompmask.fa.gz");
-system ("mv $sample.ssompmask.fa $sample.filter.fa");
+#system("gunzip -f $sample.ccompmask.fa.gz");
+system ("mv $sample.ccompmask.fa $sample.filter.fa");
 system("samtools faidx $sample.filter.fa");
+system("rm $sample.ccomp.fa");
 
 sub which
 {
