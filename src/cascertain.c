@@ -519,7 +519,7 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
   for (k=0; k<numfalist ; ++k) {
      fapt = fainfo[k] ;
      ttfasta = myfai_fetch(fapt -> fai, reg, &len) ; 
-     if (len==0) fatalx("bad fetch %s %s\n", fapt -> faname, reg) ;
+     if (len==0) fatalx("bad fetch %s %s\n", fapt -> faname, reg) ; 	// fetch fai
       fapt -> rlen = len ;
       lo = MAX(1, lopos) ;
       hi = MIN(len, hipos) ;
