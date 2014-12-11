@@ -17,8 +17,10 @@ https://github.com/mengyao/cTools
 
 ##Compile cTools
 In the src floder:
+
 1. `make clean`
 2. `make`
+3. `make install`
 
 ##Run cTools
 
@@ -83,7 +85,7 @@ A full parameter list of the parfile:
 
 | parameter     | description |
 |---------|--------------------------------------------------|
-| chrom       | chromosome name [default: all the chromosomes] |
+| chrom       | chromosome name; The value can be one of [1 - 22, X]. If chrom is set, please do not set minchrom or maxchrom. [default: all the chromosomes] |
 | lopos         | the beginning coordinate of the region [default: the beginning of the chromosome] |
 | hipos         | the ending coordinate of the region [default: the end of the chromosome] |
 | snpname       | the output snp file name (.snp) |
@@ -94,7 +96,7 @@ A full parameter list of the parfile:
 | dbmask        | .dblist file that specify the mask file location. If the -d option is not used, this parameter is mandatory.|
 | transitions   | work on transitions; [default: Yes]  |
 | transversions | work on transversions; [default: Yes] |
-|  minchrom:	| the beginning chromosome |
+|  minchrom:	| the beginning chromosome; If minchrom and maxchrom are set, please do not set chrom. |
 |  maxchrom:	| the ending chromosome |
 |pagesize|cascertain "pages" through the genome in chunks of size pagesize bases. The default is 20M bases, but this can be overwritten.  Larger pages will run faster (and use more memory).|
 |seed|For hets and some ascertainments a random allele must be chosen.  This is picked be a pseudo-random generator.  Set seed:  SEED where SEED is a generator if you wish the runs to be reproducible.|
@@ -188,14 +190,12 @@ genooutname:     D2/S2.geno
 ##polarize:         Href
 ## If this is used Href must be present in indivname file
 ##chrom:            24
-###  23 = X 24 = Y 90 = MT
 ##lopos:            46300000
 ##hipos:            46610000
 minfilterval:       1
 allowmissing:          NO
 ## default YES
 allowhets:          NO
-## default YES;  may be useful for Male X, Y
 ## transversions:   YES
 ## transitions:     YES
 ## dbhetfa:
@@ -211,8 +211,8 @@ A full parameter list of the parameter_file:
 | snpoutname      | output .snp file   |
 | genooutname | output .geno file  |
 | minfilterval    | similar to the minfilterval of  cascertain, but [default is 0] |
-| chrom       | chromosome name [default: all the chromosomes] |
-|  minchrom:	| the beginning chromosome|
+| chrom       | chromosome name; The value can be one of [1 - 22, X, Y, MT]. If chrom is set, please do not set minchrom or maxchrom. [default: all the chromosomes] |
+|  minchrom:	| the beginning chromosome; If minchrom and maxchrom are set, please do not set chrom. |
 |  maxchrom:	| the ending chromosome|
 | lopos         | the beginning coordinate of the region [default: the beginning of the chromosome] |
 | hipos         | the ending coordinate of the region [default: the end of the chromosome] |

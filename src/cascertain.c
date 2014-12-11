@@ -2,7 +2,7 @@
 * cascertain.c: Pull down the SNPs that match the ascertain criterion.
 * Author: Nick Patterson
 * Revised by: Mengyao Zhao
-* Last revise date: 2014-12-09
+* Last revise date: 2014-12-11
 * Contact: mengyao_zhao@hms.harvard.edu
 */
 
@@ -38,6 +38,8 @@ int minfilterval = 1 ;
 
 int minchrom = 1 ;
 int maxchrom = 23 ;
+char *minch = NULL;
+char *maxch = NULL;
 int xchrom = -1 ;
 
 char *monoplistname = NULL ;
@@ -120,11 +122,21 @@ int main(int argc, char **argv)
  
  readcommands(argc, argv) ;
 
+	if (minch != NULL) {
+		if (minch[0] == 'X') minchrom = 23;
+		else minchrom = atoi(minch);
+		if (maxch[0] == 'X') maxchrom = 23;
+		else maxchrom = atoi(maxch);
+	}
+
+
  printf ("ascertain: %s reg: %s\n", ascstring, regname) ; 
  if (snpname != NULL) openit(snpname, &fff, "w") ;
  else fff = stdout ; 
  if (regname != NULL) { 
   if (regname[0] == 'X') xchrom = 23 ; 
+  //else if (regname[0] == 'Y') xchrom = 24 ;
+	//else if (!strcmp(regname, "MT")) xchrom = 25; 
   else xchrom = atoi(regname) ;
  }
 
@@ -140,6 +152,7 @@ int main(int argc, char **argv)
   }
  }
 
+	if (! ascstring) fatalx("No ascertain criterion. Please check your parameter file.\n");
  t = strlen(ascstring) ; 
  if (ascstring[t-1] == ';') ascstring[t] = CNULL ;
  nasc = setasc(ascstring, monosamplist, nmonosamps, monoval) ; // side effect set poplist npops
@@ -177,14 +190,17 @@ int main(int argc, char **argv)
 
  cc[npops] = CNULL ;
  ccmask[npops-1] = CNULL ; // don't test chimp
-
- for (chrom = minchrom; chrom <= maxchrom; ++chrom) {
+fprintf(stderr, "minchrom: %d\nxchrom: %d\nmaxchrom: %d\n", minchrom, xchrom, maxchrom);
+ for (chrom = minchrom; chrom <= maxchrom; ++chrom) { 
   if ((xchrom > 0) && (xchrom != chrom)) continue ;
   sprintf(ss, "%d", chrom) ;
   if (chrom == 23) strcpy(ss, "X") ;
+  //if (chrom == 24) strcpy(ss, "Y") ;
+  //if (chrom == 25) strcpy(ss, "MT") ;
   freestring(&regname) ;
-  regname = strdup(ss) ;
+  regname = strdup(ss);
   reg = regname ;
+fprintf(stderr, "reg: %s\n", reg);
 
   for (pos = lopos ; pos <= hipos; ++pos) { 
    t = getiub(cc, ccmask, fainfo, reg, pos)  ;  
@@ -716,7 +732,7 @@ void readcommands(int argc, char **argv)
 		if (! (iubfile && iubmaskfile))
 			fprintf(stderr, "Please use -d option to specify the directory of hetfa and mask files.\nAlternatively, please give values to dbhetfa and dbmask in the parameter file.\n");
 	}
-	
+//fprintf(stderr, "here, readcommands\n");	
    getstring(ph, "regname:", &regname) ;
    getstring(ph, "snpname:", &snpname) ;
    getint(ph, "pagesize:", &pagesize) ;
@@ -724,13 +740,16 @@ void readcommands(int argc, char **argv)
    getint(ph, "seed:", &seed) ;
    getstring(ph, "ascertain:", &ascstring) ;
    getstring(ph, "noascertain:", &noascstring) ;
-	
+//printf(stderr, "ascstring: %s\n", ascstring);	
    getint(ph, "transitions:", &t) ; if (t==YES) abxmode = 3 ;
    getint(ph, "transversions:", &t) ; if (t==YES) abxmode = 2 ;
    getint(ph, "abxmode:", &abxmode) ; 
-   getint(ph, "minchrom:", &minchrom) ;
-   getint(ph, "maxchrom:", &maxchrom) ;
-   getint(ph, "chrom:", &xchrom) ;
+  // getint(ph, "minchrom:", &minchrom) ;
+  // getint(ph, "maxchrom:", &maxchrom) ;
+   getstring(ph, "minchrom:", &minch) ;
+   getstring(ph, "maxchrom:", &maxch) ;
+  // getint(ph, "chrom:", &xchrom) ;
+   getstring(ph, "chrom:", &regname) ;
 
    getstring(ph, "monosamples:", &monoplistname) ;
    getint(ph, "monoval:", &monoval) ;
