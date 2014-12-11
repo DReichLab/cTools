@@ -534,7 +534,7 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
 
   for (k=0; k<numfalist ; ++k) {
      fapt = fainfo[k] ;
-     ttfasta = myfai_fetch(fapt -> fai, reg, &len) ; 
+     ttfasta = myfai_fetch(fapt -> fai, reg, &len) ;	// access hetfa file 
      if (len==0) fatalx("bad fetch %s %s\n", fapt -> faname, reg) ; 	// fetch fai
       fapt -> rlen = len ;
       lo = MAX(1, lopos) ;
@@ -732,7 +732,6 @@ void readcommands(int argc, char **argv)
 		if (! (iubfile && iubmaskfile))
 			fprintf(stderr, "Please use -d option to specify the directory of hetfa and mask files.\nAlternatively, please give values to dbhetfa and dbmask in the parameter file.\n");
 	}
-//fprintf(stderr, "here, readcommands\n");	
    getstring(ph, "regname:", &regname) ;
    getstring(ph, "snpname:", &snpname) ;
    getint(ph, "pagesize:", &pagesize) ;
@@ -740,15 +739,11 @@ void readcommands(int argc, char **argv)
    getint(ph, "seed:", &seed) ;
    getstring(ph, "ascertain:", &ascstring) ;
    getstring(ph, "noascertain:", &noascstring) ;
-//printf(stderr, "ascstring: %s\n", ascstring);	
    getint(ph, "transitions:", &t) ; if (t==YES) abxmode = 3 ;
    getint(ph, "transversions:", &t) ; if (t==YES) abxmode = 2 ;
    getint(ph, "abxmode:", &abxmode) ; 
-  // getint(ph, "minchrom:", &minchrom) ;
-  // getint(ph, "maxchrom:", &maxchrom) ;
    getstring(ph, "minchrom:", &minch) ;
    getstring(ph, "maxchrom:", &maxch) ;
-  // getint(ph, "chrom:", &xchrom) ;
    getstring(ph, "chrom:", &regname) ;
 
    getstring(ph, "monosamples:", &monoplistname) ;
