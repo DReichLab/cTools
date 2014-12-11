@@ -38,6 +38,8 @@ int minfilterval = 1 ;
 
 int minchrom = 1 ;
 int maxchrom = 23 ;
+char *minch = NULL;
+char *maxch = NULL;
 int xchrom = -1 ;
 
 char *monoplistname = NULL ;
@@ -120,6 +122,14 @@ int main(int argc, char **argv)
  
  readcommands(argc, argv) ;
 
+	if (minch != NULL) {
+		if (minch[0] == 'X') minchrom = 23;
+		else minchrom = atoi(minch);
+		if (maxch[0] == 'X') maxchrom = 23;
+		else maxchrom = atoi(maxch);
+	}
+
+
  printf ("ascertain: %s reg: %s\n", ascstring, regname) ; 
  if (snpname != NULL) openit(snpname, &fff, "w") ;
  else fff = stdout ; 
@@ -180,7 +190,7 @@ int main(int argc, char **argv)
 
  cc[npops] = CNULL ;
  ccmask[npops-1] = CNULL ; // don't test chimp
-
+fprintf(stderr, "minchrom: %d\nxchrom: %d\nmaxchrom: %d\n", minchrom, xchrom, maxchrom);
  for (chrom = minchrom; chrom <= maxchrom; ++chrom) { 
   if ((xchrom > 0) && (xchrom != chrom)) continue ;
   sprintf(ss, "%d", chrom) ;
@@ -190,6 +200,7 @@ int main(int argc, char **argv)
   freestring(&regname) ;
   regname = strdup(ss);
   reg = regname ;
+fprintf(stderr, "reg: %s\n", reg);
 
   for (pos = lopos ; pos <= hipos; ++pos) { 
    t = getiub(cc, ccmask, fainfo, reg, pos)  ;  
@@ -721,7 +732,7 @@ void readcommands(int argc, char **argv)
 		if (! (iubfile && iubmaskfile))
 			fprintf(stderr, "Please use -d option to specify the directory of hetfa and mask files.\nAlternatively, please give values to dbhetfa and dbmask in the parameter file.\n");
 	}
-fprintf(stderr, "here, readcommands\n");	
+//fprintf(stderr, "here, readcommands\n");	
    getstring(ph, "regname:", &regname) ;
    getstring(ph, "snpname:", &snpname) ;
    getint(ph, "pagesize:", &pagesize) ;
@@ -729,14 +740,16 @@ fprintf(stderr, "here, readcommands\n");
    getint(ph, "seed:", &seed) ;
    getstring(ph, "ascertain:", &ascstring) ;
    getstring(ph, "noascertain:", &noascstring) ;
-printf(stderr, "ascstring: %s\n", ascstring);	
+//printf(stderr, "ascstring: %s\n", ascstring);	
    getint(ph, "transitions:", &t) ; if (t==YES) abxmode = 3 ;
    getint(ph, "transversions:", &t) ; if (t==YES) abxmode = 2 ;
    getint(ph, "abxmode:", &abxmode) ; 
-   getint(ph, "minchrom:", &minchrom) ;
-   getint(ph, "maxchrom:", &maxchrom) ;
+  // getint(ph, "minchrom:", &minchrom) ;
+  // getint(ph, "maxchrom:", &maxchrom) ;
+   getstring(ph, "minchrom:", &minch) ;
+   getstring(ph, "maxchrom:", &maxch) ;
   // getint(ph, "chrom:", &xchrom) ;
-   getint(ph, "chrom:", &regname) ;
+   getstring(ph, "chrom:", &regname) ;
 
    getstring(ph, "monosamples:", &monoplistname) ;
    getint(ph, "monoval:", &monoval) ;

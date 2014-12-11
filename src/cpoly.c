@@ -35,6 +35,8 @@ int minfilterval = 1 ;
 int minchrom = 1 ;
 //int maxchrom = 24 ;
 int maxchrom = 25 ;
+char *minch = NULL;
+char *maxch = NULL;
 int xchrom = -1 ;
 
 char *polarid = NULL ;
@@ -379,7 +381,6 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
       for (k=0; k<npops; ++k) { 
         if (falist[k] == NULL) printf("no fasta file for: %s\n", poplist[k]) ;
       }
-      //fatalx("pop not found in fasta database\n") ;
       fatalx("Do not find the data files. Please use -d option or set dbhetfa and dbmask in your parameter file.\n") ;
    }
   // t = getfalist(poplist, npops, iubmaskfile, famasklist) ; 
@@ -457,7 +458,6 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
       hi = MIN(len, fapt -> hipos) ;
       len = hi-lo + 1 ;
       ZALLOC(fapt -> mstring, len+1, char) ;
-//    printf("zzmset %s %d %d %d\n", fapt -> alias, lo, hi, len) ;
       strncpy(fapt -> mstring, ttfasta+lo-1, len) ; // indexing is base 1
       fapt -> mstring[len] = CNULL  ;
       freestring(&ttfasta) ;
@@ -512,7 +512,6 @@ int getiub(char *cc, char *ccmask, FATYPE **fainfo, char *reg, int pos)
   if (strcmp(lastreg, regbuff) != 0) {
    newpage = YES ;
    newreg =  YES; 
-// printf("zznewreg %s :: %s\n", lastreg, regbuff) ;
    fflush(stdout) ;
   }
   else { 
@@ -535,16 +534,11 @@ int getiub(char *cc, char *ccmask, FATYPE **fainfo, char *reg, int pos)
   if (ncall == 1) newreg = YES ;
 
   if (newreg == YES) { 
-   
-//   printf("zznewrrr %s :: %s %d %d %d\n",lastreg, regbuff,  pos, lastlo, lasthi) ;  fflush(stdout) ;
    fflush(stdout) ;
    freestring(&regname) ;
 
    regname = strdup(regbuff)  ;  
    lastreg = strdup(regbuff)  ;  
-
-// set falen
-   
   }
 
   if (newpage == YES) { 
@@ -575,7 +569,6 @@ int getiub(char *cc, char *ccmask, FATYPE **fainfo, char *reg, int pos)
 
   ++ncnt ;
   if (ncnt == 1) { 
-// printf("zz pos: %d %d %d\n", cc, ccmask) ;
    for (k=0; k<npops; ++k) { 
     fapt = fainfo[k] ;
     printfapt(fapt) ;
@@ -650,8 +643,6 @@ void readcommands(int argc, char **argv)
    getint(ph, "minfilterval:", &minfilterval) ;
    getint(ph, "allowmissing:", &allowmissing) ;
    getint(ph, "allowhets:", &allowhets) ;
- //  getstring(ph, "dbhetfa:", &iubfile) ;
- //  getstring(ph, "dbmask:", &iubmaskfile) ;
    getint(ph, "transitions:", &t) ; if (t==YES) abxmode = 3 ;
    getint(ph, "transversions:", &t) ; if (t==YES) abxmode = 2 ;
    getint(ph, "abxmode:", &abxmode) ; 
