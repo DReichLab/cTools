@@ -190,14 +190,12 @@ genooutname:     D2/S2.geno
 ##polarize:         Href
 ## If this is used Href must be present in indivname file
 ##chrom:            24
-###  23 = X 24 = Y 90 = MT
 ##lopos:            46300000
 ##hipos:            46610000
 minfilterval:       1
 allowmissing:          NO
 ## default YES
 allowhets:          NO
-## default YES;  may be useful for Male X, Y
 ## transversions:   YES
 ## transitions:     YES
 ## dbhetfa:
