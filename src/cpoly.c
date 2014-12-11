@@ -131,7 +131,7 @@ int main(int argc, char **argv)
  else fff = stdout ; 
  if (genooutfilename != NULL) openit(genooutfilename, &ggg, "w") ;
 
-fprintf(stderr, "regname: %s\n", regname);
+//fprintf(stderr, "regname: %s\n", regname);
  if (regname != NULL) { 
   if (regname[0] == 'X') xchrom = 23 ; 
   else if (regname[0] == 'Y') xchrom = 24 ;
@@ -166,7 +166,7 @@ fprintf(stderr, "regname: %s\n", regname);
  }
  xnpops = npops+1  ;
 
-	fprintf (stderr, "xchrom1: %d\n", xchrom);
+//	fprintf (stderr, "xchrom1: %d\n", xchrom);
  if (xchrom > 0)  { 
   chrom = xchrom  ;
   sprintf(ss, "%d", chrom) ;
@@ -192,13 +192,12 @@ fprintf(stderr, "regname: %s\n", regname);
  ccmask[npops-1] = CNULL ; // don't test chimp
 
  nmono = npoly = 0 ;
-	fprintf (stderr, "xchrom2: %d\n", xchrom);
- for (chrom = minchrom; chrom <= maxchrom; ++chrom) { 	//FIXME
+//	fprintf (stderr, "xchrom2: %d\n", xchrom);
+ for (chrom = minchrom; chrom <= maxchrom; ++chrom) {
   if ((xchrom > 0) && (xchrom != chrom)) continue ;
   sprintf(ss, "%d", chrom) ;
   if (chrom == 23) strcpy(ss, "X") ;
   if (chrom == 24) strcpy(ss, "Y") ;
- // if (chrom == 90) strcpy(ss, "MT") ;
   if (chrom == 25) strcpy(ss, "MT") ;
   freestring(&regname) ;
   regname = strdup(ss) ;
