@@ -2,7 +2,7 @@
  * cpoly.c: This program is used to extract heterozygote SNPs from multiple samples
  * Author: Nick Patterson
  * Revised by: Mengyao Zhao
- * Last revise date: 2014-12-10
+ * Last revise date: 2014-12-11
  * Contact: mengyao_zhao@hms.harvard.edu 
  */
 
@@ -28,14 +28,13 @@ char *table_path = NULL;
 char *iubfile = NULL ;
 char *iubmaskfile = NULL ;
 char *regname = NULL ; 
-//char *iubfile = "/home/mz128/cteam/dblist/hetfa_postmigration.dblist" ;
-//char *iubmaskfile = "/home/mz128/cteam/dblist/mask_postmigration.dblist" ;
 char *parname = NULL ;
 int  pagesize = -1 ;  // page size for getiub
 int minfilterval = 1 ;
 
 int minchrom = 1 ;
-int maxchrom = 24 ;
+//int maxchrom = 24 ;
+int maxchrom = 25 ;
 int xchrom = -1 ;
 
 char *polarid = NULL ;
@@ -132,9 +131,11 @@ int main(int argc, char **argv)
  else fff = stdout ; 
  if (genooutfilename != NULL) openit(genooutfilename, &ggg, "w") ;
 
+fprintf(stderr, "regname: %s\n", regname);
  if (regname != NULL) { 
   if (regname[0] == 'X') xchrom = 23 ; 
-  if (regname[0] == 'Y') xchrom = 24 ; 
+  else if (regname[0] == 'Y') xchrom = 24 ;
+	else if (!strcmp(regname, "MT")) xchrom = 25; 
   else xchrom = atoi(regname) ;
  }
 
@@ -165,12 +166,13 @@ int main(int argc, char **argv)
  }
  xnpops = npops+1  ;
 
+	fprintf (stderr, "xchrom1: %d\n", xchrom);
  if (xchrom > 0)  { 
   chrom = xchrom  ;
   sprintf(ss, "%d", chrom) ;
   if (chrom == 23) strcpy(ss, "X") ;
-  if (chrom == 24) strcpy(ss, "Y") ;
-  if (chrom == 90) strcpy(ss, "MT") ;
+  else if (chrom == 24) strcpy(ss, "Y") ;
+  else if (chrom == 25) strcpy(ss, "MT") ;
  }
  else sprintf(ss, "%d", 22) ;
  regname = strdup(ss) ;
@@ -190,12 +192,14 @@ int main(int argc, char **argv)
  ccmask[npops-1] = CNULL ; // don't test chimp
 
  nmono = npoly = 0 ;
- for (chrom = minchrom; chrom <= maxchrom; ++chrom) {
+	fprintf (stderr, "xchrom2: %d\n", xchrom);
+ for (chrom = minchrom; chrom <= maxchrom; ++chrom) { 	//FIXME
   if ((xchrom > 0) && (xchrom != chrom)) continue ;
   sprintf(ss, "%d", chrom) ;
   if (chrom == 23) strcpy(ss, "X") ;
   if (chrom == 24) strcpy(ss, "Y") ;
-  if (chrom == 90) strcpy(ss, "MT") ;
+ // if (chrom == 90) strcpy(ss, "MT") ;
+  if (chrom == 25) strcpy(ss, "MT") ;
   freestring(&regname) ;
   regname = strdup(ss) ;
   reg = regname ;
@@ -206,11 +210,6 @@ int main(int argc, char **argv)
    if (t<0) continue ;
     
    t = checkpoly(cc, ccmask, &c1, &c2) ; 
-/**
-   q = ranmod(10000) ;
-// if (toupper(cc[0]) == 'Y') q = 0 ; 
-   if (q==0) printf("zzq %d %c %c %c %d\n", pos, cc[0], c1, c2, t) ;
-*/
 
    if (t==NO) continue ;
     if (abxmode != 0) {
@@ -219,13 +218,11 @@ int main(int argc, char **argv)
      t = abxok(abxkode, abxmode) ;
      if (t==NO) continue ;
     }
-// hit
    if (c1==c2) { 
     ++nmono ;
     continue ;
    }
    ++npoly ;
-// if (npoly<20) printf("zz %d %c %c %s\n",pos, c1, c2, cc) ;
    prints(fff, pos, c1, c2) ;
    printgg(ggg, cc, ccmask, c1, c2, npops) ;
  }}
@@ -661,7 +658,8 @@ void readcommands(int argc, char **argv)
    getint(ph, "abxmode:", &abxmode) ; 
    getint(ph, "minchrom:", &minchrom) ;
    getint(ph, "maxchrom:", &maxchrom) ;
-   getint(ph, "chrom:", &xchrom) ;
+   //getint(ph, "chrom:", &xchrom) ;
+   getstring(ph, "chrom:", &regname) ;
 	getstring(ph, "polarize:", &polarid) ;
    getstring(ph, "indivname:", &indivname) ;
    getstring(ph, "indivoutname:", &indoutfilename) ; /* changed 11/02/06 */

@@ -2,7 +2,7 @@
 * cascertain.c: Pull down the SNPs that match the ascertain criterion.
 * Author: Nick Patterson
 * Revised by: Mengyao Zhao
-* Last revise date: 2014-12-09
+* Last revise date: 2014-12-11
 * Contact: mengyao_zhao@hms.harvard.edu
 */
 
@@ -125,6 +125,8 @@ int main(int argc, char **argv)
  else fff = stdout ; 
  if (regname != NULL) { 
   if (regname[0] == 'X') xchrom = 23 ; 
+  if (regname[0] == 'Y') xchrom = 24 ;
+	if (!strcmp(regname, "MT")) xchrom = 90; 
   else xchrom = atoi(regname) ;
  }
 
@@ -178,7 +180,7 @@ int main(int argc, char **argv)
  cc[npops] = CNULL ;
  ccmask[npops-1] = CNULL ; // don't test chimp
 
- for (chrom = minchrom; chrom <= maxchrom; ++chrom) {
+ for (chrom = minchrom; chrom <= maxchrom; ++chrom) { 	// FIXME
   if ((xchrom > 0) && (xchrom != chrom)) continue ;
   sprintf(ss, "%d", chrom) ;
   if (chrom == 23) strcpy(ss, "X") ;
@@ -730,7 +732,8 @@ void readcommands(int argc, char **argv)
    getint(ph, "abxmode:", &abxmode) ; 
    getint(ph, "minchrom:", &minchrom) ;
    getint(ph, "maxchrom:", &maxchrom) ;
-   getint(ph, "chrom:", &xchrom) ;
+  // getint(ph, "chrom:", &xchrom) ;
+   getint(ph, "chrom:", &regname) ;
 
    getstring(ph, "monosamples:", &monoplistname) ;
    getint(ph, "monoval:", &monoval) ;
