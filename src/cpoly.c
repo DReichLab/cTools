@@ -127,13 +127,26 @@ int main(int argc, char **argv)
  hipos = 1000*1000*1000 ;
  lopos = 0 ;
  readcommands(argc, argv) ;
+
+fprintf(stderr, "minch: %s\n", minch);
+	if (minch != NULL) {
+		if (minch[0] == 'X') minchrom = 23;
+		else if (minch[0] == 'Y') minchrom = 24;
+		else if (!strcmp(minch, "MT")) minchrom = 25; 
+		else minchrom = atoi(minch);
+
+		if (maxch[0] == 'X') maxchrom = 23;
+		else if (maxch[0] == 'Y') maxchrom = 24;
+		else if (!strcmp(maxch, "MT")) maxchrom = 25; 
+		else maxchrom = atoi(maxch);
+	}
+
  if (indivname==NULL) fatalx("indivname: omitted\n") ;
 
  if (snpoutfilename != NULL) openit(snpoutfilename, &fff, "w") ;
  else fff = stdout ; 
  if (genooutfilename != NULL) openit(genooutfilename, &ggg, "w") ;
 
-//fprintf(stderr, "regname: %s\n", regname);
  if (regname != NULL) { 
   if (regname[0] == 'X') xchrom = 23 ; 
   else if (regname[0] == 'Y') xchrom = 24 ;
@@ -168,7 +181,6 @@ int main(int argc, char **argv)
  }
  xnpops = npops+1  ;
 
-//	fprintf (stderr, "xchrom1: %d\n", xchrom);
  if (xchrom > 0)  { 
   chrom = xchrom  ;
   sprintf(ss, "%d", chrom) ;
@@ -187,14 +199,14 @@ int main(int argc, char **argv)
    fapt = fainfo[k] ;
    printfapt(fapt) ;
   }
-
+fprintf(stderr, "here\n");
  ZALLOC(cc, xnpops, char) ; 
  ZALLOC(ccmask, xnpops, char) ; 
  cc[npops] = CNULL ;
  ccmask[npops-1] = CNULL ; // don't test chimp
 
  nmono = npoly = 0 ;
-//	fprintf (stderr, "xchrom2: %d\n", xchrom);
+	fprintf (stderr, "xchrom2: %d\n", xchrom);
  for (chrom = minchrom; chrom <= maxchrom; ++chrom) {
   if ((xchrom > 0) && (xchrom != chrom)) continue ;
   sprintf(ss, "%d", chrom) ;
@@ -204,6 +216,7 @@ int main(int argc, char **argv)
   freestring(&regname) ;
   regname = strdup(ss) ;
   reg = regname ;
+fprintf(stderr, "reg: %s\n", reg);
 
   for (pos = lopos ; pos <= hipos; ++pos) { 
    t = getiub(cc, ccmask, fainfo, reg, pos)  ;  
@@ -646,8 +659,10 @@ void readcommands(int argc, char **argv)
    getint(ph, "transitions:", &t) ; if (t==YES) abxmode = 3 ;
    getint(ph, "transversions:", &t) ; if (t==YES) abxmode = 2 ;
    getint(ph, "abxmode:", &abxmode) ; 
-   getint(ph, "minchrom:", &minchrom) ;
-   getint(ph, "maxchrom:", &maxchrom) ;
+   //getint(ph, "minchrom:", &minchrom) ;
+   //getint(ph, "maxchrom:", &maxchrom) ;
+   getstring(ph, "minchrom:", &minch) ;
+   getstring(ph, "maxchrom:", &maxch) ;
    //getint(ph, "chrom:", &xchrom) ;
    getstring(ph, "chrom:", &regname) ;
 	getstring(ph, "polarize:", &polarid) ;
