@@ -37,7 +37,7 @@ int  pagesize = 20*1000*1000 ;  // page size for getiub
 int minfilterval = 1 ;
 
 int minchrom = 1 ;
-int maxchrom = 23 ;
+int maxchrom = 25 ;
 int xchrom = -1 ;
 
 char *monoplistname = NULL ;
@@ -125,8 +125,8 @@ int main(int argc, char **argv)
  else fff = stdout ; 
  if (regname != NULL) { 
   if (regname[0] == 'X') xchrom = 23 ; 
-  if (regname[0] == 'Y') xchrom = 24 ;
-	if (!strcmp(regname, "MT")) xchrom = 90; 
+  else if (regname[0] == 'Y') xchrom = 24 ;
+	else if (!strcmp(regname, "MT")) xchrom = 25; 
   else xchrom = atoi(regname) ;
  }
 
@@ -142,6 +142,7 @@ int main(int argc, char **argv)
   }
  }
 
+	if (! ascstring) fatalx("No ascertain criterion. Please check your parameter file.\n");
  t = strlen(ascstring) ; 
  if (ascstring[t-1] == ';') ascstring[t] = CNULL ;
  nasc = setasc(ascstring, monosamplist, nmonosamps, monoval) ; // side effect set poplist npops
@@ -180,12 +181,14 @@ int main(int argc, char **argv)
  cc[npops] = CNULL ;
  ccmask[npops-1] = CNULL ; // don't test chimp
 
- for (chrom = minchrom; chrom <= maxchrom; ++chrom) { 	// FIXME
+ for (chrom = minchrom; chrom <= maxchrom; ++chrom) { 
   if ((xchrom > 0) && (xchrom != chrom)) continue ;
   sprintf(ss, "%d", chrom) ;
   if (chrom == 23) strcpy(ss, "X") ;
+  if (chrom == 24) strcpy(ss, "Y") ;
+  if (chrom == 25) strcpy(ss, "MT") ;
   freestring(&regname) ;
-  regname = strdup(ss) ;
+  regname = strdup(ss);
   reg = regname ;
 
   for (pos = lopos ; pos <= hipos; ++pos) { 
@@ -718,7 +721,7 @@ void readcommands(int argc, char **argv)
 		if (! (iubfile && iubmaskfile))
 			fprintf(stderr, "Please use -d option to specify the directory of hetfa and mask files.\nAlternatively, please give values to dbhetfa and dbmask in the parameter file.\n");
 	}
-	
+fprintf(stderr, "here, readcommands\n");	
    getstring(ph, "regname:", &regname) ;
    getstring(ph, "snpname:", &snpname) ;
    getint(ph, "pagesize:", &pagesize) ;
@@ -726,7 +729,7 @@ void readcommands(int argc, char **argv)
    getint(ph, "seed:", &seed) ;
    getstring(ph, "ascertain:", &ascstring) ;
    getstring(ph, "noascertain:", &noascstring) ;
-	
+printf(stderr, "ascstring: %s\n", ascstring);	
    getint(ph, "transitions:", &t) ; if (t==YES) abxmode = 3 ;
    getint(ph, "transversions:", &t) ; if (t==YES) abxmode = 2 ;
    getint(ph, "abxmode:", &abxmode) ; 
