@@ -85,7 +85,7 @@ A full parameter list of the parfile:
 
 | parameter     | description |
 |---------|--------------------------------------------------|
-| chrom       | chromosome name; The value can be one of [1 - 22, X, Y, MT]. If chrom is set, please do not set minchrom or maxchrom. [default: all the chromosomes] |
+| chrom       | chromosome name; The value can be one of [1 - 22, X]. If chrom is set, please do not set minchrom or maxchrom. [default: all the chromosomes] |
 | lopos         | the beginning coordinate of the region [default: the beginning of the chromosome] |
 | hipos         | the ending coordinate of the region [default: the end of the chromosome] |
 | snpname       | the output snp file name (.snp) |

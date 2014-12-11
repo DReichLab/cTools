@@ -37,7 +37,7 @@ int  pagesize = 20*1000*1000 ;  // page size for getiub
 int minfilterval = 1 ;
 
 int minchrom = 1 ;
-int maxchrom = 25 ;
+int maxchrom = 23 ;
 int xchrom = -1 ;
 
 char *monoplistname = NULL ;
@@ -125,8 +125,8 @@ int main(int argc, char **argv)
  else fff = stdout ; 
  if (regname != NULL) { 
   if (regname[0] == 'X') xchrom = 23 ; 
-  else if (regname[0] == 'Y') xchrom = 24 ;
-	else if (!strcmp(regname, "MT")) xchrom = 25; 
+  //else if (regname[0] == 'Y') xchrom = 24 ;
+	//else if (!strcmp(regname, "MT")) xchrom = 25; 
   else xchrom = atoi(regname) ;
  }
 
@@ -185,8 +185,8 @@ int main(int argc, char **argv)
   if ((xchrom > 0) && (xchrom != chrom)) continue ;
   sprintf(ss, "%d", chrom) ;
   if (chrom == 23) strcpy(ss, "X") ;
-  if (chrom == 24) strcpy(ss, "Y") ;
-  if (chrom == 25) strcpy(ss, "MT") ;
+  //if (chrom == 24) strcpy(ss, "Y") ;
+  //if (chrom == 25) strcpy(ss, "MT") ;
   freestring(&regname) ;
   regname = strdup(ss);
   reg = regname ;
