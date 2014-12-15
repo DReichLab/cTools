@@ -2,7 +2,7 @@
 * cascertain.c: Pull down the SNPs that match the ascertain criterion.
 * Author: Nick Patterson
 * Revised by: Mengyao Zhao
-* Last revise date: 2014-12-11
+* Last revise date: 2014-12-12
 * Contact: mengyao_zhao@hms.harvard.edu
 */
 
@@ -135,8 +135,6 @@ int main(int argc, char **argv)
  else fff = stdout ; 
  if (regname != NULL) { 
   if (regname[0] == 'X') xchrom = 23 ; 
-  //else if (regname[0] == 'Y') xchrom = 24 ;
-	//else if (!strcmp(regname, "MT")) xchrom = 25; 
   else xchrom = atoi(regname) ;
  }
 
@@ -190,17 +188,13 @@ int main(int argc, char **argv)
 
  cc[npops] = CNULL ;
  ccmask[npops-1] = CNULL ; // don't test chimp
-fprintf(stderr, "minchrom: %d\nxchrom: %d\nmaxchrom: %d\n", minchrom, xchrom, maxchrom);
  for (chrom = minchrom; chrom <= maxchrom; ++chrom) { 
   if ((xchrom > 0) && (xchrom != chrom)) continue ;
   sprintf(ss, "%d", chrom) ;
   if (chrom == 23) strcpy(ss, "X") ;
-  //if (chrom == 24) strcpy(ss, "Y") ;
-  //if (chrom == 25) strcpy(ss, "MT") ;
   freestring(&regname) ;
   regname = strdup(ss);
   reg = regname ;
-fprintf(stderr, "reg: %s\n", reg);
 
   for (pos = lopos ; pos <= hipos; ++pos) { 
    t = getiub(cc, ccmask, fainfo, reg, pos)  ;  
@@ -216,7 +210,7 @@ fprintf(stderr, "reg: %s\n", reg);
      if (t==NO) continue ;
     }
     t2 = checkasc(noasctable, nonasc, cc, ccmask, &c1, &c2, regname, pos) ; 
-    if (t2==NO) prints(fff, pos, c1, c2) ;  // printf("snp: %d %s %s\n", pos, cc, ccmask) ;
+    if (t2==NO) prints(fff, pos, c1, c2) ;  
     if (verbose && (t2==NO)) printf("hit: %d %d %s %c%c\n", chrom, pos, cc, c1 , c2) ;
    }
  }}
@@ -463,6 +457,8 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
  char *ttfasta ;
  int lo, hi ;
  static int ncall = 0 ;
+	gzFile fp;
+
   
   ++ncall ;
 
@@ -534,8 +530,13 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
 
   for (k=0; k<numfalist ; ++k) {
      fapt = fainfo[k] ;
-     ttfasta = myfai_fetch(fapt -> fai, reg, &len) ;	// access hetfa file 
-     if (len==0) fatalx("bad fetch %s %s\n", fapt -> faname, reg) ; 	// fetch fai
+	
+fprintf(stderr, "faname: %s\n", fapt->faname);
+//	fp = gzopen(fapt->faname, "r");
+     ttfasta = myfai_fetch(fapt -> fai, reg, &len) ;	// access the hetfa file	
+//	gzclose(fp);
+	
+	if (len==0) fatalx("bad fetch %s %s\n", fapt -> faname, reg) ; 	// fetch fai
       fapt -> rlen = len ;
       lo = MAX(1, lopos) ;
       hi = MIN(len, hipos) ;
@@ -550,8 +551,12 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
       fapt -> hipos = hi ;
 
       if (hasmask[k] == NO)  continue ; 
-      ttfasta = myfai_fetch(fapt -> faimask, reg, &len) ; 
-      if (len==0) fatalx("bad fetch (mask)  %s %s\n", fapt -> faimask, reg) ;
+    
+	fp = gzopen(fapt->famask, "r");
+	  ttfasta = myfai_fetch(fapt -> faimask, reg, &len) ; 
+	gzclose(fp);
+    
+	  if (len==0) fatalx("bad fetch (mask)  %s %s\n", fapt -> faimask, reg) ;
       lo = MAX(1, fapt -> lopos) ;
       hi = MIN(len, fapt -> hipos) ;
       len = hi-lo + 1 ;
@@ -785,7 +790,7 @@ int getfalist(char **poplist, int npops, char *dbfile, char **iublist)
  char *scolon ;
  
   if (dbfile == NULL) return 0 ;
-  openit(dbfile, &fff, "r") ;
+  openit(dbfile, &fff, "r") ;	// open .dblist file
 
   while (fgets(line, MAXSTR, fff) != NULL)  {
    nsplit = splitup(line, spt, MAXFF) ; 
@@ -817,6 +822,8 @@ char *myfai_fetch(faidx_t *fai, char *reg, int  *plen)
 
   if (fai==NULL) fatalx("(my_fai_fetch): fai NULL\n") ;
 
+//fprintf(stderr, "fai: %s\n", fai->name);
+//	gzopen ()
   s = fai_fetch(fai, treg, plen) ;
   if (*plen > 0) {
     free(treg) ;

@@ -21,6 +21,7 @@ int main(int argc, char *argv[])
 	while (kseq_read(seq) >= 0) {
 		char *ref;
 		int len, min;
+//fprintf(stderr, "reg: %s\n", seq->name.s);
 		ref = fai_fetch(fai, seq->name.s, &len);
 		min = len < seq->seq.l? len : seq->seq.l;
 		printf(">%s", seq->name.s);
