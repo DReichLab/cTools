@@ -2,7 +2,7 @@
  * cpoly.c: This program is used to extract heterozygote SNPs from multiple samples
  * Author: Nick Patterson
  * Revised by: Mengyao Zhao
- * Last revise date: 2014-12-11
+ * Last revise date: 2014-12-16
  * Contact: mengyao_zhao@hms.harvard.edu 
  */
 
@@ -449,7 +449,11 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
 
   for (k=0; k<numfalist ; ++k) {
      fapt = fainfo[k] ;
-     ttfasta = myfai_fetch(fapt -> fai, reg, &len) ; 
+	
+		fp = gzopen(fapt->faname, "r");
+     ttfasta = myfai_fetch(fapt -> fai, reg, &len) ;
+		gzclose(fp);
+ 
      if (len==0) fatalx("bad fetch %s %s\n", fapt -> faname, reg) ;
       fapt -> rlen = len ;
       lo = MAX(1, lopos) ;
@@ -464,8 +468,12 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
       fapt -> lopos = lo ;
       fapt -> hipos = hi ;
 
-      if (fapt -> faimask == NULL) continue ; 
+      if (fapt -> faimask == NULL) continue ;
+ 
+		fp = gzopen(fapt->famask, "r");
       ttfasta = myfai_fetch(fapt -> faimask, reg, &len) ; 
+		gzclose(fp);
+
       if (len==0) fatalx("bad fetch %s %s\n", fapt -> faname, reg) ;
       lo = MAX(1, fapt -> lopos) ;
       hi = MIN(len, fapt -> hipos) ;
@@ -734,6 +742,7 @@ int getfalist(char **poplist, int npops, char *dbfile, char **iublist)
    return nx ;
 
 }
+
 char *myfai_fetch(faidx_t *fai, char *reg, int  *plen)
 {
   char *treg, *s ;

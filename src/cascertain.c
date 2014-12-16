@@ -2,7 +2,7 @@
 * cascertain.c: Pull down the SNPs that match the ascertain criterion.
 * Author: Nick Patterson
 * Revised by: Mengyao Zhao
-* Last revise date: 2014-12-12
+* Last revise date: 2014-12-15
 * Contact: mengyao_zhao@hms.harvard.edu
 */
 
@@ -175,7 +175,7 @@ int main(int argc, char **argv)
  reg = regname ;
  ZALLOC(hasmask, npops+1, int) ;
 
- loadfa(poplist, npops, &fainfo, reg, lopos, hipos)  ;
+ loadfa(poplist, npops, &fainfo, reg, lopos, hipos)  ; // fainfo is the return valual that contains sequences in fa and mask
  printf("npops: %d\n", npops) ;
 
   for (k=0;  k< npops; ++k) { 
@@ -452,7 +452,7 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
 {
  static int k, numfalist, t, len ;
  static char **falist, **famasklist ;
- static FATYPE **fainfo, *fapt ;
+ static FATYPE **fainfo, *fapt ; 	// fainfo is the return valual that contains sequences in fa and mask
  int *falen ;
  char *ttfasta ;
  int lo, hi ;
@@ -532,9 +532,9 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
      fapt = fainfo[k] ;
 	
 fprintf(stderr, "faname: %s\n", fapt->faname);
-//	fp = gzopen(fapt->faname, "r");
+	fp = gzopen(fapt->faname, "r");
      ttfasta = myfai_fetch(fapt -> fai, reg, &len) ;	// access the hetfa file	
-//	gzclose(fp);
+	gzclose(fp);
 	
 	if (len==0) fatalx("bad fetch %s %s\n", fapt -> faname, reg) ; 	// fetch fai
       fapt -> rlen = len ;
@@ -543,7 +543,7 @@ fprintf(stderr, "faname: %s\n", fapt->faname);
       len = hi-lo + 1 ;
       ZALLOC(fapt -> rstring, len+1, char) ;
       strncpy(fapt -> rstring, ttfasta+lo-1, len) ; // indexing is base 1
-      fapt -> rstring[len] == CNULL  ;
+      fapt -> rstring[len] == CNULL  ; 	// fapt->rstring contains the sequence from lo to hi or the whole chrom
       freestring(&ttfasta) ;
       fapt -> regname = strdup(reg) ;
       fapt -> len = len ;
@@ -654,17 +654,17 @@ int getiub(char *cc, char *ccmask, FATYPE **fainfo, char *reg, int pos)
 
   for (k=0; k<npops; ++k) { 
    fapt = fainfo[k] ;
-   if (pos<fapt -> lopos) return -2 ;
-   if (pos>fapt -> hipos) return -2 ;
-   cc[k] = getfacc(fapt, pos, 1) ;
-   if (hasmask[k]) ccmask[k] = getfacc(fapt, pos, 2) ;
+   if (pos < fapt -> lopos) return -2 ;
+   if (pos > fapt -> hipos) return -2 ;
+   cc[k] = getfacc(fapt, pos, 1) ; 	// genotype at pos; cc[k] is an iub code
+   if (hasmask[k]) ccmask[k] = getfacc(fapt, pos, 2) ; 	// mask at pos
    else ccmask[k] = '9' ;
   }
 
   t = 0 ; 
   if (base2num(cc[npops-1]) < 0) return -1 ;
   for (k=0; k<npops; ++k) { 
-   if (isiub2(cc[k])) ++t ;
+   if (isiub2(cc[k])) ++t ; 	// have 1 or 2 alleles at this site
   }
 
   ++ncnt ;

@@ -2,7 +2,7 @@
 * cpulldown.c:	get the genotypes of the given individuls at the given SNP loci from a set of bams
 * Author: Nick Patterson
 * Revised by: Mengyao Zhao
-* Last revise date: 2014-12-08
+* Last revise date: 2014-12-15
 * Contact: mengyao_zhao@hms.harvard.edu
 */
 
@@ -394,7 +394,11 @@ int readfa1(char *faname, char **pfasta, int *flen)
   t = strcmp(regname, "23") ; if (t==0) strcpy(ssreg, "X") ;
   t = strcmp(regname, "24") ; if (t==0) strcpy(ssreg, "Y") ;
   t = strcmp(regname, "90") ; if (t==0) strcpy(ssreg, "MT") ;
+
+	fp = gzopen(faname, "r");
   ttfasta = myfai_fetch(fai, ssreg, &len) ;
+	gzclose(fp);
+
   fai_destroy(fai) ; // close files
   *flen = len ;
   if (ttfasta == NULL) { 
@@ -463,6 +467,7 @@ int getfalist(char **poplist, int npops, char *dbfile, char **iublist)
    return nx ;
 
 }
+
 char *myfai_fetch(faidx_t *fai, char *reg, int  *plen)
 {
   char *treg, *s ;
