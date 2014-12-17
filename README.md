@@ -16,7 +16,7 @@ or click the "Download ZIP" button of this web page:
 https://github.com/mengyao/cTools
 
 ##Compile cTools
-In the src floder:
+In the src folder:
 
 1. `make clean`
 2. `make`
