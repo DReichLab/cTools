@@ -1,8 +1,8 @@
 /*
- * ccompress.c: use gzip to compress hetfa files (*.hetfa) and mask files (*.fa)
+ * ccompress.c: use razip to compress hetfa files (*.hetfa) and mask files (*.fa)
  * Author: Nick Patterson
  * Revised by: Mengyao Zhao
- * Last revise date: 2014-11-19
+ * Last revise date: 2014-12-19
  * Contact: mengyao_zhao@hms.harvard.edu 
  */
 
@@ -21,8 +21,6 @@ char *regname = NULL ;
 char *regstring = NULL ;
 faidx_t *fai;
 int chimpmode = NO ;
-//char *iubfile = "/home/np29/cteam/release/hetfaplus.dblist" ;
-//char *iubmaskfile = "/home/np29/cteam/release/maskplus.dblist" ;
 char *iubfile = "/home/mz128/cteam/dblist/hetfa_postmigration.dblist" ;
 char *iubmaskfile = "/home/mz128/cteam/dblist/mask_postmigration.dblist" ;
 phandle *ph  = NULL ;
@@ -118,16 +116,21 @@ int main(int argc, char *argv[])
   printf("chromosome: %12s done\n", regname) ;
  }
  fclose(fff) ;
- sprintf(ss, "gzip %s", tmpfaname) ;  
+ //sprintf(ss, "gzip %s", tmpfaname) ;  
+ sprintf(ss, "htsbox razip %s", tmpfaname) ;  
  system (ss) ;  
- sprintf(ss, "mv %s.gz %s.gz", tmpfaname, outfaname) ;
+ //sprintf(ss, "mv %s.gz %s.gz", tmpfaname, outfaname) ;
+ sprintf(ss, "mv %s.rz %s.rz", tmpfaname, outfaname) ;
  system (ss) ;  
  sprintf(outfaname, "%s/%s.ccompmask.fa", wkdir, iname) ;  
  sprintf(ss, "cp %s %s", iubmask[1], outfaname) ; 
  system(ss) ;
- sprintf(ss, "gzip  %s",  outfaname) ; 
+ //sprintf(ss, "gzip  %s",  outfaname) ; 
+ sprintf(ss, "htsbox razip  %s",  outfaname) ; 
  system(ss) ;
 
+	sprintf(ss, "rm %s/%s.ccomptmp.fa", wkdir, iname);
+	system(ss);
   printf("## end of ccompress\n") ;
 
 //	free(iname);
