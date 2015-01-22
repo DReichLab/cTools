@@ -122,7 +122,19 @@ Outputs: .snp file, .ind file, .geno file
 
 ```
 
-Sample parameter_file:
+Sample parameter_file1:
+
+```
+indivname:    mix1.ind
+snpname:      input.snp
+indivoutname:     output.ind
+snpoutname:       output.snp
+genotypeoutname:  output.geno
+outputformat:     eigenstrat
+maxchrom:         22
+```
+
+Sample parameter_file2:
 
 ```
 D1:          /home/np29/biology/cteam/mixdir
@@ -136,9 +148,8 @@ genotypeoutname:  D2/S2.geno
 outputformat:     eigenstrat
 maxchrom:         22
 ```
-This is very similar to the parameter file for convertf which most of you will
-have used.  indivname should be a .ind file (Reich lab format). Any .snp file
-is OK here, it needn't be output from cascertain.
+indivname should be a .ind file (Reich lab format). Any .snp file
+is OK here, it needn't be output from cascertain. In "sample parameter_file2", D1, D2 and S2 are symbols to replace long strings. For example, here D1 = D2 = /home/np29/biology/cteam/mixdir; S2 = sc.
 
 
 A full parameter list of the parameter_file:
@@ -156,6 +167,50 @@ A full parameter list of the parameter_file:
 |  maxchrom:	| the ending chromosome
 
 
+For example, to use cpulldown to pull out data from Papuan and Dai, you need to:
+
+1. Uncompress all the hetfa and mask files of Papuan and Dai samples, and put them into one folder together with Chimp.fa, Chimp.fa.fai, hs37d5.fa and hs37d5.fa.fai.
+
+2. Using the information from all.ind to create your input.ind as following:
+
+   ```
+B_Papuan-15 M Papuan
+A_Papuan-16 M Papuan
+S_Papuan-6 M Papuan
+S_Papuan-11 M Papuan
+S_Papuan-14 F Papuan
+S_Papuan-4 M Papuan
+S_Papuan-3 M Papuan
+S_Papuan-8 M Papuan
+S_Papuan-7 M Papuan
+S_Papuan-9 M Papuan
+S_Papuan-2 M Papuan
+S_Papuan-12 M Papuan
+S_Papuan-10 M Papuan
+S_Papuan-5 M Papuan
+S_Papuan-13 F Papuan
+S_Papuan-1 F Papuan
+B_Dai-4 M Dai
+A_Dai-5 M Dai
+S_Dai-1 F Dai
+S_Dai-3 F Dai
+S_Dai-2 M Dai
+
+   ```
+
+3. Create your input.snp file. The format of this .snp file is described in the "Related file formats" section of this document. If you don't know the "genetic location" of the SNP, please put value "0" in that column. In this condition, the "genetic location" column of the output.snp file will NOT be meaningful either.  
+4. Create a parameter file example.par as following:
+
+   ```
+indivname:    input.ind
+snpname:      input.snp
+indivoutname:     output.ind
+snpoutname:       output.snp
+genotypeoutname:  output.geno
+outputformat:     eigenstrat
+```
+
+4. `cpulldown -p example.par -d <dir of your hetfa & mask files>`
 
 Notes: Running time: Linear in number of samples in indivname.  10 samples pull down
 in about 1 hour on orchestra.
