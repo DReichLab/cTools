@@ -2,7 +2,7 @@
 * cascertain.c: Pull down the SNPs that match the ascertain criterion.
 * Author: Nick Patterson
 * Revised by: Mengyao Zhao
-* Last revise date: 2014-12-15
+* Last revise date: 2015-01-23
 * Contact: mengyao_zhao@hms.harvard.edu
 */
 
@@ -91,7 +91,7 @@ int nasc, nonasc ;
 static int usage() 
 {
 	fprintf(stderr, "\n");
-	fprintf(stderr, "Usage:   cascertain -p <parameter file> [options] \n\n");
+	fprintf(stderr, "Usage:   cascertain -p <parameter file> [options] <ref.fa>\n\n");
 	fprintf(stderr, "Options:\n");
 	fprintf(stderr, "\t-d	directory of the data files (Please set this parameter, if you do not set .dblist files. If this parameter is used to give the data file location, .dblist files will not be used.)\n");
 	fprintf(stderr, "\t-V	Print more information while the program is running.\n");
@@ -533,7 +533,9 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
 	
 fprintf(stderr, "faname: %s\n", fapt->faname);
 	fp = gzopen(fapt->faname, "r");
-     ttfasta = myfai_fetch(fapt -> fai, reg, &len) ;	// access the hetfa file	
+
+	// access the hetfa file; ttfasta is the hetfa sequence
+     ttfasta = myfai_fetch(fapt -> fai, reg, &len) ;		
 	gzclose(fp);
 	
 	if (len==0) fatalx("bad fetch %s %s\n", fapt -> faname, reg) ; 	// fetch fai
@@ -688,6 +690,8 @@ void readcommands(int argc, char **argv)
   char str[512]  ;
   int n, kode ;
   int pops[2] ;
+
+	if (argc < 2) exit(usage());
 
   while ((i = getopt (argc, argv, "p:d:vV?")) != -1) {
 
