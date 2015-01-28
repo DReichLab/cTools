@@ -2,7 +2,7 @@
  * cpoly.c: This program is used to extract heterozygote SNPs from multiple samples
  * Author: Nick Patterson
  * Revised by: Mengyao Zhao
- * Last revise date: 2014-12-11
+ * Last revise date: 2014-01-28
  * Contact: mengyao_zhao@hms.harvard.edu 
  */
 
@@ -385,6 +385,7 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
 	   t = setfalist(poplist, npops, ".filter.fa", famasklist) ;
 	//fprintf(stderr, "numfalist: %d\n", numfalist); 
 	} else {
+//	fprintf(stderr, "here\n");
 	   numfalist = getfalist(poplist, npops, iubfile, falist) ;	// set falist with the absolute path of hetfa files in .dblist file
 	   t = getfalist(poplist, npops, iubmaskfile, famasklist) ; 
 	}
