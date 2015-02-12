@@ -28,7 +28,7 @@ sam_OBJ = samtools_api/bam.o samtools_api/bam_aux.o samtools_api/bam_import.o sa
 
 IDIR=$(HOMEL)/include  
 
-PROGS=cpulldown cpoly cascertain ccompress puncompress
+PROGS=cpulldown cpoly cascertain ccompress puncompress cmakefilter filtstats
 
 Q1I=cpulldown 
 Q1IO=cpulldown.o mcio.o admutils.o  $(sam_OBJ) $(OBJ)
@@ -61,6 +61,20 @@ Q5IO=uncomp.o $(sam_OBJ) $(OBJ)
 
 $(Q5I): nicklib $(Q5IO) 
 	gcc -o $(Q5I) $(Q5IO)  -lm -lz -lncurses 
+
+Q6I=cmakefilter
+Q6IO=cmakefilter.o opth.o $(sam_OBJ) $(OBJ)
+
+$(Q6I): nicklib $(Q6IO)
+	gcc -o $(Q6I) $(Q6IO) -lm -lz -lncurses
+#    gcc -o $(Q6I) $(Q6IO)  -lm -lz -lncurses
+
+Q7I=filtstats
+Q7IO=filtstats.o $(sam_OBJ) $(OBJ)
+
+$(Q7I): nicklib $(Q7IO)
+	gcc -o $(Q7I) $(Q7IO) -lm -lz -lncurses
+#    gcc -o $(Q7I) $(Q7IO)  -lm -lz -lncurses
 
 all: $(PROGS) 
 

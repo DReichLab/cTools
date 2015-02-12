@@ -1318,6 +1318,19 @@ void free2Dint (int ***xx, int numrows)
   *xx = NULL ;
 }
 
+void free2Dlong (long ***xx, int numrows) 
+{
+   long **array ;
+   int i ;
+   array = *xx ;
+
+  for (i=numrows-1; i>=0; i--) {
+    free(array[i]) ;
+  }
+  free(array) ;
+  *xx = NULL ;
+}
+
 void free_darray (double  **xx)             
 {
  free(*xx)  ;
@@ -1391,6 +1404,18 @@ void iclear2D(int ***xx, int numrows, int numcols, int val)
 
 }
 
+void lclear2D(long ***xx, int numrows, int numcols, long val)  
+{
+   long **array ;
+   int i ;
+
+   array = *xx ;
+
+  for (i=numrows-1; i>=0; i--) {
+    lvclear(array[i], val, numcols) ;
+  }
+
+}
 
 void free2D (double ***xx, int numrows) 
 {
