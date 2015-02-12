@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 /*
  * cpoly.c: This program is used to extract heterozygote SNPs from multiple samples
  * Author: Nick Patterson
@@ -7,8 +6,6 @@
  * Contact: mengyao_zhao@hms.harvard.edu 
  */
 
-=======
->>>>>>> master
 #include <sys/wait.h>
 #include <stdlib.h>
 #include <stdio.h>
