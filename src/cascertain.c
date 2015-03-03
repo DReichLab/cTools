@@ -2,7 +2,7 @@
 * cascertain.c: Pull down the SNPs that match the ascertain criterion.
 * Author: Nick Patterson
 * Revised by: Mengyao Zhao
-* Last revise date: 2015-01-23
+* Last revise date: 2015-03-03
 * Contact: mengyao_zhao@hms.harvard.edu
 */
 
@@ -18,6 +18,8 @@
 #include "globals.h" 
 #include "popsubs.h"
 #include "mcio.h"
+#include "kseq.h"
+KSEQ_INIT(gzFile, gzread)
 
 typedef struct { 
  int *val ; 
@@ -76,6 +78,7 @@ void printasc(ASC *ascpt) ;
 void printfapt(FATYPE *fapt);
 int fvalid(char cm) ;
 void prints(FILE *fff, int pos, char c1, char c2)  ;
+int getdbname(char *dbase, char *name, char **pfqname) ;
 
 char **poplist ; 
 int *hasmask ;
@@ -200,8 +203,10 @@ int main(int argc, char **argv)
    t = getiub(cc, ccmask, fainfo, reg, pos)  ;  
    if (t==-5) break ;
    if (t<0) continue ;
-    
+   
+printf(stderr, "before checkasc\n"); 
    t = checkasc(asctable, nasc, cc, ccmask, &c1, &c2, regname, pos) ; 
+printf(stderr, "after checkasc\n"); 
    if (t==YES) {
     if (abxmode != 0) {
      abxkode = abx(base2num(c1), base2num(c2)) ;
@@ -231,7 +236,6 @@ void prints(FILE *fff, int pos, char c1, char c2)
   fprintf(fff, "%c %c\n", c1, c2) ;
 
    return ;
-
 }
 
 int checkasc1(ASC *ascpt, int *cnt, int *cnt1) 
@@ -454,11 +458,12 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
  static char **falist, **famasklist ;
  static FATYPE **fainfo, *fapt ; 	// fainfo is the return valual that contains sequences in fa and mask
  int *falen ;
- char *ttfasta ;
- int lo, hi ;
+ char *ttfasta, *refname = (char*)malloc(256*sizeof(char));
+ int lo, hi, i ;
  static int ncall = 0 ;
+	faidx_t *fai;	// Use this to open the reference sequence. 
 	gzFile fp;
-
+	kseq_t *seq;
   
   ++ncall ;
 
@@ -468,9 +473,11 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
 	if (db == 0) {
 	   numfalist = setfalist(poplist, npops, ".fa", falist) ;
 	   t = setfalist(poplist, npops, ".filter.fa", famasklist) ;
+		refname = strcat(table_path, "Href.fa");
 	} else {
 	   numfalist = getfalist(poplist, npops, iubfile, falist) ;	// set falist with the absolute path of hetfa files in .dblist file; falist contains the iubfile names
-	   t = getfalist(poplist, npops, iubmaskfile, famasklist) ; 
+	   t = getfalist(poplist, npops, iubmaskfile, famasklist) ;
+		getdbname(iubfile, "Href", &refname); 
 	}
 
    if (numfalist != npops) {
@@ -527,15 +534,39 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
   }
 
   if (pfainfo != NULL) *pfainfo  = fainfo ;
+fprintf(stderr, "refname: %s\n", refname);
+	fai = fai_load(refname);
+fprintf(stderr, "fapt->fai: %s\n", fapt->fai);
 
   for (k=0; k<numfalist ; ++k) {
      fapt = fainfo[k] ;
 	
-fprintf(stderr, "faname: %s\n", fapt->faname);
+	fprintf(stderr, "faname: %s\n", fapt->faname);
 	fp = gzopen(fapt->faname, "r");
 
+	seq = kseq_init(fp);
+	while (kseq_read(seq) >= 0) {
+		char *ref;
+		int len_r, min;
+//fprintf(stderr, "reg: %s\n", seq->name.s);
+		ref = fai_fetch(fai, seq->name.s, &len_r);
+		min = len_r < seq->seq.l? len_r : seq->seq.l;
+	//	printf(">%s", seq->name.s);
+		for (i = 0; i < seq->seq.l; ++i) {
+	//		if (i%line_len == 0) putchar('\n');
+			if (seq->seq.s[i] == 'Q') seq->seq.s[i] = ref[i];
+	//		putchar(seq->seq.s[i]);
+		}
+	//	putchar('\n');
+		free(ref);
+	}
+	//fprintf(stderr, "seq.s: %s\n", seq->seq.s);
+	ttfasta = seq->seq.s;
+	kseq_destroy(seq);
 	// access the hetfa file; ttfasta is the hetfa sequence
+fprintf(stderr, "fapt->fai: %s\n", fapt->fai);
      ttfasta = myfai_fetch(fapt -> fai, reg, &len) ;		
+	//fprintf(stderr, "ttfasta: %s\n", ttfasta);
 	gzclose(fp);
 	
 	if (len==0) fatalx("bad fetch %s %s\n", fapt -> faname, reg) ; 	// fetch fai
@@ -554,9 +585,9 @@ fprintf(stderr, "faname: %s\n", fapt->faname);
 
       if (hasmask[k] == NO)  continue ; 
     
-	fp = gzopen(fapt->famask, "r");
+		fp = gzopen(fapt->famask, "r");
 	  ttfasta = myfai_fetch(fapt -> faimask, reg, &len) ; 
-	gzclose(fp);
+		gzclose(fp);
     
 	  if (len==0) fatalx("bad fetch (mask)  %s %s\n", fapt -> faimask, reg) ;
       lo = MAX(1, fapt -> lopos) ;
@@ -568,6 +599,7 @@ fprintf(stderr, "faname: %s\n", fapt->faname);
       freestring(&ttfasta) ;
       fapt -> mlen = len ;
   }
+		fai_destroy(fai);
 
   return npops ;
 }
@@ -705,7 +737,7 @@ void readcommands(int argc, char **argv)
       case 'd':
 	{
 		char* p;
-		table_path = strdup(optarg) ;
+		table_path = strdup(optarg) ;	// table_path is the path end with /
 		p = strrchr(table_path, '/');
 		if (!p || strcmp(p, "/")) {
 			table_path = (char*)realloc(table_path, 256);
@@ -989,4 +1021,33 @@ int abxok(int abx, int abxmode) {
  default:  
   fatalx("abxmode %d not implemented\n", abxmode) ;
  }
+}
+
+int getdbname(char *dbase, char *name, char **pfqname) 
+{
+ char ***names ;  
+ int n, k, t, i ; 
+
+ n = numlines(dbase) ;
+
+ ZALLOC(names, 3, char **) ;
+
+ for (i=0; i<=2; ++i) {
+  for (k=0; k<n; ++k) { 
+   ZALLOC(names[i], n, char *) ;
+  }
+ }
+
+ n = getnames(&names, n, 3, dbase) ;
+ t = indxstring(names[0], n, name) ; 
+ if (t<0) fatalx("%s not found in %s\n", name, dbase) ;
+ *pfqname = strdup(names[2][t]) ;
+ 
+ for (i=0; i<=2; ++i) { 
+  freeup(names[i], n) ;
+  free(names[i]) ; 
+ }
+ free(names) ;
+ 
+ return 1 ; 
 }

@@ -2,7 +2,7 @@
  * cpoly.c: This program is used to extract heterozygote SNPs from multiple samples
  * Author: Nick Patterson
  * Revised by: Mengyao Zhao
- * Last revise date: 2015-02-12
+ * Last revise date: 2015-03-02
  * Contact: mengyao_zhao@hms.harvard.edu 
  */
 
@@ -16,6 +16,8 @@
 #include "globals.h" 
 #include "popsubs.h"
 #include "mcio.h"
+#include "kseq.h"
+KSEQ_INIT(gzFile, gzread)
 
 typedef struct { 
  int *val ; 
@@ -381,6 +383,7 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
  char *ttfasta ;
  int lo, hi ;
  static int ncall = 0 ;
+	gzFile fp;
  
   
   ++ncall ;

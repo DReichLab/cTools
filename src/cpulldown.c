@@ -2,7 +2,7 @@
 * cpulldown.c:	get the genotypes of the given individuls at the given SNP loci from a set of bams
 * Author: Nick Patterson
 * Revised by: Mengyao Zhao
-* Last revise date: 2014-12-15
+* Last revise date: 2015-02-24
 * Contact: mengyao_zhao@hms.harvard.edu
 */
 
@@ -13,6 +13,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <zlib.h>
 
 #include <nicklib.h>
 #include <globals.h>
@@ -23,12 +24,14 @@
 #include "faidx.h"
 #include "admutils.h"
 #include "mcio.h"  
+#include "kseq.h"
 
 #define WVERSION   "131" 
 
 // fai_destroy called
 #define MAXFL  50   
 #define MAXSTR  512
+KSEQ_INIT(gzFile, gzread)
 
 char *iubfile = NULL ;
 char *iubmaskfile = NULL;
@@ -380,6 +383,7 @@ int readfa1(char *faname, char **pfasta, int *flen)
  char *ttfasta ;
  char ssreg[20] ;
  int ntry = 0, itry ;
+	gzFile fp;
  
  if (pfasta != NULL) freestring(pfasta) ;
 
