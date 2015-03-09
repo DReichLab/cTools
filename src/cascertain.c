@@ -200,7 +200,8 @@ int main(int argc, char **argv)
   reg = regname ;
 
   for (pos = lopos ; pos <= hipos; ++pos) { 
-   t = getiub(cc, ccmask, fainfo, reg, pos)  ;  
+   t = getiub(cc, ccmask, fainfo, reg, pos)  ; 
+fprintf(stderr, "t: %d\n", t); 
    if (t==-5) break ;
    if (t<0) continue ;
    
@@ -536,7 +537,7 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
   if (pfainfo != NULL) *pfainfo  = fainfo ;
 fprintf(stderr, "refname: %s\n", refname);
 	fai = fai_load(refname);
-fprintf(stderr, "fapt->fai: %s\n", fapt->fai);
+//fprintf(stderr, "fapt->fai: %s\n", fapt->fai);
 
   for (k=0; k<numfalist ; ++k) {
      fapt = fainfo[k] ;
@@ -564,7 +565,7 @@ fprintf(stderr, "fapt->fai: %s\n", fapt->fai);
 	ttfasta = seq->seq.s;
 	kseq_destroy(seq);
 	// access the hetfa file; ttfasta is the hetfa sequence
-fprintf(stderr, "fapt->fai: %s\n", fapt->fai);
+//fprintf(stderr, "fapt->fai: %s\n", fapt->fai);
      ttfasta = myfai_fetch(fapt -> fai, reg, &len) ;		
 	//fprintf(stderr, "ttfasta: %s\n", ttfasta);
 	gzclose(fp);
