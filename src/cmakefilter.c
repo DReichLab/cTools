@@ -1,3 +1,5 @@
+// Revised by Mengyao Zhao on 2015-03-12
+
 #include <libgen.h>
 #include <nicksam.h>
 #include "bam.h"

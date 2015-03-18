@@ -11,7 +11,7 @@ IDIR=$(HOMEL)/include
 ##VPATH=.:nicksrc:bamsrc
 
 CFLAGS= -g  -DHAVE_CONFIG_H -I. -I$(IDIR)  -Wimplicit-int \
-   -L. -lm  -g -D_IOLIB=2 -O3 
+   -L. -lm  -g -D_IOLIB=2 #-O3 
 
 
 OBJ= nicklib/strsubs.o nicklib/sortit.o nicklib/vsubs.o nicklib/statsubs.o nicklib/linsubs.o nicklib/getpars.o nicklib/xsearch.o nicklib/gauss.o	nicklib/gds.o

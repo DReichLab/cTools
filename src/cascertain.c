@@ -194,20 +194,21 @@ int main(int argc, char **argv)
  for (chrom = minchrom; chrom <= maxchrom; ++chrom) { 
   if ((xchrom > 0) && (xchrom != chrom)) continue ;
   sprintf(ss, "%d", chrom) ;
+fprintf(stderr, "chrom: %d\n", chrom);
   if (chrom == 23) strcpy(ss, "X") ;
   freestring(&regname) ;
   regname = strdup(ss);
   reg = regname ;
 
   for (pos = lopos ; pos <= hipos; ++pos) { 
-   t = getiub(cc, ccmask, fainfo, reg, pos)  ; 
-fprintf(stderr, "t: %d\n", t); 
+   t = getiub(cc, ccmask, fainfo, reg, pos)  ;	// call loadfa 
+//fprintf(stderr, "t: %d\n", t); 
    if (t==-5) break ;
    if (t<0) continue ;
    
-printf(stderr, "before checkasc\n"); 
+//fprintf(stderr, "before checkasc\n"); 
    t = checkasc(asctable, nasc, cc, ccmask, &c1, &c2, regname, pos) ; 
-printf(stderr, "after checkasc\n"); 
+//fprintf(stderr, "after checkasc\n"); 
    if (t==YES) {
     if (abxmode != 0) {
      abxkode = abx(base2num(c1), base2num(c2)) ;
@@ -468,6 +469,7 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
   
   ++ncall ;
 
+	fprintf (stderr, "in loadfa\n");
   if (ncall==1) {
    ZALLOC(falist, npops, char *) ;
    ZALLOC(famasklist, npops, char *) ;
@@ -475,10 +477,12 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
 	   numfalist = setfalist(poplist, npops, ".fa", falist) ;
 	   t = setfalist(poplist, npops, ".filter.fa", famasklist) ;
 		refname = strcat(table_path, "Href.fa");
+fprintf(stderr, "db:0\n");
 	} else {
 	   numfalist = getfalist(poplist, npops, iubfile, falist) ;	// set falist with the absolute path of hetfa files in .dblist file; falist contains the iubfile names
 	   t = getfalist(poplist, npops, iubmaskfile, famasklist) ;
 		getdbname(iubfile, "Href", &refname); 
+fprintf(stderr, "db:!0\n");
 	}
 
    if (numfalist != npops) {
