@@ -2,7 +2,7 @@
 * cascertain.c: Pull down the SNPs that match the ascertain criterion.
 * Author: Nick Patterson
 * Revised by: Mengyao Zhao
-* Last revise date: 2015-03-03
+* Last revise date: 2015-03-19
 * Contact: mengyao_zhao@hms.harvard.edu
 */
 
@@ -470,19 +470,23 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
   ++ncall ;
 
 	fprintf (stderr, "in loadfa\n");
+
+	if (db == 0) refname = strcat(table_path, "Href.fa");
+	else getdbname(iubfile, "Href", &refname);
+
   if (ncall==1) {
    ZALLOC(falist, npops, char *) ;
    ZALLOC(famasklist, npops, char *) ;
 	if (db == 0) {
 	   numfalist = setfalist(poplist, npops, ".fa", falist) ;
 	   t = setfalist(poplist, npops, ".filter.fa", famasklist) ;
-		refname = strcat(table_path, "Href.fa");
-fprintf(stderr, "db:0\n");
+//		refname = strcat(table_path, "Href.fa");
+//fprintf(stderr, "db:0\n");
 	} else {
 	   numfalist = getfalist(poplist, npops, iubfile, falist) ;	// set falist with the absolute path of hetfa files in .dblist file; falist contains the iubfile names
 	   t = getfalist(poplist, npops, iubmaskfile, famasklist) ;
-		getdbname(iubfile, "Href", &refname); 
-fprintf(stderr, "db:!0\n");
+//		getdbname(iubfile, "Href", &refname); 
+//fprintf(stderr, "db:!0\n");
 	}
 
    if (numfalist != npops) {
