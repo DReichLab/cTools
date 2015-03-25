@@ -36,7 +36,7 @@ uncompress.pl uncompress the `*.ccomp.fa.gz` and `*.ccompmask.fa.gz` files.
 Usage: uncompress.pl <reference.fa> <sample.ccomp.fa.gz> (compressed hetfa file)
 
 Inputs: .ccomp.fa.gz, .ccompmask.fa.gz
-Outputs: .fa (uncompressed hetfa file), .fa.fai, .mask.fa (uncompressed mask file), .mask.fa.fai
+Outputs: .fa (uncompressed hetfa file), .fa.fai, .filter.fa (uncompressed mask file), .filter.fa.fai
 ```
 
 ***Notes***: The  Samtools is
