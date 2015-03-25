@@ -543,7 +543,7 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
   }
 
   if (pfainfo != NULL) *pfainfo  = fainfo ;
-fprintf(stderr, "refname: %s\n", refname);
+//fprintf(stderr, "refname: %s\n", refname);
 	fai = fai_load(refname);
 //fprintf(stderr, "fapt->fai: %s\n", fapt->fai);
 
@@ -556,10 +556,10 @@ fprintf(stderr, "refname: %s\n", refname);
 	seq = kseq_init(fp);
 	while (kseq_read(seq) >= 0) {
 		char *ref;
-		int len_r, min;
+		int len_r; //, min;
 //fprintf(stderr, "reg: %s\n", seq->name.s);
 		ref = fai_fetch(fai, seq->name.s, &len_r);
-		min = len_r < seq->seq.l? len_r : seq->seq.l;
+//		min = len_r < seq->seq.l? len_r : seq->seq.l;
 	//	printf(">%s", seq->name.s);
 		for (i = 0; i < seq->seq.l; ++i) {
 	//		if (i%line_len == 0) putchar('\n');
@@ -571,10 +571,12 @@ fprintf(stderr, "refname: %s\n", refname);
 	}
 	//fprintf(stderr, "seq.s: %s\n", seq->seq.s);
 	ttfasta = seq->seq.s;
+	len = seq->seq.l;
+fprintf(stderr, "len: %d\n", len);
 	kseq_destroy(seq);
 	// access the hetfa file; ttfasta is the hetfa sequence
 //fprintf(stderr, "fapt->fai: %s\n", fapt->fai);
-     ttfasta = myfai_fetch(fapt -> fai, reg, &len) ;		
+  //   ttfasta = myfai_fetch(fapt -> fai, reg, &len) ;		
 	//fprintf(stderr, "ttfasta: %s\n", ttfasta);
 	gzclose(fp);
 	
