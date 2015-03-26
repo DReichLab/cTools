@@ -1,3 +1,4 @@
+// Revised by Mengyao on 2014-03-26
 #include <sys/wait.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -41,7 +42,6 @@ int polarindex = -1 ;
 int allowmissing = YES  ;
 int allowhets = YES  ;
 
-
 char *indivname = NULL ;
 char *indoutfilename = NULL ;
 char *snpoutfilename = NULL ;
@@ -58,7 +58,7 @@ int *hasmask ;
 int npops = 0 ;
 int db = 1;	// Use .dblist
 
-#define VERSION  "220"    
+#define VERSION  "300"    
 
 // bugfix bug when polarize off.   Last pop het didn't work
 void readcommands(int argc, char **argv) ;
@@ -223,7 +223,8 @@ int main(int argc, char **argv)
   reg = regname ;
 
   for (pos = lopos ; pos <= hipos; ++pos) { 
-   t = getiub(cc, ccmask, fainfo, reg, pos)  ;  
+   //t = getiub(cc, ccmask, fainfo, reg, pos)  ;  
+	t = getiub(cc, ccmask, fainfo, ss, pos)  ;  
    if (t==-5) break ;
    if (t<0) continue ;
     
@@ -623,7 +624,7 @@ int getiub(char *cc, char *ccmask, FATYPE **fainfo, char *reg, int pos)
 void readcommands(int argc, char **argv) 
 
 {
-  int i, t;
+  int i, t = NO;
   phandle *ph ;
   char str[512]  ;
   int n, kode ;

@@ -51,7 +51,7 @@ char **fasta ;  // in core bases
 char *ascstring = NULL ;
 char *noascstring = NULL ;
 
-#define VERSION  "200"    
+#define VERSION  "300"    
 
 // monoplistname added  
 void readcommands(int argc, char **argv) ;
