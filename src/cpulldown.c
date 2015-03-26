@@ -2,7 +2,7 @@
 * cpulldown.c:	get the genotypes of the given individuls at the given SNP loci from a set of bams
 * Author: Nick Patterson
 * Revised by: Mengyao Zhao
-* Last revise date: 2015-03-26
+* Last revise date: 2014-12-08
 * Contact: mengyao_zhao@hms.harvard.edu
 */
 
@@ -24,7 +24,7 @@
 #include "admutils.h"
 #include "mcio.h"  
 
-#define WVERSION   "131" 
+#define WVERSION   "150" 
 
 // fai_destroy called
 #define MAXFL  50   
@@ -130,6 +130,10 @@ int main(int argc, char **argv)
   readcommands(argc, argv) ;
   settersemode(YES) ;
   if (outputname != NULL) openit(outputname, &ofile, "w") ;
+
+  if (genooutfilename == NULL) { 
+   printf("*** warning no genotype output!\n") ;     
+  }
 
   setomode(&outputmode, omode) ;
 
@@ -329,12 +333,12 @@ void readcommands(int argc, char **argv)
    getstring(ph, "indivoutname:", &indoutfilename) ; /* changed 11/02/06 */
    getstring(ph, "snpoutname:", &snpoutfilename) ; /* changed 11/02/06 */
    getstring(ph, "genooutname:", &genooutfilename) ; /* changed 11/02/06 */
+   getstring(ph, "genooutfilename:", &genooutfilename) ; /* changed 11/02/06 */
+   getstring(ph, "genotypeoutname:", &genooutfilename) ; /* changed 11/02/06 */
    getstring(ph, "outputformat:", &omode) ;  
    getint(ph, "minchrom:", &minchrom) ;
    getint(ph, "maxchrom:", &maxchrom) ;
    getint(ph, "chrom:", &xchrom) ;
-   getstring(ph, "genooutfilename:", &genooutfilename) ; /* changed 11/02/06 */
-   getstring(ph, "genotypeoutname:", &genooutfilename) ; /* changed 11/02/06 */
 //   getstring(ph, "dbhetfa:", &iubfile) ;
   // getstring(ph, "dbmask:", &iubmaskfile) ;
    writepars(ph) ;
