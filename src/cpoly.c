@@ -50,7 +50,6 @@ int polarindex = -1 ;
 int allowmissing = YES  ;
 int allowhets = YES  ;
 
-
 char *indivname = NULL ;
 char *indoutfilename = NULL ;
 char *snpoutfilename = NULL ;
@@ -67,7 +66,7 @@ int *hasmask ;
 int npops = 0 ;
 int db = 1;	// Use .dblist
 
-#define VERSION  "220"    
+#define VERSION  "300"    
 
 // bugfix bug when polarize off.   Last pop het didn't work
 void readcommands(int argc, char **argv) ;
@@ -228,7 +227,8 @@ int main(int argc, char **argv)
   reg = regname ;
 
   for (pos = lopos ; pos <= hipos; ++pos) { 
-   t = getiub(cc, ccmask, fainfo, reg, pos)  ;  
+   //t = getiub(cc, ccmask, fainfo, reg, pos)  ;  
+	t = getiub(cc, ccmask, fainfo, ss, pos)  ;  
    if (t==-5) break ;
    if (t<0) continue ;
     
@@ -694,7 +694,9 @@ void readcommands(int argc, char **argv)
    getint(ph, "allowhets:", &allowhets) ;
    getstring(ph, "dbhetfa:", &iubfile) ;
    getstring(ph, "dbmask:", &iubmaskfile) ;
+	t = NO;
    getint(ph, "transitions:", &t) ; if (t==YES) abxmode = 3 ;
+	t = NO;
    getint(ph, "transversions:", &t) ; if (t==YES) abxmode = 2 ;
    getint(ph, "abxmode:", &abxmode) ; 
 	getstring(ph, "minchrom:", &minch) ;

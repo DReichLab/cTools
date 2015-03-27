@@ -36,7 +36,7 @@ uncompress.pl uncompress the `*.ccomp.fa.gz` and `*.ccompmask.fa.gz` files.
 Usage: uncompress.pl <reference.fa> <sample.ccomp.fa.gz> (compressed hetfa file)
 
 Inputs: .ccomp.fa.gz, .ccompmask.fa.gz
-Outputs: .fa (uncompressed hetfa file), .fa.fai, .mask.fa (uncompressed mask file), .mask.fa.fai
+Outputs: .fa (uncompressed hetfa file), .fa.fai, .filter.fa (uncompressed mask file), .filter.fa.fai
 ```
 
 ***Notes***: The  Samtools is
@@ -274,8 +274,8 @@ A full parameter list of the parameter_file:
 | dbhetfa       | .dblist file that specify the hetfa file, refrence.fa and chimp.fa location. If the -d option is not used, this parameter is mandatory.  |
 | dbmask        | .dblist file that specify the mask file location. If the -d option is not used, this parameter is mandatory.|
 |pagesize|cascertain "pages" through the genome in chunks of size pagesize bases. The default is 20M bases, but this can be overwritten.  Larger pages will run faster (and use more memory).|
-| transitions   | work on transitions; [default: Yes]  |
-| transversions | work on transversions; [default: Yes] |
+| transitions   | work on transitions; [default: NO]  |
+| transversions | work on transversions; [default: NO] |
 | allowmissing| The output may contain sites that for some samples the data are missing.|
 |polarize| The polarize parameter is optional.  If present the parameter should be a sample name present in the indivname file. Then only homozygotes of this sample are considered, and the first allele of any snp is the base for the poliarize sample. As an example: "polarize: Href", the first allele of every snp in snpoutname will be the Href allele. Usually the polarize sample will be a pseudo-diploid such as Href or Chimp. |
 

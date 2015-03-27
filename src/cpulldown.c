@@ -26,7 +26,7 @@
 #include "mcio.h"  
 #include "kseq.h"
 
-#define WVERSION   "131" 
+#define WVERSION   "150" 
 
 // fai_destroy called
 #define MAXFL  50   
@@ -133,6 +133,10 @@ int main(int argc, char **argv)
   readcommands(argc, argv) ;
   settersemode(YES) ;
   if (outputname != NULL) openit(outputname, &ofile, "w") ;
+
+  if (genooutfilename == NULL) { 
+   printf("*** warning no genotype output!\n") ;     
+  }
 
   setomode(&outputmode, omode) ;
 
@@ -332,6 +336,8 @@ void readcommands(int argc, char **argv)
    getstring(ph, "indivoutname:", &indoutfilename) ; /* changed 11/02/06 */
    getstring(ph, "snpoutname:", &snpoutfilename) ; /* changed 11/02/06 */
    getstring(ph, "genooutname:", &genooutfilename) ; /* changed 11/02/06 */
+   getstring(ph, "genooutfilename:", &genooutfilename) ; /* changed 11/02/06 */
+   getstring(ph, "genotypeoutname:", &genooutfilename) ; /* changed 11/02/06 */
    getstring(ph, "outputformat:", &omode) ;  
    getint(ph, "minchrom:", &minchrom) ;
    getint(ph, "maxchrom:", &maxchrom) ;

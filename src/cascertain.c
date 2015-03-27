@@ -2,7 +2,7 @@
 * cascertain.c: Pull down the SNPs that match the ascertain criterion.
 * Author: Nick Patterson
 * Revised by: Mengyao Zhao
-* Last revise date: 2015-03-19
+* Last revise date: 2015-03-26
 * Contact: mengyao_zhao@hms.harvard.edu
 */
 
@@ -53,7 +53,7 @@ char **fasta ;  // in core bases
 char *ascstring = NULL ;
 char *noascstring = NULL ;
 
-#define VERSION  "200"    
+#define VERSION  "300"    
 
 // monoplistname added  
 void readcommands(int argc, char **argv) ;
@@ -191,6 +191,7 @@ int main(int argc, char **argv)
 
  cc[npops] = CNULL ;
  ccmask[npops-1] = CNULL ; // don't test chimp
+//fprintf(stderr, "minchrom: %d\nxchrom: %d\nmaxchrom: %d\n", minchrom, xchrom, maxchrom);
  for (chrom = minchrom; chrom <= maxchrom; ++chrom) { 
   if ((xchrom > 0) && (xchrom != chrom)) continue ;
   sprintf(ss, "%d", chrom) ;
@@ -201,8 +202,8 @@ fprintf(stderr, "chrom: %d\n", chrom);
   reg = regname ;
 
   for (pos = lopos ; pos <= hipos; ++pos) { 
-   t = getiub(cc, ccmask, fainfo, reg, pos)  ;	// call loadfa 
-//fprintf(stderr, "t: %d\n", t); 
+  // t = getiub(cc, ccmask, fainfo, reg, pos)  ;
+	t = getiub(cc, ccmask, fainfo, ss, pos)  ;  
    if (t==-5) break ;
    if (t<0) continue ;
    
