@@ -1,4 +1,4 @@
-// Revised by Mengyao on 2014-03-26
+// Revised by Mengyao on 2014-03-27
 #include <sys/wait.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -624,7 +624,7 @@ int getiub(char *cc, char *ccmask, FATYPE **fainfo, char *reg, int pos)
 void readcommands(int argc, char **argv) 
 
 {
-  int i, t = NO;
+  int i, t;
   phandle *ph ;
   char str[512]  ;
   int n, kode ;
@@ -694,7 +694,9 @@ void readcommands(int argc, char **argv)
 //   getstring(ph, "poplistname:", &poplistname) ;
    getstring(ph, "dbhetfa:", &iubfile) ;
    getstring(ph, "dbmask:", &iubmaskfile) ;
+	t = NO;
    getint(ph, "transitions:", &t) ; if (t==YES) abxmode = 3 ;
+	t = NO;
    getint(ph, "transversions:", &t) ; if (t==YES) abxmode = 2 ;
    getint(ph, "abxmode:", &abxmode) ; 
  //  getint(ph, "minchrom:", &minchrom) ;
