@@ -188,7 +188,7 @@ int main(int argc, char **argv)
   pagesize = (1000*1000*1000)/(2*npops) ;
  }
  xnpops = npops+1  ;
-
+/*
  if (xchrom > 0)  { 
   chrom = xchrom  ;
   sprintf(ss, "%d", chrom) ;
@@ -200,6 +200,8 @@ int main(int argc, char **argv)
  else sprintf(ss, "%d", 22) ;
  regname = strdup(ss) ;
  reg = regname ;
+*/
+
  lo = lopos ; 
  hi = MIN(hipos, lo+pagesize) ;
  loadfa(poplist, npops, &fainfo, reg, lo, hi)  ;
