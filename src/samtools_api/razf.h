@@ -36,7 +36,17 @@
 #include <stdint.h>
 #include <stdio.h>
 #include "zlib.h"
-#include "zutil.h"
+
+#ifdef _USE_KNETFILE
+#include "knetfile.h"
+#endif
+
+#if ZLIB_VERNUM < 0x1221
+#define _RZ_READONLY
+struct _gz_header_s;
+typedef struct _gz_header_s _gz_header;
+#define gz_header _gz_header
+#endif
 
 #define WINDOW_BITS   15
 
@@ -70,7 +80,14 @@ typedef struct RandomAccessZFile  {
 	char mode; /* 'w' : write mode; 'r' : read mode */
 	int file_type;
 	/* plain file or rz file, razf_read support plain file as input too, in this case, razf_read work as buffered fread */
+#ifdef _USE_KNETFILE
+    union {
+        knetFile *fpr;
+        int fpw;
+    } x;
+#else
 	int filedes; /* the file descriptor */
+#endif
 	z_stream *stream;
 	ZBlockIndex *index;
 	int64_t in, out, end, src_end;
@@ -80,7 +97,7 @@ typedef struct RandomAccessZFile  {
 	int64_t block_pos, block_off, next_block_pos;
 	/* block_pos: the start postiion of current block  in compressed file */
 	/* block_off: tell how many bytes have been read from current block */
-	void *inbuf, *outbuf;
+	unsigned char *inbuf, *outbuf;
 	int header_size;
 	gz_header *header;
 	/* header is used to transfer inflate_state->mode from HEAD to TYPE after call inflateReset */

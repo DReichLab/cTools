@@ -2,7 +2,7 @@
 * cascertain.c: Pull down the SNPs that match the ascertain criterion.
 * Author: Nick Patterson
 * Revised by: Mengyao Zhao
-* Last revise date: 2015-04-07
+* Last revise date: 2015-04-14
 * Contact: mengyao_zhao@hms.harvard.edu
 */
 
@@ -19,18 +19,6 @@
 #include "popsubs.h"
 #include "mcio.h"
 #include "kseq.h"
-//KSEQ_INIT(gzFile, gzread)
-
-//#ifndef _NO_RAZF
-//#include "razf.h"
-//#else
-#define RAZF FILE
-#define razf_read(fp, buf, size) fread(buf, 1, size, fp)
-#define razf_open(fn, mode) fopen(fn, mode)
-#define razf_close(fp) fclose(fp)
-#define razf_seek(fp, offset, whence) fseeko(fp, offset, whence)
-#define razf_tell(fp) ftello(fp)
-//#endif
 
 typedef struct { 
  int *val ; 
@@ -73,7 +61,6 @@ void clearfainfo(FATYPE *fapt, int mode) ;
 char *myfai_fetch(faidx_t *fai, char *reg, int  *plen) ;
 int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, int hipos)  ;
 int minfalen(FATYPE **fainfo, int n)  ;
-
 
 int istransition(char iubc)  ;
 int abx(int a, int b)  ; 
@@ -202,37 +189,34 @@ int main(int argc, char **argv)
 
  cc[npops] = CNULL ;
  ccmask[npops-1] = CNULL ; // don't test chimp
-//fprintf(stderr, "minchrom: %d\nxchrom: %d\nmaxchrom: %d\n", minchrom, xchrom, maxchrom);
- for (chrom = minchrom; chrom <= maxchrom; ++chrom) { 
-  if ((xchrom > 0) && (xchrom != chrom)) continue ;
-  sprintf(ss, "%d", chrom) ;
-fprintf(stderr, "chrom: %d\n", chrom);
-  if (chrom == 23) strcpy(ss, "X") ;
-  freestring(&regname) ;
-  regname = strdup(ss);
-  reg = regname ;
+ 	for (chrom = minchrom; chrom <= maxchrom; ++chrom) { 
+  		if ((xchrom > 0) && (xchrom != chrom)) continue ;
+  		sprintf(ss, "%d", chrom) ;
+		fprintf(stderr, "chrom: %d\n", chrom);
+  		if (chrom == 23) strcpy(ss, "X") ;
+  		freestring(&regname) ;
+  		regname = strdup(ss);
+  		reg = regname ;
 
-  for (pos = lopos ; pos <= hipos; ++pos) { 
-  // t = getiub(cc, ccmask, fainfo, reg, pos)  ;
-	t = getiub(cc, ccmask, fainfo, ss, pos)  ;  
-   if (t==-5) break ;
-   if (t<0) continue ;
+  		for (pos = lopos ; pos <= hipos; ++pos) { 
+			t = getiub(cc, ccmask, fainfo, ss, pos)  ; // zz pos
+   			if (t<0) continue ;
    
-//fprintf(stderr, "before checkasc\n"); 
-   t = checkasc(asctable, nasc, cc, ccmask, &c1, &c2, regname, pos) ; 
-//fprintf(stderr, "after checkasc\n"); 
-   if (t==YES) {
-    if (abxmode != 0) {
-     abxkode = abx(base2num(c1), base2num(c2)) ;
-     if (abxkode < 0) continue ;
-     t = abxok(abxkode, abxmode) ;
-     if (t==NO) continue ;
-    }
-    t2 = checkasc(noasctable, nonasc, cc, ccmask, &c1, &c2, regname, pos) ; 
-    if (t2==NO) prints(fff, pos, c1, c2) ;  
-    if (verbose && (t2==NO)) printf("hit: %d %d %s %c%c\n", chrom, pos, cc, c1 , c2) ;
-   }
- }}
+   			t = checkasc(asctable, nasc, cc, ccmask, &c1, &c2, regname, pos) ; 
+   			if (t==YES) {
+    			if (abxmode != 0) {
+     				abxkode = abx(base2num(c1), base2num(c2)) ;
+     				if (abxkode < 0) continue ;
+     				t = abxok(abxkode, abxmode) ;
+     				if (t==NO) continue ;
+    			}
+    			t2 = checkasc(noasctable, nonasc, cc, ccmask, &c1, &c2, regname, pos) ;
+			//	fprintf(stderr, "***t2==NO\n"); 
+    			if (t2==NO) prints(fff, pos, c1, c2) ;  
+    			if (verbose && (t2==NO)) printf("hit: %d %d %s %c%c\n", chrom, pos, cc, c1 , c2) ;
+   			}
+ 		}
+	}
 
  if (snpname != NULL) fclose(fff) ;
  
@@ -476,7 +460,7 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
 //	char lpos[16], hpos[16]; 
  int lo, i, len_r = 0, len_s, len ;
  static int ncall = 0 ;
-	faidx_t *fai, *fai_ref;	// Use this to open the reference sequence. 
+	faidx_t *fai_ref;	// Use this to open the reference sequence. 
 //	gzFile fp;
 //	kseq_t *seq;
 //	RAZF *rz;
@@ -514,6 +498,7 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
       fatalx("Do not find the data files. Please use -d option or set dbhetfa and dbmask in your parameter file.\n") ;
    }
 
+	fprintf(stderr, "numfalist: %d\tnpops: %d\n", numfalist, npops);
    for (k=0; k<npops; ++k) {
     hasmask[k] = YES ;
     if (famasklist[k] == NULL) {  
@@ -529,7 +514,12 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
 
    ZALLOC(fainfo, npops, FATYPE *) ;
    ZALLOC(fasta, npops, char *) ;
-   
+/*   
+	int ttt;
+	faidx_t *fai = fai_load("/home/mz128/cteam/usr/data/Chimp.fa");
+	printf("+++++ %s\n", fai_fetch(fai, "20:18000000-18000100", &ttt));
+*/
+
 	for (k=0; k<npops; ++k) {
 		ZALLOC(fainfo[k], 1, FATYPE) ;
 		fapt = fainfo[k] ; 
@@ -549,6 +539,8 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
 		fprintf(stderr, "faname1: %s\n", fapt->faname);
 	
 		fapt -> fai = fai_load(fapt -> faname) ;
+//		fapt->rstring = fai_fetch(fapt->fai, "20:18000000-18000100", &len_s);
+//	fprintf(stderr, "len_s: %d\tstring1: %s\n", len_s, fapt->rstring);
 		fapt -> popnum = k ;
 		if (hasmask[k]) fapt -> faimask = fai_load(fapt -> famask) ;
 	}
@@ -579,6 +571,7 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
 	fprintf(stderr, "faname: %s\n", fapt->faname);
 	fapt->rstring = fai_fetch(fapt->fai, region, &len_s);
 	if (len_s==0) fatalx("bad fetch %s %s\n", fapt->faname, region) ; 	// fetch fai
+//	fprintf(stderr, "len_s: %d\tregion: %s\trstring: %s\n", len_s, region, fapt->rstring);
 	//rz = razf_open(fapt->faname, "r");
 	//ttfasta = myfai_fetch(fapt->fai, reg, &len);
 	//razf_close(rz);
@@ -592,11 +585,14 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
 	ttfasta = seq->seq.s;
 
 	len = seq->seq.l;*/
+	
 	len = len_r < len_s ? len_r : len_s;
 	fprintf(stderr, "len: %d\n", len);
-	for (i = 0; i < len; ++i) {
+/*	for (i = 0; i < len; ++i) {
 		if (fapt->rstring[i] == 'Q') fapt->rstring[i] = ref[i];
-	}
+	}*/
+
+
 //	kseq_destroy(seq);
 	// access the hetfa file; ttfasta is the hetfa sequence
 //fprintf(stderr, "fapt->fai: %s\n", fapt->fai);
@@ -635,9 +631,11 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
       fapt -> mstring[len] = CNULL  ;
       freestring(&ttfasta) ;*/
       fapt -> mlen = len_s ;
+//	fprintf(stderr, "fapt->lopos: %d\tk: %d\n", lopos, k);
+//	fprintf(stderr, "rstring: %s\nmstring: %s\n", fapt->rstring, fapt->mstring);
   }
 	free (ref);
-	fai_destroy(fai);
+	fai_destroy(fai_ref);
 
   return npops ;
 }
@@ -676,7 +674,7 @@ int getiub(char *cc, char *ccmask, FATYPE **fainfo, char *reg, int pos)
   char regbuff[128] ;
   static long ncnt = 0 ;
   static long ncall = 0 ;
-
+//fprintf(stderr, "!in getiub!\n");
   ++ncall ;
   fapt = fainfo[0] ; 
   lastreg = fapt -> regname ;
@@ -688,10 +686,10 @@ int getiub(char *cc, char *ccmask, FATYPE **fainfo, char *reg, int pos)
    newreg =  YES; 
    fflush(stdout) ;
   }
-  else { 
+/*  else { 
    if (pos >= fapt -> rlen) return -5 ;
   }
-
+*/
   lastlo = 1000*1000*1000 ; 
   lasthi = 1 ; 
   for (k=0; k<npops; ++k) { 
@@ -706,7 +704,7 @@ int getiub(char *cc, char *ccmask, FATYPE **fainfo, char *reg, int pos)
   if (pos < lastlo) newpage = YES ;
   if (pos > lasthi) newpage = YES ;
   if (ncall == 1) newreg = YES ;
-
+//fprintf(stderr, "half getiub\n");
   if (newreg == YES) { 
    fflush(stdout) ;
    freestring(&regname) ;
@@ -729,6 +727,7 @@ int getiub(char *cc, char *ccmask, FATYPE **fainfo, char *reg, int pos)
    if (pos < fapt -> lopos) return -2 ;
    if (pos > fapt -> hipos) return -2 ;
    cc[k] = getfacc(fapt, pos, 1) ; 	// genotype at pos; cc[k] is an iub code
+//fprintf(stderr, "pos: %d\tcc[%d]: %c\n", pos, k, cc[k]);
    if (hasmask[k]) ccmask[k] = getfacc(fapt, pos, 2) ; 	// mask at pos
    else ccmask[k] = '9' ;
   }
@@ -740,6 +739,7 @@ int getiub(char *cc, char *ccmask, FATYPE **fainfo, char *reg, int pos)
   }
 
   ++ncnt ;
+//	fprintf(stderr, "ncnt: %d\n", ncnt);
   if (ncnt == 1) { 
    printf("zz pos: %s %s\n", cc, ccmask) ;
    for (k=0; k<npops; ++k) { 
