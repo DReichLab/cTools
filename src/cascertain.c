@@ -2,7 +2,7 @@
 * cascertain.c: Pull down the SNPs that match the ascertain criterion.
 * Author: Nick Patterson
 * Revised by: Mengyao Zhao
-* Last revise date: 2015-04-14
+* Last revise date: 2015-04-15
 * Contact: mengyao_zhao@hms.harvard.edu
 */
 
@@ -211,7 +211,6 @@ int main(int argc, char **argv)
      				if (t==NO) continue ;
     			}
     			t2 = checkasc(noasctable, nonasc, cc, ccmask, &c1, &c2, regname, pos) ;
-			//	fprintf(stderr, "***t2==NO\n"); 
     			if (t2==NO) prints(fff, pos, c1, c2) ;  
     			if (verbose && (t2==NO)) printf("hit: %d %d %s %c%c\n", chrom, pos, cc, c1 , c2) ;
    			}
@@ -456,14 +455,10 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
  static char **falist, **famasklist ;
  static FATYPE **fainfo, *fapt ; 	// fainfo is the return valual that contains sequences in fa and mask
  int *falen ;
- char *region, *ref, *refname = (char*)malloc(256*sizeof(char));
-//	char lpos[16], hpos[16]; 
- int lo, i, len_r = 0, len_s, len ;
+ char *region;// *ref, *refname = (char*)malloc(256*sizeof(char));
+ int lo, i, len_s;// len ;
  static int ncall = 0 ;
-	faidx_t *fai_ref;	// Use this to open the reference sequence. 
-//	gzFile fp;
-//	kseq_t *seq;
-//	RAZF *rz;
+//	faidx_t *fai_ref;	// Use this to open the reference sequence. 
   
   ++ncall ;
 
@@ -471,24 +466,19 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
 	region = (char*)malloc((23+strlen(reg))*sizeof(char));
 	sprintf(region, "%s:%d-%d", reg, lo, hipos);
 
-	fprintf (stderr, "in loadfa\n");
-
+/*
 	if (db == 0) refname = strcat(table_path, "Href.fa");
 	else getdbname(iubfile, "Href", &refname);
-
+*/
   if (ncall==1) {
    ZALLOC(falist, npops, char *) ;
    ZALLOC(famasklist, npops, char *) ;
 	if (db == 0) {
 	   numfalist = setfalist(poplist, npops, ".fa", falist) ;
 	   t = setfalist(poplist, npops, ".filter.fa", famasklist) ;
-//		refname = strcat(table_path, "Href.fa");
-//fprintf(stderr, "db:0\n");
 	} else {
 	   numfalist = getfalist(poplist, npops, iubfile, falist) ;	// set falist with the absolute path of hetfa files in .dblist file; falist contains the iubfile names
 	   t = getfalist(poplist, npops, iubmaskfile, famasklist) ;
-//		getdbname(iubfile, "Href", &refname); 
-//fprintf(stderr, "db:!0\n");
 	}
 
    if (numfalist != npops) {
@@ -498,7 +488,7 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
       fatalx("Do not find the data files. Please use -d option or set dbhetfa and dbmask in your parameter file.\n") ;
    }
 
-	fprintf(stderr, "numfalist: %d\tnpops: %d\n", numfalist, npops);
+	//fprintf(stderr, "numfalist: %d\tnpops: %d\n", numfalist, npops);
    for (k=0; k<npops; ++k) {
     hasmask[k] = YES ;
     if (famasklist[k] == NULL) {  
@@ -514,11 +504,6 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
 
    ZALLOC(fainfo, npops, FATYPE *) ;
    ZALLOC(fasta, npops, char *) ;
-/*   
-	int ttt;
-	faidx_t *fai = fai_load("/home/mz128/cteam/usr/data/Chimp.fa");
-	printf("+++++ %s\n", fai_fetch(fai, "20:18000000-18000100", &ttt));
-*/
 
 	for (k=0; k<npops; ++k) {
 		ZALLOC(fainfo[k], 1, FATYPE) ;
@@ -536,11 +521,9 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
 		 printf("loading: %s\n", fapt -> faname) ;
 		 printnl() ;
 	   }
-		fprintf(stderr, "faname1: %s\n", fapt->faname);
+//		fprintf(stderr, "faname1: %s\n", fapt->faname);
 	
 		fapt -> fai = fai_load(fapt -> faname) ;
-//		fapt->rstring = fai_fetch(fapt->fai, "20:18000000-18000100", &len_s);
-//	fprintf(stderr, "len_s: %d\tstring1: %s\n", len_s, fapt->rstring);
 		fapt -> popnum = k ;
 		if (hasmask[k]) fapt -> faimask = fai_load(fapt -> famask) ;
 	}
@@ -556,11 +539,9 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
   }
 	
   if (pfainfo != NULL) *pfainfo  = fainfo ;
-//fprintf(stderr, "refname: %s\n", refname);
-	fai_ref = fai_load(refname);
-	ref = fai_fetch(fai_ref, region, &len_r);
-	if (len_r==0) fatalx("bad fetch %s %s\n", refname, region) ; 	// fetch fai
-//fprintf(stderr, "fapt->fai: %s\n", fapt->fai);
+//	fai_ref = fai_load(refname);
+//	ref = fai_fetch(fai_ref, region, &len_r);
+//	if (len_r==0) fatalx("bad fetch %s %s\n", refname, region) ; 	// fetch fai
 
   for (k=0; k<numfalist ; ++k) { 	// numfalist is the count of sample fasta files = npops
 	
@@ -571,71 +552,30 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
 	fprintf(stderr, "faname: %s\n", fapt->faname);
 	fapt->rstring = fai_fetch(fapt->fai, region, &len_s);
 	if (len_s==0) fatalx("bad fetch %s %s\n", fapt->faname, region) ; 	// fetch fai
-//	fprintf(stderr, "len_s: %d\tregion: %s\trstring: %s\n", len_s, region, fapt->rstring);
-	//rz = razf_open(fapt->faname, "r");
-	//ttfasta = myfai_fetch(fapt->fai, reg, &len);
-	//razf_close(rz);
-	//ref = fai_fetch(fai, ref, &len_r);
-/*	seq = kseq_init(fp);
-	while (kseq_read(seq) >= 0) {
-		char *ref;
-		int len_r; //, min;
-		free(ref);
-	}
-	ttfasta = seq->seq.s;
-
-	len = seq->seq.l;*/
 	
-	len = len_r < len_s ? len_r : len_s;
-	fprintf(stderr, "len: %d\n", len);
+//	len = len_r < len_s ? len_r : len_s;
+//	fprintf(stderr, "len: %d\n", len);
 /*	for (i = 0; i < len; ++i) {
 		if (fapt->rstring[i] == 'Q') fapt->rstring[i] = ref[i];
 	}*/
 
-
-//	kseq_destroy(seq);
-	// access the hetfa file; ttfasta is the hetfa sequence
-//fprintf(stderr, "fapt->fai: %s\n", fapt->fai);
-  //   ttfasta = myfai_fetch(fapt -> fai, reg, &len) ;		
-	//fprintf(stderr, "ttfasta: %s\n", ttfasta);
-	
-/*	if (len==0) fatalx("bad fetch %s %s\n", fapt -> faname, reg) ; 	// fetch fai
-      fapt -> rlen = len ;
-      lo = MAX(1, lopos) ;
-      hi = MIN(len, hipos) ;
-      len = hi-lo + 1 ;
-      ZALLOC(fapt -> rstring, len+1, char) ;
-      strncpy(fapt -> rstring, ttfasta+lo-1, len) ; // indexing is base 1
-      fapt -> rstring[len] == CNULL  ; 	// fapt->rstring contains the sequence from lo to hi or the whole chrom
-      freestring(&ttfasta) ;*/
       fapt -> regname = strdup(reg) ;
-      fapt -> len = len ;
+     // fapt -> len = len ;
+      fapt -> len = len_s ;
       fapt -> lopos = lo ;
-      fapt -> hipos = lo + len - 1 ;
+      //fapt -> hipos = lo + len - 1 ;
+      fapt -> hipos = lo + len_s - 1 ;
 
       if (hasmask[k] == NO)  continue ; 
     
 		sprintf(region, "%s:%d-%d", reg, fapt->lopos, fapt->hipos);
 		len_s = 0;
 		fapt->mstring = fai_fetch(fapt->faimask, region, &len_s);
-/*		rz = razf_open(fapt->famask, "r");
-	  	ttfasta = myfai_fetch(fapt -> faimask, reg, &len) ; 
-		razf_close(rz);
-    */
 	  if (len_s==0) fatalx("bad fetch (mask)  %s %s\n", fapt -> faimask, region) ;
-    /*  lo = MAX(1, fapt -> lopos) ;
-      hi = MIN(len, fapt -> hipos) ;
-      len = hi-lo + 1 ;
-      ZALLOC(fapt -> mstring, len+1, char) ;
-      strncpy(fapt -> mstring, ttfasta+lo-1, len) ; // indexing is base 1
-      fapt -> mstring[len] = CNULL  ;
-      freestring(&ttfasta) ;*/
       fapt -> mlen = len_s ;
-//	fprintf(stderr, "fapt->lopos: %d\tk: %d\n", lopos, k);
-//	fprintf(stderr, "rstring: %s\nmstring: %s\n", fapt->rstring, fapt->mstring);
   }
-	free (ref);
-	fai_destroy(fai_ref);
+//	free (ref);
+//	fai_destroy(fai_ref);
 
   return npops ;
 }
