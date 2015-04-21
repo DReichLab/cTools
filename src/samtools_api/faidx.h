@@ -51,6 +51,8 @@ extern "C" {
 	 */
 	int fai_build(const char *fn);
 
+	int fai_getlen(const faidx_t *fai, const char *name);
+
 	/*!
 	  @abstract    Distroy a faidx_t struct.
 	  @param  fai  Pointer to the struct to be destroyed

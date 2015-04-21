@@ -2,7 +2,7 @@
 * cpulldown.c:	get the genotypes of the given individuls at the given SNP loci from a set of bams
 * Author: Nick Patterson
 * Revised by: Mengyao Zhao
-* Last revise date: 2015-02-24
+* Last revise date: 2015-04-21
 * Contact: mengyao_zhao@hms.harvard.edu
 */
 

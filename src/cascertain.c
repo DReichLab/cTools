@@ -2,7 +2,7 @@
 * cascertain.c: Pull down the SNPs that match the ascertain criterion.
 * Author: Nick Patterson
 * Revised by: Mengyao Zhao
-* Last revise date: 2015-04-15
+* Last revise date: 2015-04-17
 * Contact: mengyao_zhao@hms.harvard.edu
 */
 
@@ -549,7 +549,7 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
      
 	fapt = fainfo[k] ;
 	
-	fprintf(stderr, "faname: %s\n", fapt->faname);
+//	fprintf(stderr, "faname: %s\n", fapt->faname);
 	fapt->rstring = fai_fetch(fapt->fai, region, &len_s);
 	if (len_s==0) fatalx("bad fetch %s %s\n", fapt->faname, region) ; 	// fetch fai
 	
@@ -561,6 +561,7 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
 
       fapt -> regname = strdup(reg) ;
      // fapt -> len = len ;
+      fapt -> rlen = fai_getlen(fapt->fai, reg) ;
       fapt -> len = len_s ;
       fapt -> lopos = lo ;
       //fapt -> hipos = lo + len - 1 ;

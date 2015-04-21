@@ -2,7 +2,7 @@
  * cpoly.c: This program is used to extract heterozygote SNPs from multiple samples
  * Author: Nick Patterson
  * Revised by: Mengyao Zhao
- * Last revise date: 2015-03-02
+ * Last revise date: 2015-04-21
  * Contact: mengyao_zhao@hms.harvard.edu 
  */
 
@@ -17,7 +17,7 @@
 #include "popsubs.h"
 #include "mcio.h"
 #include "kseq.h"
-KSEQ_INIT(gzFile, gzread)
+//KSEQ_INIT(gzFile, gzread)
 
 typedef struct { 
  int *val ; 
@@ -157,10 +157,8 @@ int main(int argc, char **argv)
   if (regname[0] == 'X') xchrom = 23 ; 
   	else if (regname[0] == 'Y') xchrom = 24 ;
 	else if (!strcmp(regname, "MT")) xchrom = 25; 
-
   else xchrom = atoi(regname) ;
  }
-
 
   npops = numlines(indivname) ; 
   ZALLOC(poplist, npops, char *) ;
@@ -188,23 +186,25 @@ int main(int argc, char **argv)
   pagesize = (1000*1000*1000)/(2*npops) ;
  }
  xnpops = npops+1  ;
-/*
- if (xchrom > 0)  { 
-  chrom = xchrom  ;
-  sprintf(ss, "%d", chrom) ;
-  if (chrom == 23) strcpy(ss, "X") ;
-	else if (chrom == 24) strcpy(ss, "Y") ;
-  	else if (chrom == 25) strcpy(ss, "MT") ;
 
- }
- else sprintf(ss, "%d", 22) ;
- regname = strdup(ss) ;
- reg = regname ;
-*/
+	if (xchrom > 0)  { 
+	  chrom = xchrom  ;
+	  sprintf(ss, "%d", chrom) ;
+	  if (chrom == 23) strcpy(ss, "X") ;
+	 // if (chrom == 24) strcpy(ss, "Y") ;
+	 // if (chrom == 90) strcpy(ss, "MT") ;
+		else if (chrom == 24) strcpy(ss, "Y") ;
+		else if (chrom == 25) strcpy(ss, "MT") ;
+
+	 }
+	 else sprintf(ss, "%d", 22) ;
+	 regname = strdup(ss) ;
+	 reg = regname ;
 
  lo = lopos ; 
  hi = MIN(hipos, lo+pagesize) ;
  loadfa(poplist, npops, &fainfo, reg, lo, hi)  ;
+fprintf(stderr, "main: fapt->fai: %p\n", fainfo[0]->fai);
  printf("npops: %d\n", npops) ;
   for (k=0;  k< npops; ++k) { 
    fapt = fainfo[k] ;
@@ -227,11 +227,13 @@ int main(int argc, char **argv)
   freestring(&regname) ;
   regname = strdup(ss) ;
   reg = regname ;
-
+	
+	
+fprintf(stderr, "lopos-main: %d\thipos-main: %d\n", lopos, hipos);
   for (pos = lopos ; pos <= hipos; ++pos) { 
    //t = getiub(cc, ccmask, fainfo, reg, pos)  ;  
 	t = getiub(cc, ccmask, fainfo, ss, pos)  ;  
-   if (t==-5) break ;
+   //if (t==-5) break ;
    if (t<0) continue ;
     
    t = checkpoly(cc, ccmask, &c1, &c2) ; 
@@ -249,7 +251,6 @@ int main(int argc, char **argv)
     continue ;
    }
    ++npoly ;
-// if (npoly<20) printf("zz %d %c %c %s\n",pos, c1, c2, cc) ;
    prints(fff, pos, c1, c2) ;
    printgg(ggg, cc, ccmask, c1, c2, npops) ;
  }}
@@ -327,6 +328,7 @@ int checktriallelic(char *pc1, char *pc2, char x1, char x2)
   *pc2 = c2 ;
   return YES ;
 }
+
 int checkpoly(char *cc, char *ccmask, char *pc1, char *pc2)  
 {
  int valid[20] ;
@@ -382,25 +384,27 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
  static char **falist, **famasklist ;
  static FATYPE **fainfo, *fapt ;
  int *falen ;
- char *ttfasta ;
+ //char *ttfasta ;
  int lo, hi ;
  static int ncall = 0 ;
-	gzFile fp;
+	char* region;
+//	gzFile fp;
  
-  
+ fprintf(stderr, "reg: %s\tlopos: %d\thipos: %d\n", reg, lopos, hipos); 
   ++ncall ;
 
   fflush(stdout) ;
 
+	lo = MAX(1, lopos) ;
+	region = (char*)malloc((23+strlen(reg))*sizeof(char));
+	sprintf(region, "%s:%d-%d", reg, lo, hipos);
+
   if (ncall==1) {
    ZALLOC(falist, npops, char *) ;
    ZALLOC(famasklist, npops, char *) ;
-//   numfalist = getfalist(poplist, npops, iubfile, falist) ; 
-		
 	if (db == 0) {
 	   numfalist = setfalist(poplist, npops, ".fa", falist) ;
 	   t = setfalist(poplist, npops, ".filter.fa", famasklist) ;
-	//fprintf(stderr, "numfalist: %d\n", numfalist); 
 	} else {
 	   numfalist = getfalist(poplist, npops, iubfile, falist) ;	// set falist with the absolute path of hetfa files in .dblist file
 	   t = getfalist(poplist, npops, iubmaskfile, famasklist) ; 
@@ -410,10 +414,8 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
       for (k=0; k<npops; ++k) { 
         if (falist[k] == NULL) printf("no fasta file for: %s\n", poplist[k]) ;
       }
-      //fatalx("pop not found in fasta database\n") ;
 	  fatalx("Do not find the data files. Please use -d option or set dbhetfa and dbmask in your parameter file.\n") ;
    }
-   //t = getfalist(poplist, npops, iubmaskfile, famasklist) ; 
    for (k=0; k<npops; ++k) {
     hasmask[k] = YES ;
     if (famasklist[k] == NULL) {  
@@ -448,6 +450,7 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
    }
    verbose = NO ;
     fapt -> fai = fai_load(fapt -> faname) ;
+//fprintf(stderr, "loadfa1: fapt->fai: %p\n", fapt->fai);
     fapt -> popnum = k ;
     if (hasmask[k]) fapt -> faimask = fai_load(fapt -> famask) ;
    }
@@ -469,41 +472,52 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
   for (k=0; k<numfalist ; ++k) {
      fapt = fainfo[k] ;
 	
-		fp = gzopen(fapt->faname, "r");
+//    fapt -> fai = fai_load(fapt -> faname) ;
+//fprintf(stderr, "loadfa2: fapt->fai: %p\n", fapt->fai);
+	fapt->rstring = fai_fetch(fapt->fai, region, &len);
+	if (len==0) fatalx("bad fetch %s %s\n", fapt->faname, region);	// fetch fai
+	/*	fp = gzopen(fapt->faname, "r");
      ttfasta = myfai_fetch(fapt -> fai, reg, &len) ;
 		gzclose(fp);
  
-     if (len==0) fatalx("bad fetch %s %s\n", fapt -> faname, reg) ;
-      fapt -> rlen = len ;
-      lo = MAX(1, lopos) ;
+     if (len==0) fatalx("bad fetch %s %s\n", fapt -> faname, reg) ;*/
+      fapt -> rlen = fai_getlen(fapt->fai, reg) ;
+    /*  lo = MAX(1, lopos) ;
       hi = MIN(len, hipos) ;
       hi = MIN(hi, lo+pagesize) ;
       len = hi-lo + 1 ;
       ZALLOC(fapt -> rstring, len+1, char) ;
       strncpy(fapt -> rstring, ttfasta+lo-1, len) ; // indexing is base 1
       fapt -> rstring[len] == CNULL  ;
-      freestring(&ttfasta) ;
+      freestring(&ttfasta) ;*/
       fapt -> regname = strdup(reg) ;
       fapt -> len = len ;
       fapt -> lopos = lo ;
-      fapt -> hipos = hi ;
+      fapt -> hipos = lo + len - 1 ;
       if (verbose) printf("zzlh %d %d %d %d\n", lopos, hipos, fapt -> lopos, fapt -> hipos) ;
 
+		fprintf(stderr, "fapt->rstring: %s\n", fapt->rstring);
+
       if (fapt -> faimask == NULL) continue ;
- 
+/* 
 		fp = gzopen(fapt->famask, "r");
       ttfasta = myfai_fetch(fapt -> faimask, reg, &len) ; 
 		gzclose(fp);
 
-      if (len==0) fatalx("bad fetch %s %s\n", fapt -> faname, reg) ;
-      lo = MAX(1, fapt -> lopos) ;
+      if (len==0) fatalx("bad fetch %s %s\n", fapt -> faname, reg) ;*/
+		sprintf(region, "%s:%d-%d", reg, fapt->lopos, fapt->hipos);
+		len = 0;
+		fapt->mstring = fai_fetch(fapt->faimask, region, &len);
+
+	  if (len==0) fatalx("bad fetch (mask)  %s %s\n", fapt -> faimask, region) ;
+    /*  lo = MAX(1, fapt -> lopos) ;
       hi = MIN(len, fapt -> hipos) ;
       len = hi-lo + 1 ;
       ZALLOC(fapt -> mstring, len+1, char) ;
       if (verbose) printf("zzmset %x  %s %d %d %d\n", topheap() , fapt -> alias, lo, hi, len) ; fflush(stdout) ;
       strncpy(fapt -> mstring, ttfasta+lo-1, len) ; // indexing is base 1
       fapt -> mstring[len] = CNULL  ;
-      freestring(&ttfasta) ;
+      freestring(&ttfasta) ;*/
       fapt -> mlen = len ;
   }
 
@@ -589,6 +603,7 @@ int getiub(char *cc, char *ccmask, FATYPE **fainfo, char *reg, int pos)
   }
 
   if (newpage == YES) { 
+fprintf(stderr, "pos-getiub: %d\n", pos);
    fflush(stdout) ;
    lastlo = pos ;
    lasthi = pos + pagesize ;
@@ -597,6 +612,7 @@ int getiub(char *cc, char *ccmask, FATYPE **fainfo, char *reg, int pos)
    lasthi = MIN(lasthi, lastlo+pagesize) ;
    printf("calling loodfa %s %d %d \n", regname, lastlo, lasthi) ;
    fflush(stdout) ;
+//fprintf(stderr, "getiub: fapt->fai: %p\n", fainfo[0]->fai);
    loadfa(poplist, npops, &fainfo, regname, lastlo, lasthi)  ;
    printf("newpage: %d %p %d %d\n", pos, topheap(), lastlo, lasthi) ;
 
@@ -826,7 +842,7 @@ void printfapt(FATYPE *fapt)
   char cc ;
 
   printf("fapt: %s %s\n",  fapt->faname, fapt->alias) ;
-	printf("%p %d %d n", fapt -> fai, fapt -> lopos, fapt -> hipos) ;
+	printf("%p %d %d ", fapt -> fai, fapt -> lopos, fapt -> hipos) ;
 
 
   printf("len: %d rlen: %d\n", fapt -> len, fapt -> rlen) ;
