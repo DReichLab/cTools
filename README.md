@@ -306,8 +306,9 @@ X:21_16495307    21        0.164953        16495307 G A
 - 2nd column: chromosome name
 - 3rd column: genetic location
 - 4th column: coordinate
-- 5th column: base allele
-- 6th column: derived allele
+- 5th column: base allele. In the output of cascertain (with polarize to Href set), this is the Href allele.
+- 6th column: alternative allele. In the output of cascertain, this is the forward strand allele.
+- For cpulldown and cpoly, the column 5 and 6 of the output .snp file are the same as that of the input. They can be any user chosen alleles.
 
 ###3. .geno file
 example.geno
@@ -321,6 +322,7 @@ example.geno
 - The count of columns in .geno file is the count of individuals in .ind file. From left to right, each column of .geno corresponds to one individual (from top to bottom) in .ind file.
 - The count of lines in .geno file is the count of SNP sites in .snp file. Each line of .geno corresponds to one line in .snp file.
 - Each number in .geno denotes the count of base alleles (the allele of the 5th column of .snp file) of the corresponding individual at the corresponding SNP site.
+- The number is the count of the allele in the 5th column of the .snp file. For example, if the .snp file is example.snp, for the 1st snp locus, '0' means homozygous T, '2' means homozygous C.
 
 ###4. .dblist
 
@@ -351,5 +353,5 @@ S_Yoruba-1  -   /home/mz128/cteam/usr/data/S_Yoruba-1.filter.fa
 <!--
 Written by Nick on 6/15/14
 Revised by Mengyao Zhao
-Last revision: 12/08/14
+Last revision: 04/21/15
 -->
