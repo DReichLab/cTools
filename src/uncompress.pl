@@ -37,7 +37,7 @@ sub command {
 	my $name = shift;
 	system("samtools faidx $name.fa");
 	#system("gunzip -f $name.ccompmask.fa.gz");
-	system("htsbox razip -d $name.ccompmask.fa.rz");
+	system("htsbox razip -d -c >$name.ccompmask.fa.rz");
 	system ("mv $name.ccompmask.fa $name.filter.fa");
 	system("samtools faidx $name.filter.fa");
 	#system("rm $name.ccomp.fa.rz");

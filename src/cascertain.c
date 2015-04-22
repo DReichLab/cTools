@@ -2,7 +2,7 @@
 * cascertain.c: Pull down the SNPs that match the ascertain criterion.
 * Author: Nick Patterson
 * Revised by: Mengyao Zhao
-* Last revise date: 2015-04-17
+* Last revise date: 2015-04-22
 * Contact: mengyao_zhao@hms.harvard.edu
 */
 
@@ -455,10 +455,10 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
  static char **falist, **famasklist ;
  static FATYPE **fainfo, *fapt ; 	// fainfo is the return valual that contains sequences in fa and mask
  int *falen ;
- char *region;// *ref, *refname = (char*)malloc(256*sizeof(char));
- int lo, i, len_s;// len ;
+ char *region, *ref, *refname = (char*)malloc(256*sizeof(char));
+ int lo, i, len_s, len_r, len ;
  static int ncall = 0 ;
-//	faidx_t *fai_ref;	// Use this to open the reference sequence. 
+	faidx_t *fai_ref;	// Use this to open the reference sequence. 
   
   ++ncall ;
 
@@ -466,10 +466,10 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
 	region = (char*)malloc((23+strlen(reg))*sizeof(char));
 	sprintf(region, "%s:%d-%d", reg, lo, hipos);
 
-/*
+
 	if (db == 0) refname = strcat(table_path, "Href.fa");
 	else getdbname(iubfile, "Href", &refname);
-*/
+
   if (ncall==1) {
    ZALLOC(falist, npops, char *) ;
    ZALLOC(famasklist, npops, char *) ;
@@ -539,9 +539,9 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
   }
 	
   if (pfainfo != NULL) *pfainfo  = fainfo ;
-//	fai_ref = fai_load(refname);
-//	ref = fai_fetch(fai_ref, region, &len_r);
-//	if (len_r==0) fatalx("bad fetch %s %s\n", refname, region) ; 	// fetch fai
+	fai_ref = fai_load(refname);
+	ref = fai_fetch(fai_ref, region, &len_r);
+	if (len_r==0) fatalx("bad fetch %s %s\n", refname, region) ; 	// fetch fai
 
   for (k=0; k<numfalist ; ++k) { 	// numfalist is the count of sample fasta files = npops
 	
@@ -553,11 +553,11 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
 	fapt->rstring = fai_fetch(fapt->fai, region, &len_s);
 	if (len_s==0) fatalx("bad fetch %s %s\n", fapt->faname, region) ; 	// fetch fai
 	
-//	len = len_r < len_s ? len_r : len_s;
+	len = len_r < len_s ? len_r : len_s;
 //	fprintf(stderr, "len: %d\n", len);
-/*	for (i = 0; i < len; ++i) {
+	for (i = 0; i < len; ++i) {
 		if (fapt->rstring[i] == 'Q') fapt->rstring[i] = ref[i];
-	}*/
+	}
 
       fapt -> regname = strdup(reg) ;
      // fapt -> len = len ;
@@ -575,8 +575,8 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
 	  if (len_s==0) fatalx("bad fetch (mask)  %s %s\n", fapt -> faimask, region) ;
       fapt -> mlen = len_s ;
   }
-//	free (ref);
-//	fai_destroy(fai_ref);
+	free (ref);
+	fai_destroy(fai_ref);
 
   return npops ;
 }
