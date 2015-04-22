@@ -65,8 +65,8 @@ int fai_getlen(const faidx_t *fai, const char *name) {
 	khint_t k;
 	khash_t(s) *h = fai->hash;
 	k = kh_get(s, h, name);
-	fprintf(stderr, "name in fai_getlen: %s\n", name);
-	if (k = kh_end(h)) return -1;
+//	fprintf(stderr, "name in fai_getlen: %s\n", name);
+	if (k == kh_end(h)) return -1;
 	return kh_val(h, k).len;
 }
 

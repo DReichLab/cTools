@@ -31,7 +31,7 @@
 // fai_destroy called
 #define MAXFL  50   
 #define MAXSTR  512
-KSEQ_INIT(gzFile, gzread)
+//KSEQ_INIT(gzFile, gzread)
 
 char *iubfile = NULL ;
 char *iubmaskfile = NULL;
@@ -380,7 +380,36 @@ long setgenoblank (SNP **snpmarkers, int numsnps, int numindivs)
     }
     return ngenos ;
 }
+/*
+int getdbname(char *dbase, char *name, char **pfqname) 
+{
+ char ***names ;  
+ int n, k, t, i ; 
 
+ n = numlines(dbase) ;
+
+ ZALLOC(names, 3, char **) ;
+
+ for (i=0; i<=2; ++i) {
+  for (k=0; k<n; ++k) { 
+   ZALLOC(names[i], n, char *) ;
+  }
+ }
+
+ n = getnames(&names, n, 3, dbase) ;
+ t = indxstring(names[0], n, name) ; 
+ if (t<0) fatalx("%s not found in %s\n", name, dbase) ;
+ *pfqname = strdup(names[2][t]) ;
+ 
+ for (i=0; i<=2; ++i) { 
+  freeup(names[i], n) ;
+  free(names[i]) ; 
+ }
+ free(names) ;
+ 
+ return 1 ; 
+}
+*/
 int readfa1(char *faname, char **pfasta, int *flen) 
 {
 
@@ -396,18 +425,26 @@ int readfa1(char *faname, char **pfasta, int *flen)
  *flen = 0 ;
  *pfasta = NULL ;
 
+/*
+	if (db == 0) refname = strcat(table_path, "Href.fa");
+	else getdbname(iubfile, "Href", &refname);
+*/
   if (faname  == NULL) { 
    return  0;
   }
+//	fai_ref = fai_load(refname);
+//	ref = fai_fetch(fai_ref, region, &len_r);
+//	if (len_r==0) fatalx("bad fetch %s %s\n", refname, region) ; 	// fetch fai
   fai = fai_load(faname) ;
   strcpy(ssreg, regname) ;
   t = strcmp(regname, "23") ; if (t==0) strcpy(ssreg, "X") ;
   t = strcmp(regname, "24") ; if (t==0) strcpy(ssreg, "Y") ;
   t = strcmp(regname, "90") ; if (t==0) strcpy(ssreg, "MT") ;
 
-	fp = gzopen(faname, "r");
   ttfasta = myfai_fetch(fai, ssreg, &len) ;
-	gzclose(fp);
+/*	for (k = 0; k < len; ++k) {
+		if (ttfasta[k] == 'Q') fapt->rstring[k] = ref[k];
+	}*/
 
   fai_destroy(fai) ; // close files
   *flen = len ;
@@ -417,6 +454,8 @@ int readfa1(char *faname, char **pfasta, int *flen)
   }
   *pfasta = strdup(ttfasta) ;
   freestring(&ttfasta) ;
+//	free (ref);
+//	fai_destroy(fai_ref);
   return len ;
 
 }
