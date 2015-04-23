@@ -12,7 +12,8 @@
 #include <string.h>
 #include <stdio.h>
 #include <nicksam.h>
-#include <getpars.h>  
+#include <getpars.h>
+#include <time.h>  
 #include "bam.h"
 #include "faidx.h"
 #include "globals.h" 
@@ -120,7 +121,12 @@ int main(int argc, char **argv)
  lopos = 0 ;
  int numout = 0 ;
  int abxkode ;
- 
+
+	clock_t start, end;
+	float cpu_time;	
+
+	start = clock(); 
+
  readcommands(argc, argv) ;
 
 	if (minch != NULL) {
@@ -192,7 +198,7 @@ int main(int argc, char **argv)
  	for (chrom = minchrom; chrom <= maxchrom; ++chrom) { 
   		if ((xchrom > 0) && (xchrom != chrom)) continue ;
   		sprintf(ss, "%d", chrom) ;
-		fprintf(stderr, "chrom: %d\n", chrom);
+		fprintf(stderr, "xchrom: %d\t**chrom: %d\n", xchrom, chrom);
   		if (chrom == 23) strcpy(ss, "X") ;
   		freestring(&regname) ;
   		regname = strdup(ss);
@@ -220,6 +226,10 @@ int main(int argc, char **argv)
  if (snpname != NULL) fclose(fff) ;
  
  printf("## end of cascertain\n") ;
+
+	end = clock();
+	cpu_time = ((float) (end - start)) / CLOCKS_PER_SEC;
+	fprintf(stderr, "CPU time: %f seconds\n", cpu_time);
 
  return 0 ;
 }
@@ -627,10 +637,10 @@ int getiub(char *cc, char *ccmask, FATYPE **fainfo, char *reg, int pos)
    newreg =  YES; 
    fflush(stdout) ;
   }
-/*  else { 
+  else { 
    if (pos >= fapt -> rlen) return -5 ;
   }
-*/
+
   lastlo = 1000*1000*1000 ; 
   lasthi = 1 ; 
   for (k=0; k<npops; ++k) { 
@@ -660,6 +670,7 @@ int getiub(char *cc, char *ccmask, FATYPE **fainfo, char *reg, int pos)
    lasthi = pos + pagesize ;
    lastlo = MAX(lastlo, lopos) ;
    lasthi = MAX(lasthi, hipos) ;
+	fprintf(stderr, "loadfa-lopos: %d\thipos: %d\n", lopos, hipos);
    loadfa(poplist, npops, &fainfo, regname, lopos, hipos)  ;
   }
 
