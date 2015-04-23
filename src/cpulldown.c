@@ -2,7 +2,7 @@
 * cpulldown.c:	get the genotypes of the given individuls at the given SNP loci from a set of bams
 * Author: Nick Patterson
 * Revised by: Mengyao Zhao
-* Last revise date: 2015-04-21
+* Last revise date: 2015-04-23
 * Contact: mengyao_zhao@hms.harvard.edu
 */
 
@@ -31,7 +31,6 @@
 // fai_destroy called
 #define MAXFL  50   
 #define MAXSTR  512
-//KSEQ_INIT(gzFile, gzread)
 
 char *iubfile = NULL ;
 char *iubmaskfile = NULL;
@@ -380,7 +379,7 @@ long setgenoblank (SNP **snpmarkers, int numsnps, int numindivs)
     }
     return ngenos ;
 }
-/*
+
 int getdbname(char *dbase, char *name, char **pfqname) 
 {
  char ***names ;  
@@ -409,13 +408,13 @@ int getdbname(char *dbase, char *name, char **pfqname)
  
  return 1 ; 
 }
-*/
+
 int readfa1(char *faname, char **pfasta, int *flen) 
 {
 
- faidx_t *fai ;
- int k, len, t ;
- char *ttfasta ;
+ faidx_t *fai, *fai_ref;
+ int k, len, len_r, t ;
+ char *ttfasta, *ref, *refname = (char*)malloc(256*sizeof(char)) ;
  char ssreg[20] ;
  int ntry = 0, itry ;
 	gzFile fp;
@@ -425,16 +424,19 @@ int readfa1(char *faname, char **pfasta, int *flen)
  *flen = 0 ;
  *pfasta = NULL ;
 
-/*
 	if (db == 0) refname = strcat(table_path, "Href.fa");
 	else getdbname(iubfile, "Href", &refname);
-*/
+
   if (faname  == NULL) { 
    return  0;
   }
-//	fai_ref = fai_load(refname);
-//	ref = fai_fetch(fai_ref, region, &len_r);
-//	if (len_r==0) fatalx("bad fetch %s %s\n", refname, region) ; 	// fetch fai
+
+	fai_ref = fai_load(refname);
+//	fprintf(stderr, "refname: %s\n", refname);
+//	fprintf(stderr, "ssreg: %s\n", ssreg);
+	ref = fai_fetch(fai_ref, regname, &len_r);
+	if (len_r==0) fatalx("bad fetch %s %s\n", refname, regname) ; 	// fetch fai
+
   fai = fai_load(faname) ;
   strcpy(ssreg, regname) ;
   t = strcmp(regname, "23") ; if (t==0) strcpy(ssreg, "X") ;
@@ -442,9 +444,11 @@ int readfa1(char *faname, char **pfasta, int *flen)
   t = strcmp(regname, "90") ; if (t==0) strcpy(ssreg, "MT") ;
 
   ttfasta = myfai_fetch(fai, ssreg, &len) ;
-/*	for (k = 0; k < len; ++k) {
-		if (ttfasta[k] == 'Q') fapt->rstring[k] = ref[k];
-	}*/
+	
+	len = len < len_r ? len : len_r;
+	for (k = 0; k < len; ++k) {
+		if (ttfasta[k] == 'Q') ttfasta[k] = ref[k];
+	}
 
   fai_destroy(fai) ; // close files
   *flen = len ;
@@ -454,8 +458,8 @@ int readfa1(char *faname, char **pfasta, int *flen)
   }
   *pfasta = strdup(ttfasta) ;
   freestring(&ttfasta) ;
-//	free (ref);
-//	fai_destroy(fai_ref);
+	free (ref);
+	fai_destroy(fai_ref);
   return len ;
 
 }
