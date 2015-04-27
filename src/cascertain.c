@@ -19,7 +19,7 @@
 #include "globals.h" 
 #include "popsubs.h"
 #include "mcio.h"
-#include "kseq.h"
+//#include "kseq.h"
 
 typedef struct { 
  int *val ; 

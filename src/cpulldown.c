@@ -2,7 +2,7 @@
 * cpulldown.c:	get the genotypes of the given individuls at the given SNP loci from a set of bams
 * Author: Nick Patterson
 * Revised by: Mengyao Zhao
-* Last revise date: 2015-04-23
+* Last revise date: 2015-04-27
 * Contact: mengyao_zhao@hms.harvard.edu
 */
 
@@ -24,7 +24,7 @@
 #include "faidx.h"
 #include "admutils.h"
 #include "mcio.h"  
-#include "kseq.h"
+//#include "kseq.h"
 
 #define WVERSION   "150" 
 
@@ -417,7 +417,9 @@ int readfa1(char *faname, char **pfasta, int *flen)
  char *ttfasta, *ref, *refname = (char*)malloc(256*sizeof(char)) ;
  char ssreg[20] ;
  int ntry = 0, itry ;
-	gzFile fp;
+	FILE *fp;
+	int byte[2], rz = 0;
+	//gzFile fp;
  
  if (pfasta != NULL) freestring(pfasta) ;
 
@@ -437,6 +439,11 @@ int readfa1(char *faname, char **pfasta, int *flen)
 	ref = fai_fetch(fai_ref, regname, &len_r);
 	if (len_r==0) fatalx("bad fetch %s %s\n", refname, regname) ; 	// fetch fai
 
+	fp = fopen(faname, "r");
+	for (k = 0; k < 2; ++k) byte[k] = getc(fp);
+	if (byte[0] == 0x1f && byte[1] == 0x8b) rz = 1;
+	fclose(fp);
+
   fai = fai_load(faname) ;
   strcpy(ssreg, regname) ;
   t = strcmp(regname, "23") ; if (t==0) strcpy(ssreg, "X") ;
@@ -446,9 +453,9 @@ int readfa1(char *faname, char **pfasta, int *flen)
   ttfasta = myfai_fetch(fai, ssreg, &len) ;
 	
 	len = len < len_r ? len : len_r;
-	for (k = 0; k < len; ++k) {
-		if (ttfasta[k] == 'Q') ttfasta[k] = ref[k];
-	}
+	if (rz == 1)	// raziped 
+		for (k = 0; k < len; ++k)
+			if (ttfasta[k] == 'Q') ttfasta[k] = ref[k];
 
   fai_destroy(fai) ; // close files
   *flen = len ;
