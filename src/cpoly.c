@@ -2,7 +2,7 @@
  * cpoly.c: This program is used to extract heterozygote SNPs from multiple samples
  * Author: Nick Patterson
  * Revised by: Mengyao Zhao
- * Last revise date: 2015-04-23
+ * Last revise date: 2015-04-27
  * Contact: mengyao_zhao@hms.harvard.edu 
  */
 
@@ -11,12 +11,13 @@
 #include <stdio.h>
 #include <nicksam.h>
 #include <getpars.h>  
+#include <time.h>  
 #include "bam.h"
 #include "faidx.h"
 #include "globals.h" 
 #include "popsubs.h"
 #include "mcio.h"
-#include "kseq.h"
+//#include "kseq.h"
 
 typedef struct { 
  int *val ; 
@@ -126,6 +127,11 @@ int main(int argc, char **argv)
  int abxkode ;
  int nmono ;
  int npoly ;
+
+	clock_t start, end;
+	float cpu_time;	
+
+	start = clock(); 
  
  hipos = 1000*1000*1000 ;
  lopos = 0 ;
@@ -201,7 +207,7 @@ int main(int argc, char **argv)
  lo = lopos ; 
  hi = MIN(hipos, lo+pagesize) ;
  loadfa(poplist, npops, &fainfo, reg, lo, hi)  ;
-fprintf(stderr, "main: fapt->fai: %p\n", fainfo[0]->fai);
+//fprintf(stderr, "main: fapt->fai: %p\n", fainfo[0]->fai);
  printf("npops: %d\n", npops) ;
   for (k=0;  k< npops; ++k) { 
    fapt = fainfo[k] ;
@@ -225,12 +231,10 @@ fprintf(stderr, "main: fapt->fai: %p\n", fainfo[0]->fai);
   regname = strdup(ss) ;
   reg = regname ;
 	
-	
-fprintf(stderr, "lopos-main: %d\thipos-main: %d\n", lopos, hipos);
   for (pos = lopos ; pos <= hipos; ++pos) { 
    //t = getiub(cc, ccmask, fainfo, reg, pos)  ;  
 	t = getiub(cc, ccmask, fainfo, ss, pos)  ;  
-   //if (t==-5) break ;
+   if (t==-5) break ;
    if (t<0) continue ;
     
    t = checkpoly(cc, ccmask, &c1, &c2) ; 
@@ -257,6 +261,11 @@ fprintf(stderr, "lopos-main: %d\thipos-main: %d\n", lopos, hipos);
  
  printf("## monomorphs: %d  polymorphs %d\n", nmono, npoly) ;
  printf("## end of cpoly\n") ;
+
+	end = clock();
+	cpu_time = ((float) (end - start)) / CLOCKS_PER_SEC;
+	fprintf(stderr, "CPU time: %f seconds\n", cpu_time);
+	
  return 0 ;
 }
 
@@ -423,7 +432,7 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
 	region = (char*)malloc((23+strlen(reg))*sizeof(char));
 	sprintf(region, "%s:%d-%d", reg, lo, hipos);
 
-		if (db == 0) refname = strcat(table_path, "Href.fa");
+	if (db == 0) refname = strcat(table_path, "Href.fa");
 	else getdbname(iubfile, "Href", &refname);
 
   if (ncall==1) {
@@ -493,20 +502,30 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
 
   if (pfainfo != NULL) *pfainfo  = fainfo ;
 
-		fai_ref = fai_load(refname);
+	fai_ref = fai_load(refname);
 	ref = fai_fetch(fai_ref, region, &len_r);
 	if (len_r==0) fatalx("bad fetch %s %s\n", refname, region) ; 	// fetch fai
 
   for (k=0; k<numfalist ; ++k) {
+	FILE *fp;
+	int byte[2], rz = 0;
+
      fapt = fainfo[k] ;
+
+	fp = fopen(fapt->faname, "r");
+	for (i = 0; i < 2; ++i) byte[i] = getc(fp);
+	if (byte[0] == 0x1f && byte[1] == 0x8b) rz = 1;
+	fclose(fp);
 	
 	fapt->rstring = fai_fetch(fapt->fai, region, &len_s);
 	if (len_s==0) fatalx("bad fetch %s %s\n", fapt->faname, region);	// fetch fai
 
 	len = len_r < len_s ? len_r : len_s;
-	for (i = 0; i < len; ++i) {
-		if (fapt->rstring[i] == 'Q') fapt->rstring[i] = ref[i];
-	}
+//	len = len_s;
+	if (rz == 1)	// raziped 
+		for (i = 0; i < len; ++i) 
+			if (fapt->rstring[i] == 'Q') fapt->rstring[i] = ref[i];
+	
 
       fapt -> rlen = fai_getlen(fapt->fai, reg) ;
       fapt -> regname = strdup(reg) ;
@@ -523,6 +542,9 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
 	  if (len==0) fatalx("bad fetch (mask)  %s %s\n", fapt -> faimask, region) ;
       fapt -> mlen = len ;
   }
+
+	free(ref);
+	fai_destroy(fai_ref);
 
   return npops ;
 

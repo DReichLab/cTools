@@ -2,7 +2,7 @@
 * cascertain.c: Pull down the SNPs that match the ascertain criterion.
 * Author: Nick Patterson
 * Revised by: Mengyao Zhao
-* Last revise date: 2015-04-22
+* Last revise date: 2015-04-27
 * Contact: mengyao_zhao@hms.harvard.edu
 */
 
@@ -206,6 +206,7 @@ int main(int argc, char **argv)
 
   		for (pos = lopos ; pos <= hipos; ++pos) { 
 			t = getiub(cc, ccmask, fainfo, ss, pos)  ; // zz pos
+		   if (t==-5) break ;
    			if (t<0) continue ;
    
    			t = checkasc(asctable, nasc, cc, ccmask, &c1, &c2, regname, pos) ; 
@@ -554,27 +555,30 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
 	if (len_r==0) fatalx("bad fetch %s %s\n", refname, region) ; 	// fetch fai
 
   for (k=0; k<numfalist ; ++k) { 	// numfalist is the count of sample fasta files = npops
+	FILE *fp;
+	int byte[2], rz = 0;
 	
 	len_s = 0;
      
 	fapt = fainfo[k] ;
 	
-//	fprintf(stderr, "faname: %s\n", fapt->faname);
+	fp = fopen(fapt->faname, "r");
+	for (i = 0; i < 2; ++i) byte[i] = getc(fp);
+	if (byte[0] == 0x1f && byte[1] == 0x8b) rz = 1;
+	fclose(fp);
+
 	fapt->rstring = fai_fetch(fapt->fai, region, &len_s);
 	if (len_s==0) fatalx("bad fetch %s %s\n", fapt->faname, region) ; 	// fetch fai
 	
 	len = len_r < len_s ? len_r : len_s;
-//	fprintf(stderr, "len: %d\n", len);
-	for (i = 0; i < len; ++i) {
-		if (fapt->rstring[i] == 'Q') fapt->rstring[i] = ref[i];
-	}
+	if (rz == 1)	// raziped 
+		for (i = 0; i < len; ++i)
+			if (fapt->rstring[i] == 'Q') fapt->rstring[i] = ref[i];
 
       fapt -> regname = strdup(reg) ;
-     // fapt -> len = len ;
       fapt -> rlen = fai_getlen(fapt->fai, reg) ;
       fapt -> len = len_s ;
       fapt -> lopos = lo ;
-      //fapt -> hipos = lo + len - 1 ;
       fapt -> hipos = lo + len_s - 1 ;
 
       if (hasmask[k] == NO)  continue ; 
