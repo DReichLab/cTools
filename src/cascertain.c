@@ -19,7 +19,6 @@
 #include "globals.h" 
 #include "popsubs.h"
 #include "mcio.h"
-//#include "kseq.h"
 
 typedef struct { 
  int *val ; 
@@ -31,8 +30,10 @@ typedef struct {
 char *table_path = NULL;
 char *regname = NULL ; 
 char *snpname = NULL ; 
-char *iubfile = NULL;
-char *iubmaskfile = NULL; 
+//char *iubfile = NULL;
+//char *iubmaskfile = NULL; 
+char *iubfile = "/home/mz128/cteam/dblist/hetfa_postmigration.dblist" ;
+char *iubmaskfile = "/home/mz128/cteam/dblist/mask_postmigration.dblist" ;
 
 char *parname = NULL ;
 int  pagesize = 20*1000*1000 ;  // page size for getiub

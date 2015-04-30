@@ -2,7 +2,7 @@
  * cpoly.c: This program is used to extract heterozygote SNPs from multiple samples
  * Author: Nick Patterson
  * Revised by: Mengyao Zhao
- * Last revise date: 2015-04-27
+ * Last revise date: 2015-04-29
  * Contact: mengyao_zhao@hms.harvard.edu 
  */
 
@@ -17,7 +17,6 @@
 #include "globals.h" 
 #include "popsubs.h"
 #include "mcio.h"
-//#include "kseq.h"
 
 typedef struct { 
  int *val ; 
@@ -27,13 +26,15 @@ typedef struct {
 } ASC ;
 
 char *table_path = NULL;
-char *iubfile = NULL ;
-char *iubmaskfile = NULL ;
+//char *iubfile = NULL ;
+//char *iubmaskfile = NULL ;
 
 char *regname = NULL ; 
 //char *parflist = "/home/np29/biology/neander/nickdir/xwdir/may12src/parfxlm" ;
-//char *iubfile = "/home/np29/cteam/release/hetfaplus.dblist" ;
+//char *iubfile = "/home/np29/cteam/release/hetfaplus.dblist" ;	// default database
 //char *iubmaskfile = "/home/np29/cteam/release/maskplus.dblist" ;
+char *iubfile = "/home/mz128/cteam/dblist/hetfa_postmigration.dblist" ;
+char *iubmaskfile = "/home/mz128/cteam/dblist/mask_postmigration.dblist" ;
 char *parname = NULL ;
 int  pagesize = -1 ;  // page size for getiub
 int minfilterval = 1 ;
@@ -72,7 +73,7 @@ int db = 1;	// Use .dblist
 void readcommands(int argc, char **argv) ;
 int getfalist(char **poplist, int npops, char *dbfile, char **iublist) ; 
 void clearfainfo(FATYPE *fapt, int mode) ;
-char *myfai_fetch(faidx_t *fai, char *reg, int  *plen) ;
+//char *myfai_fetch(faidx_t *fai, char *reg, int  *plen) ;
 int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, int hipos)  ;
 int minfalen(FATYPE **fainfo, int n)  ;
 
@@ -816,7 +817,7 @@ int getfalist(char **poplist, int npops, char *dbfile, char **iublist)
    return nx ;
 
 }
-
+/*
 char *myfai_fetch(faidx_t *fai, char *reg, int  *plen)
 {
   char *treg, *s ;
@@ -832,7 +833,7 @@ char *myfai_fetch(faidx_t *fai, char *reg, int  *plen)
   free(treg) ;
   return NULL ;
 }
-
+*/
 void clearfainfo(FATYPE *fapt, int mode)
 {
 

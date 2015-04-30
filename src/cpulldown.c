@@ -32,12 +32,12 @@
 #define MAXFL  50   
 #define MAXSTR  512
 
-char *iubfile = NULL ;
-char *iubmaskfile = NULL;
+//char *iubfile = NULL ;
+//char *iubmaskfile = NULL;
 char *table_path = NULL;
 
-//char *iubfile = "/home/mz128/cteam/dblist/hetfa_postmigration.dblist" ;
-//char *iubmaskfile = "/home/mz128/cteam/dblist/mask_postmigration.dblist" ;
+char *iubfile = "/home/mz128/cteam/dblist/hetfa_postmigration.dblist" ;
+char *iubmaskfile = "/home/mz128/cteam/dblist/mask_postmigration.dblist" ;
 
 extern enum outputmodetype outputmode  ;
 extern int checksizemode ;
