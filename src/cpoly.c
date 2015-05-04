@@ -2,7 +2,7 @@
  * cpoly.c: This program is used to extract heterozygote SNPs from multiple samples
  * Author: Nick Patterson
  * Revised by: Mengyao Zhao
- * Last revise date: 2015-04-29
+ * Last revise date: 2015-04-30
  * Contact: mengyao_zhao@hms.harvard.edu 
  */
 
@@ -166,6 +166,7 @@ int main(int argc, char **argv)
   else xchrom = atoi(regname) ;
  }
 
+	fprintf(stderr, "call numlines in [main]\n");
   npops = numlines(indivname) ; 
   ZALLOC(poplist, npops, char *) ;
   npops = getss(poplist, indivname) ;
@@ -390,6 +391,7 @@ int getdbname(char *dbase, char *name, char **pfqname)
  char ***names ;  
  int n, k, t, i ; 
 
+	fprintf(stderr, "call numlines in [getdbname]\n");
  n = numlines(dbase) ;
 
  ZALLOC(names, 3, char **) ;
