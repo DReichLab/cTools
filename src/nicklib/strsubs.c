@@ -1313,7 +1313,8 @@ int iubdekode(char *aa, char iub)
   }
   if (aa != NULL) strcpy(aa, a) ;
   return strlen(a) ;
-} 
+}
+ 
 int iubcbases(char  *cbases, char iub)
 // crack iub into 2 bases (which may agree) 
 // return number of bases (1 or 2) or -1. 

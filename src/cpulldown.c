@@ -2,7 +2,7 @@
 * cpulldown.c:	get the genotypes of the given individuls at the given SNP loci from a set of bams
 * Author: Nick Patterson
 * Revised by: Mengyao Zhao
-* Last revise date: 2014-12-08
+* Last revise date: 2015-04-27
 * Contact: mengyao_zhao@hms.harvard.edu
 */
 
@@ -13,6 +13,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <zlib.h>
 
 #include <nicklib.h>
 #include <globals.h>
@@ -23,6 +24,7 @@
 #include "faidx.h"
 #include "admutils.h"
 #include "mcio.h"  
+//#include "kseq.h"
 
 #define WVERSION   "150" 
 
@@ -30,12 +32,12 @@
 #define MAXFL  50   
 #define MAXSTR  512
 
-char *iubfile = NULL ;
-char *iubmaskfile = NULL;
+//char *iubfile = NULL ;
+//char *iubmaskfile = NULL;
 char *table_path = NULL;
 
-//char *iubfile = "/home/mz128/cteam/dblist/hetfa_postmigration.dblist" ;
-//char *iubmaskfile = "/home/mz128/cteam/dblist/mask_postmigration.dblist" ;
+char *iubfile = "/home/mz128/cteam/dblist/hetfa_postmigration.dblist" ;
+char *iubmaskfile = "/home/mz128/cteam/dblist/mask_postmigration.dblist" ;
 
 extern enum outputmodetype outputmode  ;
 extern int checksizemode ;
@@ -378,29 +380,83 @@ long setgenoblank (SNP **snpmarkers, int numsnps, int numindivs)
     return ngenos ;
 }
 
+int getdbname(char *dbase, char *name, char **pfqname) 
+{
+ char ***names ;  
+ int n, k, t, i ; 
+
+ n = numlines(dbase) ;
+
+ ZALLOC(names, 3, char **) ;
+
+ for (i=0; i<=2; ++i) {
+  for (k=0; k<n; ++k) { 
+   ZALLOC(names[i], n, char *) ;
+  }
+ }
+
+ n = getnames(&names, n, 3, dbase) ;
+ t = indxstring(names[0], n, name) ; 
+ if (t<0) fatalx("%s not found in %s\n", name, dbase) ;
+ *pfqname = strdup(names[2][t]) ;
+ 
+ for (i=0; i<=2; ++i) { 
+  freeup(names[i], n) ;
+  free(names[i]) ; 
+ }
+ free(names) ;
+ 
+ return 1 ; 
+}
+
 int readfa1(char *faname, char **pfasta, int *flen) 
 {
 
- faidx_t *fai ;
- int k, len, t ;
- char *ttfasta ;
+ faidx_t *fai, *fai_ref;
+ int k, len, len_r, t ;
+ char *ttfasta, *ref, *refname = (char*)malloc(256*sizeof(char)) ;
  char ssreg[20] ;
  int ntry = 0, itry ;
+	FILE *fp;
+	int byte[2], rz = 0;
+	//gzFile fp;
  
  if (pfasta != NULL) freestring(pfasta) ;
 
  *flen = 0 ;
  *pfasta = NULL ;
 
+	if (db == 0) refname = strcat(table_path, "Href.fa");
+	else getdbname(iubfile, "Href", &refname);
+
   if (faname  == NULL) { 
    return  0;
   }
+
+	fai_ref = fai_load(refname);
+//	fprintf(stderr, "refname: %s\n", refname);
+//	fprintf(stderr, "ssreg: %s\n", ssreg);
+	ref = fai_fetch(fai_ref, regname, &len_r);
+	if (len_r==0) fatalx("bad fetch %s %s\n", refname, regname) ; 	// fetch fai
+
+	fp = fopen(faname, "r");
+	for (k = 0; k < 2; ++k) byte[k] = getc(fp);
+	if (byte[0] == 0x1f && byte[1] == 0x8b) rz = 1;
+	fclose(fp);
+
   fai = fai_load(faname) ;
   strcpy(ssreg, regname) ;
   t = strcmp(regname, "23") ; if (t==0) strcpy(ssreg, "X") ;
   t = strcmp(regname, "24") ; if (t==0) strcpy(ssreg, "Y") ;
   t = strcmp(regname, "90") ; if (t==0) strcpy(ssreg, "MT") ;
+
   ttfasta = myfai_fetch(fai, ssreg, &len) ;
+	
+	len = len < len_r ? len : len_r;
+	if (rz == 1)	// raziped 
+		for (k = 0; k < len; ++k)
+			if (ttfasta[k] == 'Q') ttfasta[k] = ref[k];
+
   fai_destroy(fai) ; // close files
   *flen = len ;
   if (ttfasta == NULL) { 
@@ -409,6 +465,8 @@ int readfa1(char *faname, char **pfasta, int *flen)
   }
   *pfasta = strdup(ttfasta) ;
   freestring(&ttfasta) ;
+	free (ref);
+	fai_destroy(fai_ref);
   return len ;
 
 }
@@ -469,6 +527,7 @@ int getfalist(char **poplist, int npops, char *dbfile, char **iublist)
    return nx ;
 
 }
+
 char *myfai_fetch(faidx_t *fai, char *reg, int  *plen)
 {
   char *treg, *s ;

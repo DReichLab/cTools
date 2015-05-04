@@ -4,10 +4,10 @@ This document is the instruction of using the cTools to access the light
 version (compressed) Simons genomic diversity project (SGDP lite) files. The
 cTools include:
 
-1. uncompress.pl
-2. cascertain
-3. cpulldown
-4. cpoly
+1. cascertain
+2. cpulldown
+3. cpoly
+4. uncompress.pl
 
 ##Download the programs
 `git clone https://github.com/mengyao/cTools.git`
@@ -24,25 +24,13 @@ In the src folder:
 
 ##Run cTools
 
-To access the sample files using cascertain, cpulldown and cpoly, these
-downloaded sample files (`*.ccomp.fa.gz` and `*.ccompmask.fa.gz`) need to be
-uncompressed using uncompress.pl first. Moreover, Samtools is needed (accessable
-by command "Samtools") to run uncompress.pl properly.
+Samtools is needed (accessable
+by command "Samtools") to run cTools properly.
 
-### <a name="uncompress.pl"></a>1. uncompress.pl
+Current version of cTools can run on compressed .hetfa and .mask files directly.
 
-uncompress.pl uncompress the `*.ccomp.fa.gz` and `*.ccompmask.fa.gz` files.
-```
-Usage: uncompress.pl <reference.fa> <sample.ccomp.fa.gz> (compressed hetfa file)
 
-Inputs: .ccomp.fa.gz, .ccompmask.fa.gz
-Outputs: .fa (uncompressed hetfa file), .fa.fai, .filter.fa (uncompressed mask file), .filter.fa.fai
-```
-
-***Notes***: The  Samtools is
-required by uncompress.pl.
-
-### 2. cascertain
+### 1. cascertain
 cascertain pulls down the SNPs that match the ascertain rule(s).
 
 ```
@@ -81,6 +69,17 @@ Thus the example above means ascertain (out put the SNP) if `S_Yoruba_1` is a he
 Altai or Denisova has a derived allele (chosen at random) EXCEPT don't
 ascertain if both Altai and Denisova are hets.
 
+Assume the Chimp allele is the ancestral allele, here are some examples of the acertainment marks:
+
+||		Chimp|	Human| note |
+|----------|---------|--------|-----|
+|0:1	|	A	|	A | The sample allele is randomly picked, and this allele is ancestral. |
+|1:1	|	A	|	T | The sample allele is randomly picked, and this allele is derived. |
+|1:2	|	A	|	A/T | Alleles on both chromosomes are picked, and one of them is derived. |
+|2:2 | A | T/T | Alleles on both chromosomes are picked, and both of them are derived. |
+
+Note: In cascertain we ignore bases which are not biallelic in the samples.
+
 A full parameter list of the parfile:
 
 | parameter     | description |
@@ -89,21 +88,21 @@ A full parameter list of the parfile:
 | lopos         | the beginning coordinate of the region [default: the beginning of the chromosome] |
 | hipos         | the ending coordinate of the region [default: the end of the chromosome] |
 | snpname       | the output snp file name (.snp) |
-| minfilterval  | the base quality threshold for taking the genotype information; The,quality values are in the mask file. C team has base quality in range,(0-9) or no value (N/?) => don't use. Select bases with minfilterval: 3 (say). This selects bases with base quality >=3. [1 is default and,recommended for most applications]. Note that the extended C-team files, such as Altai have manifesto filters (made in Leipzig) that are just 0, 1. If you are using extended C-team do not set minfilterval. |
+| minfilterval  | the base quality threshold for taking the genotype information; The quality values are in the mask file. C team has base quality in range (0-9) or no value (N/?) => don't use. Select bases with minfilterval: 3 (say). This selects bases with base quality >=3. [1 is default and recommended for most applications]. Note that the extended C-team files, such as Altai have manifesto filters (made in Leipzig) that are just 0, 1. If you are using extended C-team do not set minfilterval. |
 | ascertain     | If the SNP matches the rule(s) here, this SNP will be out put.  |
 | noascertain   | If the SNP matches the rule(s) here, it will NOT be out put.  |
-| dbhetfa       | .dblist file that specify the hetfa file, refrence.fa and chimp.fa location. If the -d option is not used, this parameter is mandatory.  |
-| dbmask        | .dblist file that specify the mask file location. If the -d option is not used, this parameter is mandatory.|
-| transitions   | work on transitions; [default: Yes]  |
-| transversions | work on transversions; [default: Yes] |
+| dbhetfa       | .dblist file that specify the hetfa file, refrence.fa and chimp.fa location. If the -d option is not used, this parameter is mandatory for users not in Reich Lab.  |
+| dbmask        | .dblist file that specify the mask file location. If the -d option is not used, this parameter is mandatory for users not in Reich Lab.|
+| transitions   | work on transitions. [default: Yes]  |
+| transversions | work on transversions. [default: Yes] |
 |  minchrom:	| the beginning chromosome; If minchrom and maxchrom are set, please do not set chrom. |
 |  maxchrom:	| the ending chromosome |
-|pagesize|cascertain "pages" through the genome in chunks of size pagesize bases. The default is 20M bases, but this can be overwritten.  Larger pages will run faster (and use more memory).|
-|seed|For hets and some ascertainments a random allele must be chosen.  This is picked be a pseudo-random generator.  Set seed:  SEED where SEED is a generator if you wish the runs to be reproducible.|
+|pagesize|cascertain "pages" through the genome in chunks of size pagesize bases. The default is 20M bases, but this can be overwritten.  Larger pages will run faster (and use more memory). Please use a number only to set this parameter. |
+|seed|For hets and some ascertainments a random allele must be chosen.  This is picked by a pseudo-random generator.  Set seed:  SEED where SEED is a generator if you wish the runs to be reproducible.|
 
 Notes: You can write comments in the parameter file by `#comments`.
 
-### 3. cpulldown
+### 2. cpulldown
 cpulldown out puts the genotypes of the given individuls at the given SNP loci from a set of bams.
 
 ```
@@ -169,7 +168,7 @@ A full parameter list of the parameter_file:
 
 For example, to use cpulldown to pull out data from Papuan and Dai, you need to:
 
-1. Uncompress all the hetfa and mask files of Papuan and Dai samples, and put them into one folder together with Chimp.fa, Chimp.fa.fai, hs37d5.fa and hs37d5.fa.fai.
+1. Put all the hetfa and mask files of Papuan and Dai samples into one folder together with Chimp.fa, Chimp.fa.fai, hs37d5.fa and hs37d5.fa.fai.
 
 2. Using the information from all.ind to create your input.ind as following:
 
@@ -215,7 +214,7 @@ outputformat:     eigenstrat
 Notes: Running time: Linear in number of samples in indivname.  10 samples pull down
 in about 1 hour on orchestra.
 
-### 4. cpoly
+### 3. cpoly
 cpoly pulls down all the SNP sites that are polymorphic in sample list from one or multiple bams. In default mode only bases with no  missing
 data are considered, so you need to be careful if you use many samples.
 
@@ -271,13 +270,28 @@ A full parameter list of the parameter_file:
 |  maxchrom:	| the ending chromosome|
 | lopos         | the beginning coordinate of the region [default: the beginning of the chromosome] |
 | hipos         | the ending coordinate of the region [default: the end of the chromosome] |
-| dbhetfa       | .dblist file that specify the hetfa file, refrence.fa and chimp.fa location. If the -d option is not used, this parameter is mandatory.  |
-| dbmask        | .dblist file that specify the mask file location. If the -d option is not used, this parameter is mandatory.|
-|pagesize|cascertain "pages" through the genome in chunks of size pagesize bases. The default is 20M bases, but this can be overwritten.  Larger pages will run faster (and use more memory).|
+| dbhetfa       | .dblist file that specify the hetfa file, refrence.fa and chimp.fa location. If the -d option is not used, this parameter is mandatory for the users not in Reich Lab.  |
+| dbmask        | .dblist file that specify the mask file location. If the -d option is not used, this parameter is mandatory for the users not in Reich Lab.|
+|pagesize|cascertain "pages" through the genome in chunks of size pagesize bases. The default is 20M bases, but this can be overwritten.  Larger pages will run faster (and use more memory). Please use one number only for this parameter setting.|
 | transitions   | work on transitions; [default: NO]  |
 | transversions | work on transversions; [default: NO] |
 | allowmissing| The output may contain sites that for some samples the data are missing.|
 |polarize| The polarize parameter is optional.  If present the parameter should be a sample name present in the indivname file. Then only homozygotes of this sample are considered, and the first allele of any snp is the base for the poliarize sample. As an example: "polarize: Href", the first allele of every snp in snpoutname will be the Href allele. Usually the polarize sample will be a pseudo-diploid such as Href or Chimp. |
+
+### 4. uncompress.pl
+
+uncompress.pl uncompress the `*.ccomp.fa.gz` and `*.ccompmask.fa.gz` files.
+```
+Usage: uncompress.pl <reference.fa> <sample.ccomp.fa.gz> (compressed hetfa file)
+
+Inputs: .ccomp.fa.gz, .ccompmask.fa.gz
+Outputs: .fa (uncompressed hetfa file), .fa.fai, .filter.fa (uncompressed mask file), .filter.fa.fai
+```
+
+***Notes***: The  Samtools is
+required by uncompress.pl.
+
+
 
 ##Related file formats
 ###1. .ind file
@@ -353,5 +367,5 @@ S_Yoruba-1  -   /home/mz128/cteam/usr/data/S_Yoruba-1.filter.fa
 <!--
 Written by Nick on 6/15/14
 Revised by Mengyao Zhao
-Last revision: 04/21/15
+Last revision: 05/04/15
 -->
