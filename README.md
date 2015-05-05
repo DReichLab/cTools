@@ -88,7 +88,7 @@ A full parameter list of the parfile:
 | lopos         | the beginning coordinate of the region [default: the beginning of the chromosome] |
 | hipos         | the ending coordinate of the region [default: the end of the chromosome] |
 | snpname       | the output snp file name (.snp) |
-| minfilterval  | the base quality threshold for taking the genotype information; The quality values are in the mask file. C team has base quality in range (0-9) or no value (N/?) => don't use. Select bases with minfilterval: 3 (say). This selects bases with base quality >=3. [1 is default and recommended for most applications]. Note that the extended C-team files, such as Altai have manifesto filters (made in Leipzig) that are just 0, 1. If you are using extended C-team do not set minfilterval. |
+| minfilterval  | the base quality threshold for taking the genotype information; The quality values are in the mask file. C team has base quality in range (0-9) or no value (N/?) => don't use. Select bases with minfilterval: 3 (say). This selects bases with base quality >=3. [1 is default and recommended for most applications]. Note that the extended C-team files, such as Altai have manifesto filters (made in Leipzig) that are just 0, 1. If you are using such files, do not set minfilterval greater than 1, as all data will be masked out. |
 | ascertain     | If the SNP matches the rule(s) here, this SNP will be out put.  |
 | noascertain   | If the SNP matches the rule(s) here, it will NOT be out put.  |
 | dbhetfa       | .dblist file that specify the hetfa file, refrence.fa and chimp.fa location. If the -d option is not used, this parameter is mandatory for users not in Reich Lab.  |
@@ -367,5 +367,5 @@ S_Yoruba-1  -   /home/mz128/cteam/usr/data/S_Yoruba-1.filter.fa
 <!--
 Written by Nick on 6/15/14
 Revised by Mengyao Zhao
-Last revision: 05/04/15
+Last revision: 05/05/15
 -->
