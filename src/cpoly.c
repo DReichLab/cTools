@@ -2,7 +2,7 @@
  * cpoly.c: This program is used to extract heterozygote SNPs from multiple samples
  * Author: Nick Patterson
  * Revised by: Mengyao Zhao
- * Last revise date: 2015-04-30
+ * Last revise date: 2015-05-07
  * Contact: mengyao_zhao@hms.harvard.edu 
  */
 
@@ -36,7 +36,7 @@ char *regname = NULL ;
 char *iubfile = "/home/mz128/cteam/dblist/hetfa_postmigration.dblist" ;
 char *iubmaskfile = "/home/mz128/cteam/dblist/mask_postmigration.dblist" ;
 char *parname = NULL ;
-int  pagesize = -1 ;  // page size for getiub
+int  pagesize = 1000*1000 ;  // page size for getiub
 int minfilterval = 1 ;
 
 int minchrom = 1 ;

@@ -2,7 +2,7 @@
 * cascertain.c: Pull down the SNPs that match the ascertain criterion.
 * Author: Nick Patterson
 * Revised by: Mengyao Zhao
-* Last revise date: 2015-04-27
+* Last revise date: 2015-05-07
 * Contact: mengyao_zhao@hms.harvard.edu
 */
 
@@ -36,7 +36,8 @@ char *iubfile = "/home/mz128/cteam/dblist/hetfa_postmigration.dblist" ;
 char *iubmaskfile = "/home/mz128/cteam/dblist/mask_postmigration.dblist" ;
 
 char *parname = NULL ;
-int  pagesize = 20*1000*1000 ;  // page size for getiub
+//int  pagesize = 20*1000*1000 ;  // page size for getiub
+int  pagesize = 1000*1000 ;  // page size for getiub
 int minfilterval = 1 ;
 
 int minchrom = 1 ;
