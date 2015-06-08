@@ -2,7 +2,7 @@
  * ccompress.c: use razip to compress hetfa files (*.hetfa) and mask files (*.fa)
  * Author: Nick Patterson
  * Revised by: Mengyao Zhao
- * Last revise date: 2014-12-19
+ * Last revise date: 2014-06-01
  * Contact: mengyao_zhao@hms.harvard.edu 
  */
 
@@ -21,8 +21,8 @@ char *regname = NULL ;
 char *regstring = NULL ;
 faidx_t *fai;
 int chimpmode = NO ;
-char *iubfile = "/home/mz128/cteam/dblist/hetfa_postmigration.dblist" ;
-char *iubmaskfile = "/home/mz128/cteam/dblist/mask_postmigration.dblist" ;
+char *iubfile = "/home/mz128/group/Cteam/cteam_lite_new/hetfa.shift.dblist" ;
+char *iubmaskfile = "/home/mz128/group/Cteam/cteam_lite_new/hetfa.shift.mask.dblist" ;
 phandle *ph  = NULL ;
 
 void loadfilebase(char *parname) ;
@@ -50,6 +50,67 @@ static int usage()
 	return 1;
 }
 
+int getfalist(char **poplist, int npops, char *dbfile, char **iublist) 
+{
+ char line[MAXSTR+1] ;
+ char *spt[MAXFF], *sx ;
+ char c ;
+ int nsplit ;
+ int  t, k, s, nx = 0  ;
+ FILE *fff ;
+ char *scolon ; 
+  
+  if (dbfile == NULL) return 0 ;
+  openit(dbfile, &fff, "r") ;
+
+  while (fgets(line, MAXSTR, fff) != NULL)  { 	// Read the dblist file.
+   nsplit = splitup(line, spt, MAXFF) ; // Store the line into the array spt, devided by \s.
+   if (nsplit<1) continue ;
+   sx = spt[0] ;
+   if (sx[0] == '#') { 
+    freeup(spt, nsplit) ;
+    continue ;
+   }
+
+//	npops is the length of the array poplist. 
+//	if spt[0] is the t th element of poplist, return t; spt[0] is not in poplist, return -1.
+   t = indxstring(poplist, npops, spt[0]) ;	
+   if (t<0) { 
+    freeup(spt, nsplit) ; 
+    continue ;
+   }
+    sx = spt[2] ;
+    iublist[t] = strdup(sx) ;
+    ++nx ;
+    freeup(spt, nsplit) ;
+  }
+
+   fclose(fff) ;
+   return nx ;
+
+}
+
+void readfa(char **falist, char **fasta, int *flen, int n) 
+{
+
+ faidx_t *fai = NULL ;
+ int k, len ;
+ 
+ ivzero(flen, n) ;
+ for (k=0; k<n; ++k) {
+
+  if (falist[k] == NULL) { 
+   fasta[k] = NULL ;
+   continue ;
+  }
+  if (fasta[k] != NULL) freestring(&fasta[k]) ;
+//fprintf(stderr, "falist[%d]: %s\n", k, falist[k]);
+  fai = fai_load(falist[k]) ;
+  fasta[k] = myfai_fetch(fai, regname, &len) ;
+  flen[k] = len ;
+ }
+
+}
 
 int main(int argc, char *argv[])
 {
@@ -98,8 +159,6 @@ int main(int argc, char *argv[])
   for (k=0; k<nregs; ++k) { 
 
    regname = reglist[k] ;
-//fprintf(stderr, "iublist[0]: %s\niublist[1]: %s\n", iublist[0], iublist[1]);
-//fprintf(stderr, "iublist: %s\n", iublist);
    readfa(iublist, fasta, flen, 2) ; 
 
    len = MIN(flen[0], flen[1]) ;
@@ -116,16 +175,13 @@ int main(int argc, char *argv[])
   printf("chromosome: %12s done\n", regname) ;
  }
  fclose(fff) ;
- //sprintf(ss, "gzip %s", tmpfaname) ;  
  sprintf(ss, "htsbox razip %s", tmpfaname) ;  
  system (ss) ;  
- //sprintf(ss, "mv %s.gz %s.gz", tmpfaname, outfaname) ;
  sprintf(ss, "mv %s.rz %s.rz", tmpfaname, outfaname) ;
  system (ss) ;  
  sprintf(outfaname, "%s/%s.ccompmask.fa", wkdir, iname) ;  
  sprintf(ss, "cp %s %s", iubmask[1], outfaname) ; 
  system(ss) ;
- //sprintf(ss, "gzip  %s",  outfaname) ; 
  sprintf(ss, "htsbox razip  %s",  outfaname) ; 
  system(ss) ;
 
@@ -133,7 +189,6 @@ int main(int argc, char *argv[])
 	system(ss);
   printf("## end of ccompress\n") ;
 
-//	free(iname);
   return 0 ;
 
 }
@@ -214,75 +269,13 @@ void readcommands(int argc, char **argv)
 	break;
 
       case '?':
-	exit(usage());
-	break;
-
 	default:
 //	printf ("Usage: bad params.... %c\n", i) ;
-	fatalx("bad params flag:%c\n, i") ;
+	exit(usage());
+	//fatalx("bad params flag:%c\n, i") ;
       }
   }
-
-}
-
-int getfalist(char **poplist, int npops, char *dbfile, char **iublist) 
-{
- char line[MAXSTR+1] ;
- char *spt[MAXFF], *sx ;
- char c ;
- int nsplit ;
- int  t, k, s, nx = 0  ;
- FILE *fff ;
- char *scolon ; 
-  
-  if (dbfile == NULL) return 0 ;
-  openit(dbfile, &fff, "r") ;
-
-  while (fgets(line, MAXSTR, fff) != NULL)  { 	// Read the dblist file.
-   nsplit = splitup(line, spt, MAXFF) ; // Store the line into the array spt, devided by \s.
-   if (nsplit<1) continue ;
-   sx = spt[0] ;
-   if (sx[0] == '#') { 
-    freeup(spt, nsplit) ;
-    continue ;
-   }
-
-//	npops is the length of the array poplist. 
-//	if spt[0] is the t th element of poplist, return t; spt[0] is not in poplist, return -1.
-   t = indxstring(poplist, npops, spt[0]) ;	
-   if (t<0) { 
-    freeup(spt, nsplit) ; 
-    continue ;
-   }
-    sx = spt[2] ;
-    iublist[t] = strdup(sx) ;
-    ++nx ;
-    freeup(spt, nsplit) ;
-  }
-
-   fclose(fff) ;
-   return nx ;
-
-}
-int readfa(char **falist, char **fasta, int *flen, int n) 
-{
-
- faidx_t *fai = NULL ;
- int k, len ;
- 
- ivzero(flen, n) ;
- for (k=0; k<n; ++k) {
-
-  if (falist[k] == NULL) { 
-   fasta[k] = NULL ;
-   continue ;
-  }
-  if (fasta[k] != NULL) freestring(&fasta[k]) ;
-//fprintf(stderr, "falist[%d]: %s\n", k, falist[k]);
-  fai = fai_load(falist[k]) ;
-  fasta[k] = myfai_fetch(fai, regname, &len) ;
-  flen[k] = len ;
- }
+	exit(usage());
 
 }
 
