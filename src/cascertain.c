@@ -2,7 +2,7 @@
 * cascertain.c: Pull down the SNPs that match the ascertain criterion.
 * Author: Nick Patterson
 * Revised by: Mengyao Zhao
-* Last revise date: 2015-05-07
+* Last revise date: 2015-08-10
 * Contact: mengyao_zhao@hms.harvard.edu
 */
 
@@ -30,13 +30,10 @@ typedef struct {
 char *table_path = NULL;
 char *regname = NULL ; 
 char *snpname = NULL ; 
-//char *iubfile = NULL;
-//char *iubmaskfile = NULL; 
 char *iubfile = "/home/mz128/cteam/dblist/hetfa_postmigration.dblist" ;
 char *iubmaskfile = "/home/mz128/cteam/dblist/mask_postmigration.dblist" ;
 
 char *parname = NULL ;
-//int  pagesize = 20*1000*1000 ;  // page size for getiub
 int  pagesize = 1000*1000 ;  // page size for getiub
 int minfilterval = 1 ;
 
@@ -480,15 +477,17 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
 	sprintf(region, "%s:%d-%d", reg, lo, hipos);
 
 
-	if (db == 0) refname = strcat(table_path, "Href.fa");
-	else getdbname(iubfile, "Href", &refname);
+	if (db == 0) {
+		strcpy(refname, table_path);
+		strcat(refname, "Href.fa");
+	} else getdbname(iubfile, "Href", &refname);
 
   if (ncall==1) {
    ZALLOC(falist, npops, char *) ;
    ZALLOC(famasklist, npops, char *) ;
 	if (db == 0) {
-	   numfalist = setfalist(poplist, npops, ".fa", falist) ;
-	   t = setfalist(poplist, npops, ".filter.fa", famasklist) ;
+	   numfalist = setfalist(poplist, npops, ".ccomp.fa.rz", falist) ;
+	   t = setfalist(poplist, npops, ".ccompmask.fa.rz", famasklist) ;
 	} else {
 	   numfalist = getfalist(poplist, npops, iubfile, falist) ;	// set falist with the absolute path of hetfa files in .dblist file; falist contains the iubfile names
 	   t = getfalist(poplist, npops, iubmaskfile, famasklist) ;
@@ -508,6 +507,7 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
      hasmask[k] = NO ;
      continue ;
     }
+//	fprintf(stderr, "famasklist[%d]: %s\n", k, famasklist[k]);
     t = strcmp(famasklist[k], "NULL") ; 
     if (t==0) {
      hasmask[k] = NO ;
@@ -534,7 +534,6 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
 		 printf("loading: %s\n", fapt -> faname) ;
 		 printnl() ;
 	   }
-//		fprintf(stderr, "faname1: %s\n", fapt->faname);
 	
 		fapt -> fai = fai_load(fapt -> faname) ;
 		fapt -> popnum = k ;
@@ -631,7 +630,6 @@ int getiub(char *cc, char *ccmask, FATYPE **fainfo, char *reg, int pos)
   char regbuff[128] ;
   static long ncnt = 0 ;
   static long ncall = 0 ;
-//fprintf(stderr, "!in getiub!\n");
   ++ncall ;
   fapt = fainfo[0] ; 
   lastreg = fapt -> regname ;
@@ -661,7 +659,6 @@ int getiub(char *cc, char *ccmask, FATYPE **fainfo, char *reg, int pos)
   if (pos < lastlo) newpage = YES ;
   if (pos > lasthi) newpage = YES ;
   if (ncall == 1) newreg = YES ;
-//fprintf(stderr, "half getiub\n");
   if (newreg == YES) { 
    fflush(stdout) ;
    freestring(&regname) ;
@@ -685,7 +682,6 @@ int getiub(char *cc, char *ccmask, FATYPE **fainfo, char *reg, int pos)
    if (pos < fapt -> lopos) return -2 ;
    if (pos > fapt -> hipos) return -2 ;
    cc[k] = getfacc(fapt, pos, 1) ; 	// genotype at pos; cc[k] is an iub code
-//fprintf(stderr, "pos: %d\tcc[%d]: %c\n", pos, k, cc[k]);
    if (hasmask[k]) ccmask[k] = getfacc(fapt, pos, 2) ; 	// mask at pos
    else ccmask[k] = '9' ;
   }
@@ -697,7 +693,6 @@ int getiub(char *cc, char *ccmask, FATYPE **fainfo, char *reg, int pos)
   }
 
   ++ncnt ;
-//	fprintf(stderr, "ncnt: %d\n", ncnt);
   if (ncnt == 1) { 
    printf("zz pos: %s %s\n", cc, ccmask) ;
    for (k=0; k<npops; ++k) { 
@@ -800,13 +795,15 @@ int setfalist(char **poplist, int npops, char *dbfile, char **iublist) {
 	int t;
 	for (t = 0; t < npops; ++t) {
 		iublist[t] = strdup(table_path);
-		iublist[t] = (char*) realloc(iublist[t], 64);
+		iublist[t] = (char*) realloc(iublist[t], strlen(iublist[t]) + strlen(poplist[t]) + strlen(dbfile) + 1);
 		iublist[t] = strcat(iublist[t], poplist[t]);
-		if ((!strcmp (poplist[t], "Chimp") || !strcmp (poplist[t], "Href")) && strcmp (dbfile, ".fa")) {
-			free (iublist[t]);
+//		fprintf(stderr, "poplist[%d]: %s\ndbfile: %s\n", t, poplist[t], dbfile);
+
+		if ((!strcmp (poplist[t], "Chimp") || !strcmp (poplist[t], "Href")) && !strcmp (dbfile, ".ccomp.fa.rz"))
+			iublist[t] = strcat(iublist[t], ".fa");
+		else if ((!strcmp (poplist[t], "Chimp") || !strcmp (poplist[t], "Href")) && !strcmp (dbfile, ".ccompmask.fa.rz"))
 			iublist[t] = "NULL";
-		} else 
-			iublist[t] = strcat(iublist[t], dbfile);
+		else iublist[t] = strcat(iublist[t], dbfile);
 	}
 	return npops;
 }  

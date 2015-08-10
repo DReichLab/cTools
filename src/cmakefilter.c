@@ -1,4 +1,4 @@
-// Revised by Mengyao Zhao on 2015-03-12
+// Revised by Mengyao Zhao on 2015-08-06
 
 #include <libgen.h>
 #include <nicksam.h>
@@ -699,6 +699,7 @@ int readfa(char **falist, char **fasta, int *flen, int n)
   flen[k] = len ;
  }
 }
+
 void *setvcff(char *vcffile, char **vcfn)   
 // vcfffile should not exist
 {
@@ -711,23 +712,27 @@ void *setvcff(char *vcffile, char **vcfn)
  sprintf(iname, "%s.gz", vcffile) ;  
   if (ftest(iname))  {
    printf("got %s\n", iname) ; 
+	  bname = basename(vcffile) ; 
+	  sprintf(outname, "%s/%s:%s.vcf", wkdir,sampname,regname ) ;
+	  sprintf(ss, "cp %s %s.gz", iname, outname) ; 
+	  printf("zzcopy: %s\n",ss) ;
+	  system(ss) ;
+	  sprintf(ss, "gunzip %s.gz", outname) ;
+	  system(ss) ;
+	  sprintf(ss, "chmod 664 %s", outname) ; 
+	  system(ss) ;
+	  if (ftest(outname) == NO) fatalx("unzip fails\n") ;
   }
-  else { 
-   fatalx("gzfetch fails\n") ;
+  else {
+	 sprintf(outname, "%s.bgz", vcffile) ;  
+ //	sprintf(iname, "%s.bgz", vcffile) ;  
+  //	if (ftest(iname)) printf("got %s\n", iname) ; 
+  //	else fatalx("gzfetch and bgzfetch fail\n") ;
+ // else { 
+  // fatalx("gzfetch fails\n") ;
   }
-  bname = basename(vcffile) ; 
-  sprintf(outname, "%s/%s:%s.vcf", wkdir,sampname,regname ) ;
-  sprintf(ss, "cp %s %s.gz", iname, outname) ; 
-  printf("zzcopy: %s\n",ss) ;
-  system(ss) ;
-  sprintf(ss, "gunzip %s.gz", outname) ;
-  system(ss) ;
-  sprintf(ss, "chmod 664 %s", outname) ; 
-  system(ss) ;
-  if (ftest(outname) == NO) fatalx("unzip fails\n") ;
 
   *vcfn = strdup(outname) ;
-  
 }
 
 int readvcf(char *vcffile, int **fasta, int reflen, int *flen) 
@@ -748,6 +753,7 @@ int readvcf(char *vcffile, int **fasta, int reflen, int *flen)
 
         if (ftest(vcffile) == NO) { 
           setvcff(vcffile, &vcftmp) ;
+			fprintf(stderr, "vcf: %s\n", vcftmp);
           openit(vcftmp, &vcffp, "r") ; // aborts on error
         }
         else {

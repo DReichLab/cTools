@@ -2,7 +2,7 @@
 * cpulldown.c:	get the genotypes of the given individuls at the given SNP loci from a set of bams
 * Author: Nick Patterson
 * Revised by: Mengyao Zhao
-* Last revise date: 2015-04-27
+* Last revise date: 2015-08-10
 * Contact: mengyao_zhao@hms.harvard.edu
 */
 
@@ -24,16 +24,12 @@
 #include "faidx.h"
 #include "admutils.h"
 #include "mcio.h"  
-//#include "kseq.h"
 
 #define WVERSION   "150" 
 
-// fai_destroy called
 #define MAXFL  50   
 #define MAXSTR  512
 
-//char *iubfile = NULL ;
-//char *iubmaskfile = NULL;
 char *table_path = NULL;
 
 char *iubfile = "/home/mz128/cteam/dblist/hetfa_postmigration.dblist" ;
@@ -142,8 +138,6 @@ int main(int argc, char **argv)
   numsnps = 
     getsnps(snpname, &snpmarkers, fakespacing,  NULL, &nignore, numrisks) ;
 
-// fakespacing 0.0 (default)
-
   numindivs = getindivs(indivname, &indivmarkers) ;
   ZALLOC(samplist, numindivs, char *) ;
   nsamps = mksamplist(samplist, indivmarkers, numindivs) ;
@@ -156,8 +150,8 @@ int main(int argc, char **argv)
   ZALLOC(iubmask, nsamps, char *) ;
 
 	if (db == 0) {
-	   setfalist(samplist, nsamps, ".fa", iublist) ;
-	   setfalist(samplist, nsamps, ".filter.fa", iubmask) ;
+	   setfalist(samplist, nsamps, ".ccomp.fa.rz", iublist) ;
+	   setfalist(samplist, nsamps, ".ccompmask.fa.rz", iubmask) ;
 	} else {
 	   getfalist(samplist, nsamps, iubfile, iublist) ;	// set falist with the absolute path of hetfa files in .dblist file
 	   getfalist(samplist, nsamps, iubmaskfile, iubmask) ; 
@@ -287,7 +281,6 @@ void readcommands(int argc, char **argv)
 			table_path = strcat(table_path, "/");
 		}
 		db = 0;	// Don't use .dblist
-//		fprintf(stderr, "db: %d\n", db);	
 	}
 	break;
 
@@ -307,16 +300,12 @@ void readcommands(int argc, char **argv)
       case '?':
 	default:
 	exit(usage());
-
-//	printf ("Usage: bad params.... \n") ;
-//	fatalx("bad params\n") ;
       }
   }
 
          
    if (parname == NULL) //return ;
 		exit(usage());
-  // pcheck(parname,'p') ;
    printf("parameter file: %s\n", parname) ;
    ph = openpars(parname) ;
    dostrsub(ph) ;
@@ -341,8 +330,6 @@ void readcommands(int argc, char **argv)
    getint(ph, "minchrom:", &minchrom) ;
    getint(ph, "maxchrom:", &maxchrom) ;
    getint(ph, "chrom:", &xchrom) ;
-//   getstring(ph, "dbhetfa:", &iubfile) ;
-  // getstring(ph, "dbmask:", &iubmaskfile) ;
    writepars(ph) ;
    closepars(ph) ;
 
@@ -366,7 +353,6 @@ long setgenoblank (SNP **snpmarkers, int numsnps, int numindivs)
   clearepath(packgenos) ;
 
   for (j=0; j<numsnps; ++j) { 
-
          cupt = snpmarkers[j] ;
          ZALLOC(cupt -> gtypes, 1, int) ;
          cupt -> pbuff = pbuff ;  
@@ -419,23 +405,24 @@ int readfa1(char *faname, char **pfasta, int *flen)
  int ntry = 0, itry ;
 	FILE *fp;
 	int byte[2], rz = 0;
-	//gzFile fp;
  
  if (pfasta != NULL) freestring(pfasta) ;
 
  *flen = 0 ;
  *pfasta = NULL ;
 
-	if (db == 0) refname = strcat(table_path, "Href.fa");
-	else getdbname(iubfile, "Href", &refname);
+	if (db == 0) {
+		strcpy(refname, table_path);
+		strcat(refname, "Href.fa");
+	} else getdbname(iubfile, "Href", &refname);
 
+//	fprintf(stderr, "table_path: %s\n", table_path);
   if (faname  == NULL) { 
    return  0;
   }
 
 	fai_ref = fai_load(refname);
-//	fprintf(stderr, "refname: %s\n", refname);
-//	fprintf(stderr, "ssreg: %s\n", ssreg);
+//	fprintf(stderr, "refname*: %s\n", refname);
 	ref = fai_fetch(fai_ref, regname, &len_r);
 	if (len_r==0) fatalx("bad fetch %s %s\n", refname, regname) ; 	// fetch fai
 
@@ -475,13 +462,21 @@ int setfalist(char **poplist, int npops, char *dbfile, char **iublist) {
 	int t;
 	for (t = 0; t < npops; ++t) {
 		iublist[t] = strdup(table_path);
-		iublist[t] = (char*) realloc(iublist[t], 64);
+		iublist[t] = (char*) realloc(iublist[t], strlen(iublist[t]) + strlen(poplist[t]) + strlen(dbfile) + 1);
 		iublist[t] = strcat(iublist[t], poplist[t]);
-		if ((!strcmp (poplist[t], "Chimp") || !strcmp (poplist[t], "Href")) && strcmp (dbfile, ".fa")) {
+	//	fprintf(stderr, "iublist[%d]: %s\n", t, iublist[t]);
+
+		if ((!strcmp (poplist[t], "Chimp") || !strcmp (poplist[t], "Href")) && !strcmp (dbfile, ".ccomp.fa.rz"))
+			iublist[t] = strcat(iublist[t], ".fa");
+		else if ((!strcmp (poplist[t], "Chimp") || !strcmp (poplist[t], "Href")) && !strcmp (dbfile, ".ccompmask.fa.rz"))
+			iublist[t] = "NULL";
+		else iublist[t] = strcat(iublist[t], dbfile);
+		/*if ((!strcmp (poplist[t], "Chimp") || !strcmp (poplist[t], "Href")) && strcmp (dbfile, ".fa")) {
 			free (iublist[t]);
 			iublist[t] = "NULL";
 		} else 
 			iublist[t] = strcat(iublist[t], dbfile);
+		*/
 	}
 	return npops;
 }
@@ -664,7 +659,6 @@ int checkr(char **samplist, int nsamps, char **iublist, char **iubmask)
 
   for (k=0; k<nsamps; ++k) {
    sname = samplist[k] ;
-// printf("checkr: %d %s\n", k,sname) ;
    t = 0 ;
    if (ftest(iublist[k]) == NO) { 
     printf("%s hetfa fail to open\n", sname) ;
@@ -693,6 +687,7 @@ void getfasta(char **pfasta, char **pmask, int *rlen, int *mlen, int kk)
   int tmlen=0, len, t  ;
 
   faname = iublist[kk] ;
+//	fprintf(stderr, "faname: %s\nkk: %d\n", faname, kk);
   famask = iubmask[kk] ;
 
   freestring(pfasta) ;
@@ -712,5 +707,4 @@ void getfasta(char **pfasta, char **pmask, int *rlen, int *mlen, int kk)
   }
   *rlen = len ;
   *mlen = tmlen ;
- 
 }
