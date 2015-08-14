@@ -2,7 +2,7 @@
 * cpulldown.c:	get the genotypes of the given individuls at the given SNP loci from a set of bams
 * Author: Nick Patterson
 * Revised by: Mengyao Zhao
-* Last revise date: 2015-08-10
+* Last revise date: 2015-08-14
 * Contact: mengyao_zhao@hms.harvard.edu
 */
 
@@ -32,8 +32,10 @@
 
 char *table_path = NULL;
 
-char *iubfile = "/home/mz128/cteam/dblist/hetfa_postmigration.dblist" ;
-char *iubmaskfile = "/home/mz128/cteam/dblist/mask_postmigration.dblist" ;
+//char *iubfile = "/home/mz128/cteam/dblist/hetfa_postmigration.dblist" ;
+//char *iubmaskfile = "/home/mz128/cteam/dblist/mask_postmigration.dblist" ;
+char *iubfile = "/n/data1/hms/genetics/reich/1000Genomes/cteam_remap/B-cteam_lite/v0.2/C-FullyPublic__SignedLetterNoDelay__SignedLetterDelay/C.hetfa.dblist" ;
+char *iubmaskfile = "/n/data1/hms/genetics/reich/1000Genomes/cteam_remap/B-cteam_lite/v0.2/C-FullyPublic__SignedLetterNoDelay__SignedLetterDelay/C.mask.dblist" ;
 
 extern enum outputmodetype outputmode  ;
 extern int checksizemode ;
@@ -108,6 +110,29 @@ static int usage()
 	return 1;
 }
 
+int setfalist(char **poplist, int npops, char *dbfile, char **iublist) {
+	int t;
+	for (t = 0; t < npops; ++t) {
+		iublist[t] = strdup(table_path);
+		iublist[t] = (char*) realloc(iublist[t], strlen(iublist[t]) + strlen(poplist[t]) + strlen(dbfile) + 1);
+		iublist[t] = strcat(iublist[t], poplist[t]);
+	//	fprintf(stderr, "iublist[%d]: %s\n", t, iublist[t]);
+
+		if ((!strcmp (poplist[t], "Chimp") || !strcmp (poplist[t], "Href")) && !strcmp (dbfile, ".ccomp.fa.rz"))
+			iublist[t] = strcat(iublist[t], ".fa");
+		else if ((!strcmp (poplist[t], "Chimp") || !strcmp (poplist[t], "Href")) && !strcmp (dbfile, ".ccompmask.fa.rz"))
+			iublist[t] = "NULL";
+		else iublist[t] = strcat(iublist[t], dbfile);
+		/*if ((!strcmp (poplist[t], "Chimp") || !strcmp (poplist[t], "Href")) && strcmp (dbfile, ".fa")) {
+			free (iublist[t]);
+			iublist[t] = "NULL";
+		} else 
+			iublist[t] = strcat(iublist[t], dbfile);
+		*/
+	}
+	return npops;
+}
+  
 int main(int argc, char **argv)
 {
 
@@ -203,6 +228,7 @@ int main(int argc, char **argv)
     freestring(&regname) ;
     regname = strdup(ss) ;
     firstsnp = isnp ;
+//fprintf(stderr, "here\n");
     for (k=0; k<numindivs; ++k) { 
      indx = indivmarkers[k] ;
      kk = indxindex(samplist, nsamps, indx -> ID) ;
@@ -261,6 +287,7 @@ void readcommands(int argc, char **argv)
   char str[5000]  ;
   char *tempname ;
   int n ;
+	char *p;
 
   while ((i = getopt (argc, argv, "p:d:cvV?")) != -1) {
 
@@ -310,11 +337,28 @@ void readcommands(int argc, char **argv)
    ph = openpars(parname) ;
    dostrsub(ph) ;
 
+	getstring(ph, "pathname:", &table_path) ;
+	if (table_path != NULL) {
+		p = strrchr(table_path, '/');
+ 		if (!p || strcmp(p, "/")) {
+ 			table_path = (char*)realloc(table_path, 256);
+ 			table_path = strcat(table_path, "/");
+ 		}
+ 		db = 0;	// Don't use .dblist
+    }
+ 
 	if (db == 1) {
-	   getstring(ph, "dbhetfa:", &iubfile) ;
-	   getstring(ph, "dbmask:", &iubmaskfile) ;
-		if (! (iubfile && iubmaskfile))
-			fprintf(stderr, "Please use -d option to specify the directory of hetfa and mask files.\nAlternatively, please give values to dbhetfa and dbmask in the parameter file.\n");
+		int def_het = 0, def_mask = 0;
+	   def_het = getstring(ph, "dbhetfa:", &iubfile) ;
+	   def_mask = getstring(ph, "dbmask:", &iubmaskfile) ;
+		if (def_het < 0 || def_mask < 0) {
+			if (def_het < 0) fprintf(stderr, "You are using default dbhetfa value:\n%s\n", iubfile);
+			if (def_mask < 0) fprintf(stderr, "You are using default dbmask value:\n%s\n", iubmaskfile);
+			fprintf(stderr, "If the default database does not apply to you, please use -d option to specify the directory of hetfa and mask files.\n")   ;
+            fprintf(stderr, "... or specify pathname: in parameter file\n") ;
+            fprintf(stderr, "... or give values to dbhetfa and dbmask in the parameter file.\n\n");
+           // fatalx("can't find fata files\n") ;
+		}
 	}
 
    getint(ph, "minfilterval:", &minfilterval) ;
@@ -326,7 +370,7 @@ void readcommands(int argc, char **argv)
    getstring(ph, "genooutname:", &genooutfilename) ; /* changed 11/02/06 */
    getstring(ph, "genooutfilename:", &genooutfilename) ; /* changed 11/02/06 */
    getstring(ph, "genotypeoutname:", &genooutfilename) ; /* changed 11/02/06 */
-   getstring(ph, "outputformat:", &omode) ;  
+   getstring(ph, "outputformat:", &omode) ; 
    getint(ph, "minchrom:", &minchrom) ;
    getint(ph, "maxchrom:", &maxchrom) ;
    getint(ph, "chrom:", &xchrom) ;
@@ -458,31 +502,7 @@ int readfa1(char *faname, char **pfasta, int *flen)
 
 }
 
-int setfalist(char **poplist, int npops, char *dbfile, char **iublist) {
-	int t;
-	for (t = 0; t < npops; ++t) {
-		iublist[t] = strdup(table_path);
-		iublist[t] = (char*) realloc(iublist[t], strlen(iublist[t]) + strlen(poplist[t]) + strlen(dbfile) + 1);
-		iublist[t] = strcat(iublist[t], poplist[t]);
-	//	fprintf(stderr, "iublist[%d]: %s\n", t, iublist[t]);
-
-		if ((!strcmp (poplist[t], "Chimp") || !strcmp (poplist[t], "Href")) && !strcmp (dbfile, ".ccomp.fa.rz"))
-			iublist[t] = strcat(iublist[t], ".fa");
-		else if ((!strcmp (poplist[t], "Chimp") || !strcmp (poplist[t], "Href")) && !strcmp (dbfile, ".ccompmask.fa.rz"))
-			iublist[t] = "NULL";
-		else iublist[t] = strcat(iublist[t], dbfile);
-		/*if ((!strcmp (poplist[t], "Chimp") || !strcmp (poplist[t], "Href")) && strcmp (dbfile, ".fa")) {
-			free (iublist[t]);
-			iublist[t] = "NULL";
-		} else 
-			iublist[t] = strcat(iublist[t], dbfile);
-		*/
-	}
-	return npops;
-}
-  
 int getfalist(char **poplist, int npops, char *dbfile, char **iublist)  
-
 {
  char line[MAXSTR+1] ;
  char *spt[MAXFF], *sx ;
@@ -520,7 +540,6 @@ int getfalist(char **poplist, int npops, char *dbfile, char **iublist)
 
    fclose(fff) ;
    return nx ;
-
 }
 
 char *myfai_fetch(faidx_t *fai, char *reg, int  *plen)
@@ -636,6 +655,7 @@ int mkcnt(int *cnt, char *iub, char *mask, int npops, char *pc1, char *pc2)
   }
   return t ;
 }
+
 int  mksamplist(char **samplist, Indiv **indivmarkers, int numindivs) 
 {
   int k, n=0 ;
@@ -648,7 +668,6 @@ int  mksamplist(char **samplist, Indiv **indivmarkers, int numindivs)
     ++n ;
   }
   return n ;
-
 }
 
 int checkr(char **samplist, int nsamps, char **iublist, char **iubmask) 
