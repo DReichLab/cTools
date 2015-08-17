@@ -91,6 +91,7 @@ A full parameter list of the parfile:
 | minfilterval  | the base quality threshold for taking the genotype information; The quality values are in the mask file. C team has base quality in range (0-9) or no value (N/?) => don't use. Select bases with minfilterval: 3 (say). This selects bases with base quality >=3. [1 is default and recommended for most applications]. Note that the extended C-team files, such as Altai have manifesto filters (made in Leipzig) that are just 0, 1. If you are using such files, do not set minfilterval greater than 1, as all data will be masked out. |
 | ascertain     | If the SNP matches the rule(s) here, this SNP will be out put.  |
 | noascertain   | If the SNP matches the rule(s) here, it will NOT be out put.  |
+| pathname | Absolute path of the data file folder. The data files including hetfa, mask and reference files should be all in this folder. This parameter has the same function as the -d potion in the command line. |
 | dbhetfa       | .dblist file that specify the hetfa file, refrence.fa and chimp.fa location. If the -d option is not used, this parameter is mandatory for users not in Reich Lab.  |
 | dbmask        | .dblist file that specify the mask file location. If the -d option is not used, this parameter is mandatory for users not in Reich Lab.|
 | transitions   | work on transitions. [default: Yes]  |
@@ -162,9 +163,11 @@ A full parameter list of the parameter_file:
 | genooutname | output .geno file  |
 | outputformat    | [eigenstrat]      |
 | minfilterval    | similar to the minfilterval of  cascertain, but [default is 0] |
-|  minchrom:	| the beginning chromosome
-|  maxchrom:	| the ending chromosome
-
+|  minchrom:	| the beginning chromosome |
+|  maxchrom:	| the ending chromosome |
+| pathname | Absolute path of the data file folder. The data files including hetfa, mask and reference files should be all in this folder. This parameter has the same function as the -d potion in the command line. |
+| dbhetfa       | .dblist file that specify the hetfa file, refrence.fa and chimp.fa location. If the -d option is not used, this parameter is mandatory for the users not in Reich Lab.  |
+| dbmask        | .dblist file that specify the mask file location. If the -d option is not used, this parameter is mandatory for the users not in Reich Lab.|
 
 For example, to use cpulldown to pull out data from Papuan and Dai, you need to:
 
@@ -270,6 +273,7 @@ A full parameter list of the parameter_file:
 |  maxchrom:	| the ending chromosome|
 | lopos         | the beginning coordinate of the region [default: the beginning of the chromosome] |
 | hipos         | the ending coordinate of the region [default: the end of the chromosome] |
+| pathname | Absolute path of the data file folder. The data files including hetfa, mask and reference files should be all in this folder. This parameter has the same function as the -d potion in the command line. |
 | dbhetfa       | .dblist file that specify the hetfa file, refrence.fa and chimp.fa location. If the -d option is not used, this parameter is mandatory for the users not in Reich Lab.  |
 | dbmask        | .dblist file that specify the mask file location. If the -d option is not used, this parameter is mandatory for the users not in Reich Lab.|
 |pagesize|cascertain "pages" through the genome in chunks of size pagesize bases. The default is 20M bases, but this can be overwritten.  Larger pages will run faster (and use more memory). Please use one number only for this parameter setting.|
@@ -367,5 +371,5 @@ S_Yoruba-1  -   /home/mz128/cteam/usr/data/S_Yoruba-1.filter.fa
 <!--
 Written by Nick on 6/15/14
 Revised by Mengyao Zhao
-Last revision: 05/05/15
+Last revision: 08/17/15
 -->
