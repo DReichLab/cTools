@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 #This program is used to uncompress the compressed hetfa and mask files.  
 #by Mengyao Zhao, 2014-12-09
-#Revised by Mengyao on 2015-04-22
+#Revised by Mengyao on 2015-08-24
 
 use strict;
 use warnings;
@@ -37,8 +37,8 @@ sub command {
 	my $name = shift;
 	system("samtools faidx $name.fa");
 	#system("gunzip -f $name.ccompmask.fa.gz");
-	system("htsbox razip -d -c >$name.ccompmask.fa.rz");
-	system ("mv $name.ccompmask.fa $name.filter.fa");
+	system("htsbox razip -d -c $name.ccompmask.fa.rz > $name.filter.fa");
+#	system ("mv $name.ccompmask.fa.rz $name.filter.fa");
 	system("samtools faidx $name.filter.fa");
 	#system("rm $name.ccomp.fa.rz");
 }
