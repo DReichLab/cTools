@@ -284,11 +284,11 @@ A full parameter list of the parameter_file:
 
 ### 4. uncompress.pl
 
-uncompress.pl uncompress the `*.ccomp.fa.gz` and `*.ccompmask.fa.gz` files.
+uncompress.pl uncompress the `*.ccomp.fa.rz` and `*.ccompmask.fa.rz` files.
 ```
-Usage: uncompress.pl <reference.fa> <sample.ccomp.fa.gz> (compressed hetfa file)
+Usage: uncompress.pl <reference.fa> <sample.ccomp.fa.rz> (compressed hetfa file)
 
-Inputs: .ccomp.fa.gz, .ccompmask.fa.gz
+Inputs: .ccomp.fa.rz, .ccompmask.fa.rz
 Outputs: .fa (uncompressed hetfa file), .fa.fai, .filter.fa (uncompressed mask file), .filter.fa.fai
 ```
 
@@ -371,5 +371,5 @@ S_Yoruba-1  -   /home/mz128/cteam/usr/data/S_Yoruba-1.filter.fa
 <!--
 Written by Nick on 6/15/14
 Revised by Mengyao Zhao
-Last revision: 08/17/15
+Last revision: 08/25/15
 -->
