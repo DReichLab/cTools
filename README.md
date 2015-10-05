@@ -105,7 +105,7 @@ A full parameter list of the parfile:
 Notes: You can write comments in the parameter file by `#comments`.
 
 ### 2. cpulldown
-cpulldown out puts the genotypes of the given individuls at the given SNP loci from a set of bams.
+cpulldown out puts the genotypes of the given individuls at the given SNP loci from a set of hetfa files.
 
 ```
 Usage:   cpulldown -p <parameter file> [options]
