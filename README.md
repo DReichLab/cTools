@@ -8,6 +8,7 @@ cTools include:
 2. cpulldown
 3. cpoly
 4. uncompress.pl
+5. ccompress
 
 ##Download the programs
 `git clone https://github.com/mengyao/cTools.git`
@@ -42,7 +43,7 @@ Options:
   -v	Show version information.
   -?    show the instruction.
 
-Input: parameter_file
+Input: hetfa files, parameter file
 Outputs: .snp file (Reich lab format)
 ```
 
@@ -117,7 +118,7 @@ Options:
   -?  Show the instruction.
 
 
-Inputs: parameter_file, .snp file, .ind file (Reich lab format)
+Inputs: hetfa files, parameter_file, .snp file, .ind file (Reich lab format)
 Outputs: .snp file, .ind file, .geno file
 
 ```
@@ -230,7 +231,7 @@ Options:
   -v	Show version information.
   -? 	Show the instruction.
 
-Inputs: parameter_file, .ind file
+Inputs: hetfa files, parameter_file, .ind file
 Outputs:  .ind file, .snp file, .geno file
 ```
 
@@ -284,21 +285,31 @@ A full parameter list of the parameter_file:
 
 ### 4. uncompress.pl
 
-uncompress.pl uncompress the `*.ccomp.fa.rz` and `*.ccompmask.fa.rz` files.
+uncompress.pl decompresses the `.ccomp.fa.rz` and `.ccompmask.fa.rz` files. The outputs of uncompress.pl can be read by other cTools programs.
 ```
 Usage: uncompress.pl <reference.fa> <sample.ccomp.fa.rz> (compressed hetfa file)
 
-Inputs: .ccomp.fa.rz, .ccompmask.fa.rz
+Inputs: Href.fa .ccomp.fa.rz, .ccompmask.fa.rz
 Outputs: .fa (uncompressed hetfa file), .fa.fai, .filter.fa (uncompressed mask file), .filter.fa.fai
 ```
 
-***Notes***: The  Samtools is
-required by uncompress.pl.
+***Notes***: Samtools is required by uncompress.pl. The input files sample.ccomp.fa.rz and sample.ccompmask.fa.rz need to be in the same folder.  
 
+### 5. ccompress
 
+ccompress compresses the `.fa` (hetfa) and `.filter.fa` (mask) files. The outputs of ccompress can be read by other cTools programs.
 
-##Related file formats
-###1. .ind file
+```
+Usage: ccompress <reference.fa> <hetfa.fa>
+
+Inputs: Href.fa sample.fa, sample.filter.fa
+Outputs: .ccomp.fa.rz (compressed hetfa file), .ccompmask.fa.rz (compressed mask file)
+```
+
+***Notes***: The input files sample.fa and sample.filter.fa need to be in the same folder.  
+
+## Related file formats
+### 1. .ind file
 example.ind:
 ```
 #FullyPublicGeneral
@@ -312,7 +323,7 @@ Stuttgart   F   LBK
 - 2nd column: gender
 - 3rd column: population
 
-###2. .snp file
+### 2. .snp file
 example.snp:
 ```
 X:21_15838960    21        0.158390        15838960 C T
@@ -328,7 +339,7 @@ X:21_16495307    21        0.164953        16495307 G A
 - 6th column: alternative allele. In the output of cascertain, this is the forward strand allele.
 - For cpulldown and cpoly, the column 5 and 6 of the output .snp file are the same as that of the input. They can be any user chosen alleles.
 
-###3. .geno file
+### 3. .geno file
 example.geno
 ```
 00002
@@ -342,7 +353,7 @@ example.geno
 - Each number in .geno denotes the count of base alleles (the allele of the 5th column of .snp file) of the corresponding individual at the corresponding SNP site.
 - The number is the count of the allele in the 5th column of the .snp file. For example, if the .snp file is example.snp, for the 1st snp locus, '0' means homozygous T, '2' means homozygous C.
 
-###4. .dblist
+### 4. .dblist
 
 hetfa.example.dblist:
 ```
@@ -371,5 +382,5 @@ S_Yoruba-1  -   /home/mz128/cteam/usr/data/S_Yoruba-1.filter.fa
 <!--
 Written by Nick on 6/15/14
 Revised by Mengyao Zhao
-Last revision: 08/25/15
+Last revision: 10/05/15
 -->
