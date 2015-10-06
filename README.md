@@ -219,7 +219,7 @@ Notes: Running time: Linear in number of samples in indivname.  10 samples pull 
 in about 1 hour on orchestra.
 
 ### 3. cpoly
-cpoly pulls down all the SNP sites that are polymorphic in sample list from one or multiple bams. In default mode only bases with no  missing
+cpoly pulls down all the SNP sites that are polymorphic in sample list from one or multiple hetfas. In default mode only bases with no  missing
 data are considered, so you need to be careful if you use many samples.
 
 ```
@@ -382,5 +382,5 @@ S_Yoruba-1  -   /home/mz128/cteam/usr/data/S_Yoruba-1.filter.fa
 <!--
 Written by Nick on 6/15/14
 Revised by Mengyao Zhao
-Last revision: 10/05/15
+Last revision: 10/06/15
 -->
