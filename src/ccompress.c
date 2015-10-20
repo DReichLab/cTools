@@ -2,7 +2,7 @@
  * ccompress.c: use razip to compress hetfa files (*.hetfa) and mask files (*.fa)
  * Author: Nick Patterson
  * Revised by: Mengyao Zhao
- * Last revise date: 2015-08-28
+ * Last revise date: 2015-10-19
  * Contact: mengyao_zhao@hms.harvard.edu 
  */
 
@@ -31,7 +31,7 @@ char *myfai_fetch(faidx_t *fai, char *reg, int  *plen) ;
 FILE *fff ; 
 
 char *iname = "S_Irula-1" ;  
-char *wkdir = "./" ;	// default writing directory
+//char *wkdir = "./" ;	// default writing directory
 char *tempout ;
 
 void readcommands(int argc, char **argv) ;
@@ -42,12 +42,12 @@ static int usage()
 {
 	fprintf(stderr, "\n");
 	fprintf(stderr, "Usage:   ccompress <reference.fa> <hetfa.fa> \n\n");
-	fprintf(stderr, "Options:\n");
+//	fprintf(stderr, "Options:\n");
 //	fprintf(stderr, "\t-f <hetfa file> Please give absolute path with the file name.\n");
 //	fprintf(stderr, "\t-r <Href.fa> Please give absolute path with the file name.\n");
 	//fprintf(stderr, "\t-i <sample name> [default: S_Irula-1]\n");
-	fprintf(stderr, "\t-w <output dir> [default: ./]\n");
-	fprintf(stderr, "\t-? Show the instruction.\n\n");
+//	fprintf(stderr, "\t-w <output dir> [default: ./]\n");
+//	fprintf(stderr, "\t-? Show the instruction.\n\n");
 	//fprintf(stderr, "Note: If you are not working on orchestra, -i option is not applicable to you, and you need to use -f and -r options together. If you use -f and -r options, -i option will be ignored.\n\n");
 	return 1;
 }
@@ -97,6 +97,7 @@ char *poplist[2] ;
  char tmpfaname[200]  ;
  char fainame[200] ; 
  char **reglist ;
+	char *dir, *file;
  int nregs, k;
 
  readcommands(argc, argv);
@@ -113,9 +114,16 @@ char *poplist[2] ;
 	else if (!strcmp(p, ".hetfa")) strncpy(iname, poplist[1], x - 6);
 	p = strrchr(iname, '/');
 	++p;
+	file = (char*)malloc(32 * sizeof(char));
+	file = strrchr(poplist[1], '/');
+	dir = (char*)malloc(x*sizeof(char));
+	strncpy(dir, poplist[1], x - strlen(file));
+//fprintf(stderr, "dir: %s\n", dir);
 
 	  setfalist(poplist, 2, iublist)  ;
 	  setfalist(poplist, 2, iubmask)  ;
+	realloc(iubmask[1], (x + 8) * sizeof(char));
+	sprintf(iubmask[1], "%s.filter.fa", iname);
 
   strcpy(fainame, iublist[1]) ;
   strcat(fainame, ".fai") ;
@@ -129,9 +137,9 @@ char *poplist[2] ;
   //sprintf(outfaname, "%s/%s.ccomp.fa", wkdir, iname) ;  
   
   //sprintf(tmpfaname, "%s/%s.ccomptmp.fa", wkdir, iname) ;  
-  sprintf(outfaname, "%s.ccomp.fa", p) ;  
+  sprintf(outfaname, "%s/%s.ccomp.fa", dir, p) ;  
   
-  sprintf(tmpfaname, "%s.ccomptmp.fa", p) ;  
+  sprintf(tmpfaname, "%s/%s.ccomptmp.fa", dir, p) ;  
   openit(tmpfaname, &fff, "w") ;
 
   fasta[0] = fasta[1] = NULL ;  
@@ -160,17 +168,19 @@ char *poplist[2] ;
  sprintf(ss, "mv %s.rz %s.rz", tmpfaname, outfaname) ;
  system (ss) ;  
  //sprintf(outfaname, "%s/%s.ccompmask.fa", wkdir, iname) ;  
- sprintf(outfaname, "%s.ccompmask.fa", p) ;  
+ sprintf(outfaname, "%s/%s.ccompmask.fa", dir, p) ;  
  sprintf(ss, "cp %s %s", iubmask[1], outfaname) ; 
+//fprintf(stderr, "ss: %s\n", ss);
  system(ss) ;
  sprintf(ss, "htsbox razip  %s",  outfaname) ; 
  system(ss) ;
 
-	//sprintf(ss, "rm %s/%s.ccomptmp.fa", wkdir, iname);
-	sprintf(ss, "rm %s.ccomptmp.fa", p);
-	system(ss);
+//	sprintf(ss, "rm %s/%s.ccomptmp.fa", dir, p);
+//	sprintf(ss, "rm %s.ccomptmp.fa", p);
+//	system(ss);
   printf("## end of ccompress\n") ;
 
+	free(dir);
 	free(iname);
   return 0 ;
 
@@ -234,19 +244,19 @@ void readcommands(int argc, char **argv)
   int n, kode ;
   int pops[2] ;
 
-  while ((i = getopt (argc, argv, "w:?")) != -1) {
+/*  while ((i = getopt (argc, argv, "w:?")) != -1) {
 
     switch (i)
       {
-/*
+
       case 'i':
 	iname = strdup(optarg) ;
 	break;
-*/
+
       case 'w':
 	wkdir = strdup(optarg) ;
 	break;
-/*
+
       case 'f':
 	//	f = 1;
 		poplist[1] = strdup(optarg) ;
@@ -256,14 +266,14 @@ void readcommands(int argc, char **argv)
 	//	f = 1;
 	poplist[0] = strdup(optarg) ;
 	break;
-*/
+
       case '?':
 //	default:
 //	printf ("Usage: bad params.... %c\n", i) ;
 	exit(usage());
 	//fatalx("bad params flag:%c\n, i") ;
       }
-  }
+  }*/
 //fprintf(stderr, "argc: %d\n", argc);
 	if (argc < 3) exit(usage());
 
