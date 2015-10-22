@@ -101,6 +101,8 @@ S_Yoruba-1  -   /home/mz128/cteam/usr/data/S_Yoruba-1.filter.fa
 - For chimp and human references - 3rd column: NULL
 - For samples - 3rd column: location of the mask files (/absolute_path/sample.filter.fa)
 
+
+----------------------------------------
 *For questions please contact Mengyao Zhao (mengyao_zhao@hms.harvard.edu) or Nick Patterson (nickp@broadinstitute.org).*
 
 <!--
