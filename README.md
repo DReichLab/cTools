@@ -5,11 +5,13 @@ version (compressed) Simons genomic diversity project (SGDP lite) files. The
 cTools include:
 
 Analysis tools:
+
 1. cascertain
 2. cpulldown
 3. cpoly
 
 Tools for handling samples:
+
 4. uncompress.pl
 5. ccompress
 6. cmakefilter
