@@ -32,6 +32,8 @@ In the src folder:
 3. `make install`
 
 ##Run cTools
+Samtools may be needed (accessable by command "Samtools") to run cTools properly.
+
 Please see how to run cascertain, cpulldown and cpoly in README.analysis.md; see how to run uncompress.pl, ccompress and cmakefilter in README.prepare.md.
 
 ## Related file formats
