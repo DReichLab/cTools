@@ -13,9 +13,10 @@ Analysis tools:
 Tools for handling samples:
 
 <ol start="4">
-4. uncompress.pl
-5. ccompress
-6. cmakefilter
+  <li>uncompress.pl</li>
+  <li>ccompress</li>
+  <li>cmakefilter</li>
+</ol>
 
 ##Download the programs
 `git clone https://github.com/mengyao/cTools.git`
