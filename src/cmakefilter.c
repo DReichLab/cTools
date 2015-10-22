@@ -1,4 +1,5 @@
-// Revised by Mengyao Zhao on 2015-08-06
+// Author: Nick Patterson
+// Revised by Mengyao Zhao on 2015-10-21
 
 #include <libgen.h>
 #include <nicksam.h>
@@ -29,11 +30,14 @@ char *fixeddbase = NULL ;
 char *lov= NULL, *hiv = NULL ;
 char *mapstring = "map90" ;
 char *cnvname = NULL ;
+char *chimp = NULL;
+char *href = NULL;
+char *heng75 = NULL;
 
 int hipos, lopos ;
 int nfregs ; 
 int maxhist = 100 ; 
- int maxqval = 99 ;  // clip depth MQ and MQ0
+int maxqval = 99 ;  // clip depth MQ and MQ0
 char *refname, *sampfname ;
 char gender = 'U' ; 
 int goodmq = 37 ;
@@ -46,7 +50,7 @@ int getfastalist(char **poplist, int npops, char *dbfile, char **iublist, int *i
 char *myfai_fetch(faidx_t *fai, char *reg, int  *plen) ;
 int minfalen(FATYPE **fainfo, int n)  ;
 int  mkhist(char **regnames, long *hh, long *mm, int *blist, 
- int rlo, int rhi, char **fqnames, int nfqnames, int *lovals, int *hivals)   ;
+int rlo, int rhi, char **fqnames, int nfqnames, int *lovals, int *hivals)   ;
 void easymask(FILE *ffmask, char **regnames, int rlo, int rhi, char maskval)  ; 
 void writefaf(FILE *fff, char *regname, char *fastring, int falen) ;
 void  mkmask(FILE *fff, char **regnames, FENTRY **fans,  int rlo, int rhi, char **fqnames, int nfqnames) ;
@@ -62,7 +66,7 @@ void printhist(long **ss) ;
 
 void setlimv(char *vvv, int *vals, int n) ;
 void calcfiltermask(FILE *ffmask, char **regnames, int rlo, int rhi, 
-  int rloout, int rhiout,char **fqnames, int nfqnames, int *lovals, int *hivals)  ;
+int rloout, int rhiout,char **fqnames, int nfqnames, int *lovals, int *hivals)  ;
 
 int main(int argc, char **argv)
 {
@@ -112,9 +116,15 @@ if (maskname == NULL) {
  printf("sample name: %s  gender: %c\n", sampname, gender) ; 
  ZALLOC(fqnames, nfqnames, char *) ; 
  
- 
- getdbname(fixeddbase, "Chimp", &fqnames[0]) ; refname = fqnames[0] ;
- getdbname(fixeddbase, "heng75", &fqnames[1]) ; refname = fqnames[0] ;
+	if (fixeddbase != NULL) { 
+ 		getdbname(fixeddbase, "Chimp", &fqnames[0]) ; //refname = fqnames[0] ;
+ 		getdbname(fixeddbase, "heng75", &fqnames[1]) ; //refname = fqnames[0] ;
+	} else {
+		fqnames[0] = chimp;
+		fqnames[1] = heng75;
+	}
+	refname = fqnames[0];
+
  fqnames[2] = strdup(cnvname) ;
  fqnames[3] = sampfname = hetfaname ; 
 
@@ -208,7 +218,10 @@ void easymask(FILE *ffmask, char **regnames, int rlo, int rhi, char maskval)
   char *ffout ; 
   int rnum, len ;
 
-  getdbname(fixeddbase, "Href", &fqnames[0]) ; refname = fqnames[0] ;
+	if (fixeddbase != NULL) getdbname(fixeddbase, "Href", &fqnames[0]) ; 
+	else fqnames[0] = href;
+
+	refname = fqnames[0] ;
 
   for (rnum = rlo; rnum <= rhi; ++rnum) {
    ZALLOC(fqdata, 1, char *) ;
@@ -864,6 +877,7 @@ void readcommands(int argc, char **argv)
    getstring(ph, "cnv:", &cnvname) ;
 // getstring(ph, "vcfname:", &vcfname) ;
    getstring(ph, "ref:", &ref) ;
+   getstring(ph, "ref:", &ref) ;
    getstring(ph, "gender:", &ss) ;
    if  (ss != NULL)  { 
     gender = ss[0] ;
@@ -878,6 +892,9 @@ void readcommands(int argc, char **argv)
    getstring(ph, "vcfsuffix:", &vcfsuffix) ;
    getstring(ph, "hetfa:", &hetfaname) ;
    getstring(ph, "fixeddbase:", &fixeddbase) ;
+   getstring(ph, "href:", &href) ;
+   getstring(ph, "chimp:", &chimp) ;
+   getstring(ph, "heng75:", &heng75) ;
    getstring(ph, "sampname:", &sampname) ;
    getstring(ph, "popname:", &sampname) ;
    getstring(ph, "maskname:", &maskname) ;
