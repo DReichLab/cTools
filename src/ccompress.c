@@ -2,7 +2,7 @@
  * ccompress.c: use razip to compress hetfa files (*.hetfa) and mask files (*.fa)
  * Author: Nick Patterson
  * Revised by: Mengyao Zhao
- * Last revise date: 2015-10-20
+ * Last revise date: 2015-10-26
  * Contact: mengyao_zhao@hms.harvard.edu 
  */
 
@@ -109,7 +109,8 @@ char *poplist[2] ;
 	  setfalist(poplist, 2, iublist)  ;
 	  setfalist(poplist, 2, iubmask)  ;
 	realloc(iubmask[1], (x + 8) * sizeof(char));
-	sprintf(iubmask[1], "%s.filter.fa", iname);
+	//sprintf(iubmask[1], "%s.filter.fa", iname);
+	sprintf(iubmask[1], "%s.mask.fa", iname);
 
   strcpy(fainame, iublist[1]) ;
   strcat(fainame, ".fai") ;
