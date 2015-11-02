@@ -1,5 +1,4 @@
-// Author: Nick Patterson
-// Revised by Mengyao Zhao on 2015-10-21
+// Revised by Mengyao Zhao on 2015-11-02
 
 #include <libgen.h>
 #include <nicksam.h>
@@ -30,6 +29,7 @@ char *fixeddbase = NULL ;
 char *lov= NULL, *hiv = NULL ;
 char *mapstring = "map90" ;
 char *cnvname = NULL ;
+
 char *chimp = NULL;
 char *href = NULL;
 char *heng75 = NULL;
@@ -37,7 +37,7 @@ char *heng75 = NULL;
 int hipos, lopos ;
 int nfregs ; 
 int maxhist = 100 ; 
-int maxqval = 99 ;  // clip depth MQ and MQ0
+ int maxqval = 99 ;  // clip depth MQ and MQ0
 char *refname, *sampfname ;
 char gender = 'U' ; 
 int goodmq = 37 ;
@@ -50,7 +50,7 @@ int getfastalist(char **poplist, int npops, char *dbfile, char **iublist, int *i
 char *myfai_fetch(faidx_t *fai, char *reg, int  *plen) ;
 int minfalen(FATYPE **fainfo, int n)  ;
 int  mkhist(char **regnames, long *hh, long *mm, int *blist, 
-int rlo, int rhi, char **fqnames, int nfqnames, int *lovals, int *hivals)   ;
+ int rlo, int rhi, char **fqnames, int nfqnames, int *lovals, int *hivals)   ;
 void easymask(FILE *ffmask, char **regnames, int rlo, int rhi, char maskval)  ; 
 void writefaf(FILE *fff, char *regname, char *fastring, int falen) ;
 void  mkmask(FILE *fff, char **regnames, FENTRY **fans,  int rlo, int rhi, char **fqnames, int nfqnames) ;
@@ -66,7 +66,7 @@ void printhist(long **ss) ;
 
 void setlimv(char *vvv, int *vals, int n) ;
 void calcfiltermask(FILE *ffmask, char **regnames, int rlo, int rhi, 
-int rloout, int rhiout,char **fqnames, int nfqnames, int *lovals, int *hivals)  ;
+  int rloout, int rhiout,char **fqnames, int nfqnames, int *lovals, int *hivals)  ;
 
 int main(int argc, char **argv)
 {
@@ -116,14 +116,19 @@ if (maskname == NULL) {
  printf("sample name: %s  gender: %c\n", sampname, gender) ; 
  ZALLOC(fqnames, nfqnames, char *) ; 
  
-	if (fixeddbase != NULL) { 
- 		getdbname(fixeddbase, "Chimp", &fqnames[0]) ; //refname = fqnames[0] ;
- 		getdbname(fixeddbase, "heng75", &fqnames[1]) ; //refname = fqnames[0] ;
-	} else {
-		fqnames[0] = chimp;
-		fqnames[1] = heng75;
-	}
-	refname = fqnames[0];
+/* 
+ getdbname(fixeddbase, "Chimp", &fqnames[0]) ; refname = fqnames[0] ;
+ getdbname(fixeddbase, "heng75", &fqnames[1]) ; refname = fqnames[0] ;
+*/
+
+	if (fixeddbase != NULL) {
+  		getdbname(fixeddbase, "Chimp", &fqnames[0]) ; //refname = fqnames[0] ;
+  		getdbname(fixeddbase, "heng75", &fqnames[1]) ; //refname = fqnames[0] ;
+ 	} else {
+ 		fqnames[0] = chimp;
+ 		fqnames[1] = heng75;
+ 	}
+ 	refname = fqnames[0];
 
  fqnames[2] = strdup(cnvname) ;
  fqnames[3] = sampfname = hetfaname ; 
@@ -218,10 +223,12 @@ void easymask(FILE *ffmask, char **regnames, int rlo, int rhi, char maskval)
   char *ffout ; 
   int rnum, len ;
 
-	if (fixeddbase != NULL) getdbname(fixeddbase, "Href", &fqnames[0]) ; 
-	else fqnames[0] = href;
+ // getdbname(fixeddbase, "Href", &fqnames[0]) ; refname = fqnames[0] ;
 
-	refname = fqnames[0] ;
+	if (fixeddbase != NULL) getdbname(fixeddbase, "Href", &fqnames[0]) ;
+ 	else fqnames[0] = href;
+
+ 	refname = fqnames[0] ;
 
   for (rnum = rlo; rnum <= rhi; ++rnum) {
    ZALLOC(fqdata, 1, char *) ;
@@ -234,6 +241,7 @@ void easymask(FILE *ffmask, char **regnames, int rlo, int rhi, char maskval)
   }
 
 }
+
 long loadtdata(long **tdata, int mq, int mq0, long *hhh, long *mmm, int len, int *bbase) 
 {
   int ttt[3], a, kode  ;  
@@ -405,8 +413,12 @@ void calcfiltermask(FILE *ffmask, char **regnames, int rlo, int rhi,
   free(thi) ;
   free(thh) ;
   free(tmm) ;
-  
- getdbname(fixeddbase, "Href", &fqnames[0]) ; refname = fqnames[0] ;
+
+	if (fixeddbase != NULL) getdbname(fixeddbase, "Href", &fqnames[0]) ;
+	else fqnames[0] = href; 
+
+	refname = fqnames[0] ;
+
  mkmask(ffmask, regnames, febest,  rloout, rhiout, fqnames, nfqnames) ; 
 
  for (i=0; i<maxlistlen; ++i) {
@@ -712,7 +724,6 @@ int readfa(char **falist, char **fasta, int *flen, int n)
   flen[k] = len ;
  }
 }
-
 void *setvcff(char *vcffile, char **vcfn)   
 // vcfffile should not exist
 {
@@ -725,27 +736,23 @@ void *setvcff(char *vcffile, char **vcfn)
  sprintf(iname, "%s.gz", vcffile) ;  
   if (ftest(iname))  {
    printf("got %s\n", iname) ; 
-	  bname = basename(vcffile) ; 
-	  sprintf(outname, "%s/%s:%s.vcf", wkdir,sampname,regname ) ;
-	  sprintf(ss, "cp %s %s.gz", iname, outname) ; 
-	  printf("zzcopy: %s\n",ss) ;
-	  system(ss) ;
-	  sprintf(ss, "gunzip %s.gz", outname) ;
-	  system(ss) ;
-	  sprintf(ss, "chmod 664 %s", outname) ; 
-	  system(ss) ;
-	  if (ftest(outname) == NO) fatalx("unzip fails\n") ;
   }
-  else {
-	 sprintf(outname, "%s.bgz", vcffile) ;  
- //	sprintf(iname, "%s.bgz", vcffile) ;  
-  //	if (ftest(iname)) printf("got %s\n", iname) ; 
-  //	else fatalx("gzfetch and bgzfetch fail\n") ;
- // else { 
-  // fatalx("gzfetch fails\n") ;
+  else { 
+   fatalx("gzfetch fails\n") ;
   }
+  bname = basename(vcffile) ; 
+  sprintf(outname, "%s/%s:%s.vcf", wkdir,sampname,regname ) ;
+  sprintf(ss, "cp %s %s.gz", iname, outname) ; 
+  printf("zzcopy: %s\n",ss) ;
+  system(ss) ;
+  sprintf(ss, "gunzip %s.gz", outname) ;
+  system(ss) ;
+  sprintf(ss, "chmod 664 %s", outname) ; 
+  system(ss) ;
+  if (ftest(outname) == NO) fatalx("unzip fails\n") ;
 
   *vcfn = strdup(outname) ;
+  
 }
 
 int readvcf(char *vcffile, int **fasta, int reflen, int *flen) 
@@ -766,7 +773,6 @@ int readvcf(char *vcffile, int **fasta, int reflen, int *flen)
 
         if (ftest(vcffile) == NO) { 
           setvcff(vcffile, &vcftmp) ;
-			fprintf(stderr, "vcf: %s\n", vcftmp);
           openit(vcftmp, &vcffp, "r") ; // aborts on error
         }
         else {
@@ -877,7 +883,6 @@ void readcommands(int argc, char **argv)
    getstring(ph, "cnv:", &cnvname) ;
 // getstring(ph, "vcfname:", &vcfname) ;
    getstring(ph, "ref:", &ref) ;
-   getstring(ph, "ref:", &ref) ;
    getstring(ph, "gender:", &ss) ;
    if  (ss != NULL)  { 
     gender = ss[0] ;
@@ -889,12 +894,14 @@ void readcommands(int argc, char **argv)
    getstring(ph, "vcfbase:", &vcfbase) ;
    getstring(ph, "dbase:", &dbase) ;
    getstring(ph, "vcfdir:", &vcfdir) ;
+	
+	getstring(ph, "href:", &href) ;
+    getstring(ph, "chimp:", &chimp) ;
+    getstring(ph, "heng75:", &heng75) ;
+
    getstring(ph, "vcfsuffix:", &vcfsuffix) ;
    getstring(ph, "hetfa:", &hetfaname) ;
    getstring(ph, "fixeddbase:", &fixeddbase) ;
-   getstring(ph, "href:", &href) ;
-   getstring(ph, "chimp:", &chimp) ;
-   getstring(ph, "heng75:", &heng75) ;
    getstring(ph, "sampname:", &sampname) ;
    getstring(ph, "popname:", &sampname) ;
    getstring(ph, "maskname:", &maskname) ;
