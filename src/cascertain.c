@@ -2,7 +2,7 @@
 * cascertain.c: Pull down the SNPs that match the ascertain criterion.
 * Author: Nick Patterson
 * Revised by: Mengyao Zhao
-* Last revise date: 2015-08-14
+* Last revise date: 2015-11-05
 * Contact: mengyao_zhao@hms.harvard.edu
 */
 
@@ -94,7 +94,7 @@ int nasc, nonasc ;
 static int usage() 
 {
 	fprintf(stderr, "\n");
-	fprintf(stderr, "Usage:   cascertain -p <parameter file> [options] <ref.fa>\n\n");
+	fprintf(stderr, "Usage:   cascertain -p <parameter file> [options]\n\n");
 	fprintf(stderr, "Options:\n");
 	fprintf(stderr, "\t-d	directory of the data files (Please set this parameter, if you do not set .dblist files. If this parameter is used to give the data file location, .dblist files will not be used.)\n");
 	fprintf(stderr, "\t-V	Print more information while the program is running.\n");

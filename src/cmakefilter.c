@@ -1,4 +1,4 @@
-// Revised by Mengyao Zhao on 2015-11-04
+// Revised by Mengyao Zhao on 2015-11-05
 
 #include <libgen.h>
 #include <nicksam.h>
@@ -67,6 +67,18 @@ void printhist(long **ss) ;
 void setlimv(char *vvv, int *vals, int n) ;
 void calcfiltermask(FILE *ffmask, char **regnames, int rlo, int rhi, 
   int rloout, int rhiout,char **fqnames, int nfqnames, int *lovals, int *hivals)  ;
+
+static int usage() 
+{
+	fprintf(stderr, "\n");
+	fprintf(stderr, "Usage:   cmakefilter -p <parameter file> [options]\n\n");
+	fprintf(stderr, "Options:\n");
+	fprintf(stderr, "\t-V	Print more information while the program is running.\n");
+	fprintf(stderr, "\t-v	Show version information.\n");
+	fprintf(stderr, "\t-? 	Show the instruction. (For detailed instruction, please see the document here: https://github.com/mengyao/cTools)\n\n");
+	fprintf(stderr, "Note:\ncmakefilter requires 20G memory. For LSF users, this is an example command to run cmakefilter: bsub -W 24:00 -R \"rusage[mem=20000]\" -o example.out -e example.err cmakefilter -p example.par\n\n");
+	return 1;
+}
 
 int main(int argc, char **argv)
 {
@@ -847,7 +859,9 @@ void readcommands(int argc, char **argv)
   int pops[2] ;
   char *ss = NULL ;
 
-  while ((i = getopt (argc, argv, "p:vV")) != -1) {
+	if (argc < 2) exit(usage());
+
+  while ((i = getopt (argc, argv, "p:vV?")) != -1) {
 
     switch (i)
       {
@@ -866,12 +880,14 @@ void readcommands(int argc, char **argv)
 
 
       case '?':
-	printf ("Usage: bad params.... \n") ;
-	fatalx("bad params\n") ;
+	default:
+	exit(usage());
+	//printf ("Usage: bad params.... \n") ;
+	//fatalx("bad params\n") ;
       }
   }
 
-   if (parname == NULL) return ;
+   if (parname == NULL) exit(usage()); //return ;
    printf("parameter file: %s\n", parname) ;
    ph = openpars(parname) ;
    dostrsub(ph) ;
