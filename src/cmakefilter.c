@@ -1,4 +1,4 @@
-// Revised by Mengyao Zhao on 2015-11-02
+// Revised by Mengyao Zhao on 2015-11-04
 
 #include <libgen.h>
 #include <nicksam.h>
@@ -15,7 +15,7 @@ int debug = NO ;
 
 char *regname = NULL ; 
 char *poplistname = NULL ; 
-char *iubfile = "/home/np29/biology/neander/nickdir//xwdir/may12src/altai/myfasta.dblist" ;
+//char *iubfile = "/home/np29/biology/neander/nickdir//xwdir/may12src/altai/myfasta.dblist" ;
 char *parname = NULL ;
 char *maskname = NULL ;
 char *vcfdir = "." ;
@@ -876,9 +876,9 @@ void readcommands(int argc, char **argv)
    ph = openpars(parname) ;
    dostrsub(ph) ;
 
-   getstring(ph, "regname:", &regname) ;
+  // getstring(ph, "regname:", &regname) ;
    getstring(ph, "poplistname:", &poplistname) ;
-   getstring(ph, "iubfile:", &iubfile) ;
+   //getstring(ph, "iubfile:", &iubfile) ;
    getstring(ph, "mapstring:", &mapstring) ;
    getstring(ph, "cnv:", &cnvname) ;
 // getstring(ph, "vcfname:", &vcfname) ;
