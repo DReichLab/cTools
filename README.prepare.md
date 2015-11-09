@@ -82,5 +82,5 @@ A full parameter list of the parameter_file:
 | fixeddbase | universal filter data base. If this parameter is given, "chimp", "heng75" and "href" will not be used. |
 | sampname | sample name for naming the output files |
  
-Written by Mengyao Zhao on 2015-10-26
+<!-- Written by Mengyao Zhao on 2015-10-26 -->
 Revised by Mengyao Zhao on 2015-11-09
