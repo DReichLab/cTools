@@ -24,7 +24,7 @@ char *hetfaname = NULL ;
 
 char *vcfname;// *ref ;
 char *sampname = NULL ;
-char *dbase = NULL  ;
+//char *dbase = NULL  ;
 char *fixeddbase = NULL ;
 char *lov= NULL, *hiv = NULL ;
 //char *mapstring = "map90" ;
@@ -908,7 +908,7 @@ void readcommands(int argc, char **argv)
    t = BIGINT ; getint(ph, "hipos:", &hipos) ; hipos = MIN(hipos, t) ;
 
   // getstring(ph, "vcfbase:", &vcfbase) ;
-   getstring(ph, "dbase:", &dbase) ;
+   //getstring(ph, "dbase:", &dbase) ;
    getstring(ph, "vcfdir:", &vcfdir) ;
 	
 	getstring(ph, "href:", &href) ;
@@ -919,7 +919,7 @@ void readcommands(int argc, char **argv)
    getstring(ph, "hetfa:", &hetfaname) ;
    getstring(ph, "fixeddbase:", &fixeddbase) ;
    getstring(ph, "sampname:", &sampname) ;
-   getstring(ph, "popname:", &sampname) ;
+  // getstring(ph, "popname:", &sampname) ;
    getstring(ph, "maskname:", &maskname) ;
 
    getstring(ph, "lovals:", &lov) ;
