@@ -80,7 +80,8 @@ A full parameter list of the parameter_file:
 | vcfsuffix | suffix of the rawvcf files. If the raw vcf files are *.vcf.gz, you should put "vcf" here. |
 | hetfa | rawvcf hetfa file (The absolute path of this file should be given here.) |
 | fixeddbase | universal filter data base. If this parameter is given, "chimp", "heng75" and "href" will not be used. |
-| sampname | sample name for naming the output files |
+| sampname | sample name for naming the output files (If "mengyao" is given to this parameter, the output mask file name will be "mengyao.mask.fa".) |
+| maskname | name of the output file (If this parameter is set, "sampname" will not be used.) |
  
 <!-- Written by Mengyao Zhao on 2015-10-26 -->
 Revised by Mengyao Zhao on 2015-11-09
