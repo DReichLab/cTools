@@ -1,4 +1,4 @@
-// Revised by Mengyao Zhao on 2015-11-05
+// Revised by Mengyao Zhao on 2015-11-09
 
 #include <libgen.h>
 #include <nicksam.h>
@@ -14,7 +14,7 @@ int debug = NO ;
 
 
 char *regname = NULL ; 
-char *poplistname = NULL ; 
+//char *poplistname = NULL ; 
 //char *iubfile = "/home/np29/biology/neander/nickdir//xwdir/may12src/altai/myfasta.dblist" ;
 char *parname = NULL ;
 char *maskname = NULL ;
@@ -22,12 +22,12 @@ char *vcfdir = "." ;
 char *vcfsuffix = NULL ; 
 char *hetfaname = NULL ; 
 
-char *vcfbase, *vcfname, *ref ;
+char *vcfname;// *ref ;
 char *sampname = NULL ;
 char *dbase = NULL  ;
 char *fixeddbase = NULL ;
 char *lov= NULL, *hiv = NULL ;
-char *mapstring = "map90" ;
+//char *mapstring = "map90" ;
 char *cnvname = NULL ;
 
 char *chimp = NULL;
@@ -111,7 +111,7 @@ int main(int argc, char **argv)
  regnames[25] = strdup("MT") ;
 
  //Read parameter file and initialize
- vcfbase = vcfname = ref = NULL ;
+ vcfname = NULL; // ref = NULL ;
  readcommands(argc, argv) ;
  
 if (sampname == NULL) fatalx("no sampname\n") ;
@@ -893,12 +893,12 @@ void readcommands(int argc, char **argv)
    dostrsub(ph) ;
 
   // getstring(ph, "regname:", &regname) ;
-   getstring(ph, "poplistname:", &poplistname) ;
+  // getstring(ph, "poplistname:", &poplistname) ;
    //getstring(ph, "iubfile:", &iubfile) ;
-   getstring(ph, "mapstring:", &mapstring) ;
+ //  getstring(ph, "mapstring:", &mapstring) ;
    getstring(ph, "cnv:", &cnvname) ;
 // getstring(ph, "vcfname:", &vcfname) ;
-   getstring(ph, "ref:", &ref) ;
+  // getstring(ph, "ref:", &ref) ;
    getstring(ph, "gender:", &ss) ;
    if  (ss != NULL)  { 
     gender = ss[0] ;
@@ -907,7 +907,7 @@ void readcommands(int argc, char **argv)
 	t = 0 ; getint(ph, "lopos:", &lopos) ; lopos = MAX(lopos, t) ;
    t = BIGINT ; getint(ph, "hipos:", &hipos) ; hipos = MIN(hipos, t) ;
 
-   getstring(ph, "vcfbase:", &vcfbase) ;
+  // getstring(ph, "vcfbase:", &vcfbase) ;
    getstring(ph, "dbase:", &dbase) ;
    getstring(ph, "vcfdir:", &vcfdir) ;
 	

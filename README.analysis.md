@@ -52,7 +52,7 @@ Assume the Chimp allele is the ancestral allele, here are some examples of the a
 
 Note: In cascertain we ignore bases which are not biallelic in the samples.
 
-A full parameter list of the parfile:
+A full parameter list of the parameter_file:
 
 | parameter     | description |
 |---------|--------------------------------------------------|
