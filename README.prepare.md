@@ -82,6 +82,7 @@ A full parameter list of the parameter_file:
 | fixeddbase | universal filter data base. If this parameter is given, "chimp", "heng75" and "href" will not be used. |
 | sampname | sample name for naming the output files (If "mengyao" is given to this parameter, the output mask file name will be "mengyao.mask.fa".) |
 | maskname | name of the output file (If this parameter is set, "sampname" will not be used.) |
- 
+
+------------------------------- 
 <!-- Written by Mengyao Zhao on 2015-10-26 -->
-Revised by Mengyao Zhao on 2015-11-09
+*Revised by Mengyao Zhao on 2015-11-09*
