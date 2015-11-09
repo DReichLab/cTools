@@ -85,4 +85,4 @@ A full parameter list of the parameter_file:
 
 ------------------------------- 
 <!-- Written by Mengyao Zhao on 2015-10-26 -->
-*Revised by Mengyao Zhao on 2015-11-09*
+*Updated by Mengyao Zhao on 2015-11-09*
