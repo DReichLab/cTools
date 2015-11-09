@@ -14,7 +14,7 @@ Outputs: .fa (uncompressed hetfa file), .fa.fai, .mask.fa (uncompressed mask fil
 
 ***Notes***: 
 Samtools and htsbox are required by uncompress.pl. 
-The input files sample.ccomp.fa.rz and sample.ccompmask.fa.rz need to be in the same folder. The output files will be in the same folder of sample.ccomp.fa.rz.  
+The input files sample.ccomp.fa.rz and sample.ccompmask.fa.rz need to be in the same folder. The output files will be in the same folder of the input files.  
 
 ## 2. ccompress
 
@@ -29,7 +29,7 @@ Outputs: .ccomp.fa.rz (compressed hetfa file), .ccompmask.fa.rz (compressed mask
 
 ***Notes***: 
 htsbox is required by ccompress.
-The input files sample.fa and sample.mask.fa need to be in the same folder. The output files will be in the same folder of sample.fa.
+The input files sample.fa and sample.mask.fa need to be in the same folder. The output files will be in the same folder of the input files.
 
 ## 3. cmakefilter
 
@@ -50,7 +50,7 @@ Outputs: sample.mask.fa, sample.mask.fai
 
 ***Notes***:
 Samtools is required by cmakefilter.
-cmakefilter requires 20G memory. For LSF users, this is an example command to run cmakefilter: bsub -W 24:00 -R "rusage[mem=20000]" -o example.out -e example.err cmakefilter -p example.pa
+cmakefilter requires 20G memory. For LSF users, this is an example command to run cmakefilter: bsub -W 36:00 -R "rusage[mem=20000]" -o example.out -e example.err cmakefilter -p example.par
 
 Sample parameter_file:
 
@@ -72,7 +72,7 @@ A full parameter list of the parameter_file:
 | parameter       | description        |
 |-----------------|--------------------|
 | cnv      | sample dependent CNV filter (CNVmask.fa, The absolute path of this file should be given here.)    |
-| gender    | gender of the sample[M/F]   |
+| gender    | gender of the sample [M/F]   |
 | vcfdir      | directory of the raw vcf files. The raw vcf files should be provided by chromosomes in .gz format. For example 22.vcf.gz.   |
 | href | hs37d5.fa (The absolute path of this file should be given here.) |
 | chimp | pt2__cs-hg19.fa (The absolute path of this file should be given here.) |
