@@ -1,3 +1,6 @@
+// Written by Nick Patterson
+// Revised by Mengyao Zhao on 2015-11-10
+
 #include <sys/wait.h>
 #include <stdlib.h>
 #include <unistd.h>
