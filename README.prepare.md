@@ -64,7 +64,7 @@ gender: M
 href:	/home/mz128/group/Cteam/cteam_lite6/filter_example/hs37d5.fa
 chimp:	/home/mz128/group/Cteam/cteam_lite6/filter_example/pt2__cs-hg19.fa
 heng75:	/home/mz128/group/Cteam/cteam_lite6/filter_example/x75.fa
-sampname:   S_Aleut-1
+maskname:   S_Aleut-1.mask.fa
 ```
 
 A full parameter list of the parameter_file:
@@ -85,4 +85,4 @@ A full parameter list of the parameter_file:
 
 ------------------------------- 
 <!-- Written by Mengyao Zhao on 2015-10-26 -->
-*Updated by Mengyao Zhao on 2015-11-09*
+*Updated by Mengyao Zhao on 2015-11-10*

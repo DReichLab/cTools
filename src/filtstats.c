@@ -1,5 +1,5 @@
 // Written by Nick Patterson
-// Revised by Mengyao Zhao on 2015-11-10
+// Revised by Mengyao Zhao on 2015-11-12
 
 #include <sys/wait.h>
 #include <stdlib.h>
@@ -35,9 +35,7 @@ BANS bans[2000] ;
 
 char *regname = NULL ; 
  char *regnames[30], ss[256] ;
-char *poplistname = NULL ; 
-//char *iubfile = "/home/np29/cteam/release/hetfaplus.dblist" ;
-//char *iubmaskfile = "/home/np29/cteam/release/maskplus.dblist" ;
+//char *poplistname = NULL ; 
 char *iubfile = "/home/mz128/group/Cteam/filter/hetfa.dblist" ;
 char *iubmaskfile = "/home/mz128/group/Cteam/filter/mask.dblist" ;
 char *parname = NULL ;
@@ -45,13 +43,17 @@ char *maskname = NULL ;
 char *hetfaname = NULL ; 
 
 char *sampname = NULL ;
-char *dbase = NULL  ;
+//char *dbase = NULL  ;
 char *fixeddbase = NULL ;
-char *lov= NULL, *hiv = NULL ;
-char *mapstring = "map90" ;
-char *cnvname = NULL ;
+//char *lov= NULL, *hiv = NULL ;
+//char *mapstring = "map90" ;
+//char *cnvname = NULL ;
 
-int hipos, lopos ;
+char *chimp = NULL;
+char *href = NULL;
+char *heng75 = NULL;
+
+//int hipos, lopos ;
 int nfregs ; 
 int maxhist = 100 ; 
  int maxqval = 99 ;  // clip depth MQ and MQ0
@@ -83,6 +85,17 @@ double ymissfrac(double a, double b) ;
 
 void countit(char **fqnames, int rlo, int rhi, long **sschimp, long **sshref)  ;
 void printhist(long **ss) ;
+
+static int usage() 
+{
+	fprintf(stderr, "\n");
+	fprintf(stderr, "Usage:   filtstats -p <parameter file> [options]\n\n");
+	fprintf(stderr, "Options:\n");
+	fprintf(stderr, "\t-V	Print more information while the program is running.\n");
+	fprintf(stderr, "\t-v	Show version information.\n");
+	fprintf(stderr, "\t-? 	Show the instruction. (For detailed instruction, please see the document here: https://github.com/mengyao/cTools)\n\n");
+	return 1;
+}
 
 int main(int argc, char **argv)
 {
@@ -118,22 +131,24 @@ int main(int argc, char **argv)
  //Read parameter file and initialize
  readcommands(argc, argv) ;
  
-if (sampname == NULL) fatalx("no sampname\n") ;
-if (hetfaname == NULL) { 
-  getdbname(iubfile, sampname, &hetfaname) ;
-}
-if (maskname == NULL) { 
-  getdbname(iubmaskfile, sampname, &maskname) ;
-}
+	if (hetfaname == NULL) getdbname(iubfile, sampname, &hetfaname) ;
+
+	if (maskname == NULL) getdbname(iubmaskfile, sampname, &maskname) ;
+
 
  nfqnames = 4 ;
- printf("sample name: %s  gender: %c\n", sampname, gender) ; 
  ZALLOC(fqnames, nfqnames, char *) ; 
  ZALLOC(flen, nfqnames, int) ; 
  
  
- getdbname(fixeddbase, "Chimp", &fqnames[0]) ; 
- getdbname(fixeddbase, "Href", &fqnames[1]) ; 
+	if (fixeddbase != NULL) {
+  		getdbname(fixeddbase, "Chimp", &fqnames[0]) ; //refname = fqnames[0] ;
+  		getdbname(fixeddbase, "Href", &fqnames[1]) ; //refname = fqnames[0] ;
+ 	} else {
+ 		fqnames[0] = chimp;
+ 		fqnames[1] = href;
+ 	}
+
  fqnames[2] = sampfname = hetfaname ; 
  fqnames[3] = maskname  ; 
 
@@ -145,13 +160,10 @@ if (maskname == NULL) {
  countit(fqnames, 1, 22, sschimp, sshref) ;
  printf("chimp_divergence\n") ; printhist(sschimp) ; 
  printf("Href_divergence\n") ; printhist(sshref) ; 
- return 0 ; 
-
- 
  printf("## end of filtstats\n") ;
  return 0 ;
-
 }
+
 int vmask(char c1)    
 {
   int t ; 
@@ -591,6 +603,8 @@ void readcommands(int argc, char **argv)
   int pops[2] ;
   char *ss = NULL ;
 
+	if (argc < 2) exit(usage());
+
   while ((i = getopt (argc, argv, "p:vV")) != -1) {
 
     switch (i)
@@ -610,8 +624,8 @@ void readcommands(int argc, char **argv)
 
 
       case '?':
-	printf ("Usage: bad params.... \n") ;
-	fatalx("bad params\n") ;
+	default:
+	exit(usage());
       }
   }
 
@@ -620,32 +634,34 @@ void readcommands(int argc, char **argv)
    ph = openpars(parname) ;
    dostrsub(ph) ;
 
-   getstring(ph, "regname:", &regname) ;
-   getstring(ph, "poplistname:", &poplistname) ;
+ //  getstring(ph, "regname:", &regname) ;
+  // getstring(ph, "poplistname:", &poplistname) ;
    getstring(ph, "iubfile:", &iubfile) ;
    getstring(ph, "iubmaskfile:", &iubmaskfile) ;
-   getstring(ph, "mapstring:", &mapstring) ;
-   getstring(ph, "cnv:", &cnvname) ;
+  // getstring(ph, "mapstring:", &mapstring) ;
+   //getstring(ph, "cnv:", &cnvname) ;
    getstring(ph, "gender:", &ss) ;
    if  (ss != NULL)  { 
     gender = ss[0] ;
     freestring(&ss) ;
    }
-	t = 0 ; getint(ph, "lopos:", &lopos) ; lopos = MAX(lopos, t) ;
-   t = BIGINT ; getint(ph, "hipos:", &hipos) ; hipos = MIN(hipos, t) ;
+	//t = 0 ; getint(ph, "lopos:", &lopos) ; lopos = MAX(lopos, t) ;
+  // t = BIGINT ; getint(ph, "hipos:", &hipos) ; hipos = MIN(hipos, t) ;
 
-   getstring(ph, "dbase:", &dbase) ;
+   //getstring(ph, "dbase:", &dbase) ;
    getstring(ph, "hetfa:", &hetfaname) ;
    getstring(ph, "fixeddbase:", &fixeddbase) ;
    getstring(ph, "sampname:", &sampname) ;
-   getstring(ph, "popname:", &sampname) ;
+  // getstring(ph, "popname:", &sampname) ;
    getstring(ph, "maskname:", &maskname) ;
 
-   getstring(ph, "lovals:", &lov) ;
-   getstring(ph, "hivals:", &hiv) ;
+ //  getstring(ph, "lovals:", &lov) ;
+ //  getstring(ph, "hivals:", &hiv) ;
    getint(ph, "debug:", &debug) ;
 
-
+	getstring(ph, "href:", &href) ;
+    getstring(ph, "chimp:", &chimp) ;
+    getstring(ph, "heng75:", &heng75) ;
 
    printf("### THE INPUT PARAMETERS\n");
    printf("##PARAMETER NAME: VALUE\n");

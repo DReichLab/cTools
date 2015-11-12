@@ -14,8 +14,6 @@ int debug = NO ;
 
 
 char *regname = NULL ; 
-//char *poplistname = NULL ; 
-//char *iubfile = "/home/np29/biology/neander/nickdir//xwdir/may12src/altai/myfasta.dblist" ;
 char *parname = NULL ;
 char *maskname = NULL ;
 char *vcfdir = "." ;
@@ -24,10 +22,8 @@ char *hetfaname = NULL ;
 
 char *vcfname;// *ref ;
 char *sampname = NULL ;
-//char *dbase = NULL  ;
 char *fixeddbase = NULL ;
 char *lov= NULL, *hiv = NULL ;
-//char *mapstring = "map90" ;
 char *cnvname = NULL ;
 
 char *chimp = NULL;
