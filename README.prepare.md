@@ -151,6 +151,7 @@ no mask:  652633994     0.001859
 ```
 
 Description of the output:
+
 The first block shows the divergence between the input sample and the chimpanzee calculated from the input genotype data. The second block shows the divergence between the input sample and the human reference. The three columns are: mask level, base count, and divergence.
 
 ------------------------------- 
