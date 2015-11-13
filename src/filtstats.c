@@ -1,5 +1,5 @@
 // Written by Nick Patterson
-// Revised by Mengyao Zhao on 2015-11-12
+// Revised by Mengyao Zhao on 2015-11-13
 
 #include <sys/wait.h>
 #include <stdlib.h>
@@ -29,7 +29,7 @@ typedef struct {
  long hrefmiss ;
 }  BANS ; 
 
-int debug = NO ;
+//int debug = NO ;
 
 BANS bans[2000] ;
 
@@ -51,7 +51,7 @@ char *fixeddbase = NULL ;
 
 char *chimp = NULL;
 char *href = NULL;
-char *heng75 = NULL;
+//char *heng75 = NULL;
 
 //int hipos, lopos ;
 int nfregs ; 
@@ -657,11 +657,11 @@ void readcommands(int argc, char **argv)
 
  //  getstring(ph, "lovals:", &lov) ;
  //  getstring(ph, "hivals:", &hiv) ;
-   getint(ph, "debug:", &debug) ;
+//   getint(ph, "debug:", &debug) ;
 
 	getstring(ph, "href:", &href) ;
     getstring(ph, "chimp:", &chimp) ;
-    getstring(ph, "heng75:", &heng75) ;
+   // getstring(ph, "heng75:", &heng75) ;
 
    printf("### THE INPUT PARAMETERS\n");
    printf("##PARAMETER NAME: VALUE\n");
