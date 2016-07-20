@@ -1,4 +1,4 @@
-// Revised by Mengyao Zhao on 2015-11-09
+// Revised by Mengyao Zhao on 2015-03-12
 
 #include <libgen.h>
 #include <nicksam.h>
@@ -14,21 +14,21 @@ int debug = NO ;
 
 
 char *regname = NULL ; 
+char *poplistname = NULL ; 
+char *iubfile = "/home/np29/biology/neander/nickdir//xwdir/may12src/altai/myfasta.dblist" ;
 char *parname = NULL ;
 char *maskname = NULL ;
 char *vcfdir = "." ;
 char *vcfsuffix = NULL ; 
 char *hetfaname = NULL ; 
 
-char *vcfname;// *ref ;
+char *vcfbase, *vcfname, *ref ;
 char *sampname = NULL ;
+char *dbase = NULL  ;
 char *fixeddbase = NULL ;
 char *lov= NULL, *hiv = NULL ;
+char *mapstring = "map90" ;
 char *cnvname = NULL ;
-
-char *chimp = NULL;
-char *href = NULL;
-char *heng75 = NULL;
 
 int hipos, lopos ;
 int nfregs ; 
@@ -64,18 +64,6 @@ void setlimv(char *vvv, int *vals, int n) ;
 void calcfiltermask(FILE *ffmask, char **regnames, int rlo, int rhi, 
   int rloout, int rhiout,char **fqnames, int nfqnames, int *lovals, int *hivals)  ;
 
-static int usage() 
-{
-	fprintf(stderr, "\n");
-	fprintf(stderr, "Usage:   cmakefilter -p <parameter file> [options]\n\n");
-	fprintf(stderr, "Options:\n");
-	fprintf(stderr, "\t-V	Print more information while the program is running.\n");
-	fprintf(stderr, "\t-v	Show version information.\n");
-	fprintf(stderr, "\t-? 	Show the instruction. (For detailed instruction, please see the document here: https://github.com/mengyao/cTools)\n\n");
-	fprintf(stderr, "Note:\ncmakefilter requires 20G memory. For LSF users, this is an example command to run cmakefilter: bsub -W 24:00 -R \"rusage[mem=20000]\" -o example.out -e example.err cmakefilter -p example.par\n\n");
-	return 1;
-}
-
 int main(int argc, char **argv)
 {
 
@@ -107,7 +95,7 @@ int main(int argc, char **argv)
  regnames[25] = strdup("MT") ;
 
  //Read parameter file and initialize
- vcfname = NULL; // ref = NULL ;
+ vcfbase = vcfname = ref = NULL ;
  readcommands(argc, argv) ;
  
 if (sampname == NULL) fatalx("no sampname\n") ;
@@ -124,20 +112,9 @@ if (maskname == NULL) {
  printf("sample name: %s  gender: %c\n", sampname, gender) ; 
  ZALLOC(fqnames, nfqnames, char *) ; 
  
-/* 
+ 
  getdbname(fixeddbase, "Chimp", &fqnames[0]) ; refname = fqnames[0] ;
  getdbname(fixeddbase, "heng75", &fqnames[1]) ; refname = fqnames[0] ;
-*/
-
-	if (fixeddbase != NULL) {
-  		getdbname(fixeddbase, "Chimp", &fqnames[0]) ; //refname = fqnames[0] ;
-  		getdbname(fixeddbase, "heng75", &fqnames[1]) ; //refname = fqnames[0] ;
- 	} else {
- 		fqnames[0] = chimp;
- 		fqnames[1] = heng75;
- 	}
- 	refname = fqnames[0];
-
  fqnames[2] = strdup(cnvname) ;
  fqnames[3] = sampfname = hetfaname ; 
 
@@ -231,12 +208,7 @@ void easymask(FILE *ffmask, char **regnames, int rlo, int rhi, char maskval)
   char *ffout ; 
   int rnum, len ;
 
- // getdbname(fixeddbase, "Href", &fqnames[0]) ; refname = fqnames[0] ;
-
-	if (fixeddbase != NULL) getdbname(fixeddbase, "Href", &fqnames[0]) ;
- 	else fqnames[0] = href;
-
- 	refname = fqnames[0] ;
+  getdbname(fixeddbase, "Href", &fqnames[0]) ; refname = fqnames[0] ;
 
   for (rnum = rlo; rnum <= rhi; ++rnum) {
    ZALLOC(fqdata, 1, char *) ;
@@ -249,7 +221,6 @@ void easymask(FILE *ffmask, char **regnames, int rlo, int rhi, char maskval)
   }
 
 }
-
 long loadtdata(long **tdata, int mq, int mq0, long *hhh, long *mmm, int len, int *bbase) 
 {
   int ttt[3], a, kode  ;  
@@ -421,12 +392,8 @@ void calcfiltermask(FILE *ffmask, char **regnames, int rlo, int rhi,
   free(thi) ;
   free(thh) ;
   free(tmm) ;
-
-	if (fixeddbase != NULL) getdbname(fixeddbase, "Href", &fqnames[0]) ;
-	else fqnames[0] = href; 
-
-	refname = fqnames[0] ;
-
+  
+ getdbname(fixeddbase, "Href", &fqnames[0]) ; refname = fqnames[0] ;
  mkmask(ffmask, regnames, febest,  rloout, rhiout, fqnames, nfqnames) ; 
 
  for (i=0; i<maxlistlen; ++i) {
@@ -855,9 +822,7 @@ void readcommands(int argc, char **argv)
   int pops[2] ;
   char *ss = NULL ;
 
-	if (argc < 2) exit(usage());
-
-  while ((i = getopt (argc, argv, "p:vV?")) != -1) {
+  while ((i = getopt (argc, argv, "p:vV")) != -1) {
 
     switch (i)
       {
@@ -876,25 +841,23 @@ void readcommands(int argc, char **argv)
 
 
       case '?':
-	default:
-	exit(usage());
-	//printf ("Usage: bad params.... \n") ;
-	//fatalx("bad params\n") ;
+	printf ("Usage: bad params.... \n") ;
+	fatalx("bad params\n") ;
       }
   }
 
-   if (parname == NULL) exit(usage()); //return ;
+   if (parname == NULL) return ;
    printf("parameter file: %s\n", parname) ;
    ph = openpars(parname) ;
    dostrsub(ph) ;
 
-  // getstring(ph, "regname:", &regname) ;
-  // getstring(ph, "poplistname:", &poplistname) ;
-   //getstring(ph, "iubfile:", &iubfile) ;
- //  getstring(ph, "mapstring:", &mapstring) ;
+   getstring(ph, "regname:", &regname) ;
+   getstring(ph, "poplistname:", &poplistname) ;
+   getstring(ph, "iubfile:", &iubfile) ;
+   getstring(ph, "mapstring:", &mapstring) ;
    getstring(ph, "cnv:", &cnvname) ;
 // getstring(ph, "vcfname:", &vcfname) ;
-  // getstring(ph, "ref:", &ref) ;
+   getstring(ph, "ref:", &ref) ;
    getstring(ph, "gender:", &ss) ;
    if  (ss != NULL)  { 
     gender = ss[0] ;
@@ -903,19 +866,14 @@ void readcommands(int argc, char **argv)
 	t = 0 ; getint(ph, "lopos:", &lopos) ; lopos = MAX(lopos, t) ;
    t = BIGINT ; getint(ph, "hipos:", &hipos) ; hipos = MIN(hipos, t) ;
 
-  // getstring(ph, "vcfbase:", &vcfbase) ;
-   //getstring(ph, "dbase:", &dbase) ;
+   getstring(ph, "vcfbase:", &vcfbase) ;
+   getstring(ph, "dbase:", &dbase) ;
    getstring(ph, "vcfdir:", &vcfdir) ;
-	
-	getstring(ph, "href:", &href) ;
-    getstring(ph, "chimp:", &chimp) ;
-    getstring(ph, "heng75:", &heng75) ;
-
    getstring(ph, "vcfsuffix:", &vcfsuffix) ;
    getstring(ph, "hetfa:", &hetfaname) ;
    getstring(ph, "fixeddbase:", &fixeddbase) ;
    getstring(ph, "sampname:", &sampname) ;
-  // getstring(ph, "popname:", &sampname) ;
+   getstring(ph, "popname:", &sampname) ;
    getstring(ph, "maskname:", &maskname) ;
 
    getstring(ph, "lovals:", &lov) ;

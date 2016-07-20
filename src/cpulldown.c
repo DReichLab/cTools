@@ -1,10 +1,12 @@
-/*
+  /*
 * cpulldown.c:	get the genotypes of the given individuls at the given SNP loci from a set of bams
 * Author: Nick Patterson
 * Revised by: Mengyao Zhao
-* Last revise date: 2015-08-14
-* Contact: mengyao_zhao@hms.harvard.edu
+* Last revise date: 2016-07-20
+* Contact: nickp@broadinstitute.org     
 */
+
+// This version fixes a bug found by Txema Heredia
 
 #include <stdio.h>
 #include <string.h>
@@ -24,18 +26,18 @@
 #include "faidx.h"
 #include "admutils.h"
 #include "mcio.h"  
+#include "ctools.h"  
 
-#define WVERSION   "150" 
+// fai_destroy called
+// supports razipped files
+// polarize added 
+// weak support for X alleles (unknown)
 
 #define MAXFL  50   
 #define MAXSTR  512
 
 char *table_path = NULL;
 
-//char *iubfile = "/home/mz128/cteam/dblist/hetfa_postmigration.dblist" ;
-//char *iubmaskfile = "/home/mz128/cteam/dblist/mask_postmigration.dblist" ;
-char *iubfile = "/n/data1/hms/genetics/reich/1000Genomes/cteam_remap/B-cteam_lite/v0.2/C-FullyPublic__SignedLetterNoDelay__SignedLetterDelay/C.hetfa.dblist" ;
-char *iubmaskfile = "/n/data1/hms/genetics/reich/1000Genomes/cteam_remap/B-cteam_lite/v0.2/C-FullyPublic__SignedLetterNoDelay__SignedLetterDelay/C.mask.dblist" ;
 
 extern enum outputmodetype outputmode  ;
 extern int checksizemode ;
@@ -48,10 +50,14 @@ extern long rlen;                //!< number of bytes in packgenos space that ea
 
 char *trashdir = "/var/tmp" ;
 extern int verbose  ;
+int debug = NO ;
 int qtmode = NO ;
 Indiv **indivmarkers;
 SNP **snpmarkers ;
 int numsnps, numindivs ; 
+
+char *polarid = NULL ;
+int polarindex = -1 ;
 
 char  *genotypename = NULL ;
 char  *snpname = NULL ;
@@ -96,6 +102,9 @@ int getfalist(char **poplist, int npops, char *dbfile, char **iublist)  ;
 int checkr(char **samplist, int nsamps, char **iublist, char **iubmask) ;
 char fixval(char iub, char cm) ; 
 void getfasta(char **pfasta, char **pmask, int *rlen, int *mlen, int kk) ;
+void flip1(SNP *cupt, int phasedmode, int flipreference) ;
+
+
 
 static int usage()
 {
@@ -110,29 +119,6 @@ static int usage()
 	return 1;
 }
 
-int setfalist(char **poplist, int npops, char *dbfile, char **iublist) {
-	int t;
-	for (t = 0; t < npops; ++t) {
-		iublist[t] = strdup(table_path);
-		iublist[t] = (char*) realloc(iublist[t], strlen(iublist[t]) + strlen(poplist[t]) + strlen(dbfile) + 1);
-		iublist[t] = strcat(iublist[t], poplist[t]);
-	//	fprintf(stderr, "iublist[%d]: %s\n", t, iublist[t]);
-
-		if ((!strcmp (poplist[t], "Chimp") || !strcmp (poplist[t], "Href")) && !strcmp (dbfile, ".ccomp.fa.rz"))
-			iublist[t] = strcat(iublist[t], ".fa");
-		else if ((!strcmp (poplist[t], "Chimp") || !strcmp (poplist[t], "Href")) && !strcmp (dbfile, ".ccompmask.fa.rz"))
-			iublist[t] = "NULL";
-		else iublist[t] = strcat(iublist[t], dbfile);
-		/*if ((!strcmp (poplist[t], "Chimp") || !strcmp (poplist[t], "Href")) && strcmp (dbfile, ".fa")) {
-			free (iublist[t]);
-			iublist[t] = "NULL";
-		} else 
-			iublist[t] = strcat(iublist[t], dbfile);
-		*/
-	}
-	return npops;
-}
-  
 int main(int argc, char **argv)
 {
 
@@ -145,12 +131,19 @@ int main(int argc, char **argv)
   int chrom, lastchrom = -1 ;  
   int firstsnp, rlen, mlen  ;
   char *iubarr, *maskarr  ;
+  char **dbchar, *dbx ;  
+  char **qcc, **qmm ; 
 
   char ss[100], cbases[2], iub, cm, c1, c2, cval ;
 
   ofile = stdout; 
   packmode = YES ;
+  printf("cpulldown: version %s\n", version) ; 
   readcommands(argc, argv) ;
+
+  t = strcmp(iubmaskfile, "NONE") ;
+  if (t==0) iubmaskfile = NULL ;
+
   settersemode(YES) ;
   if (outputname != NULL) openit(outputname, &ofile, "w") ;
 
@@ -163,11 +156,19 @@ int main(int argc, char **argv)
   numsnps = 
     getsnps(snpname, &snpmarkers, fakespacing,  NULL, &nignore, numrisks) ;
 
+// fakespacing 0.0 (default)
+
   numindivs = getindivs(indivname, &indivmarkers) ;
   ZALLOC(samplist, numindivs, char *) ;
   nsamps = mksamplist(samplist, indivmarkers, numindivs) ;
 
   ZALLOC(hasmask, nsamps, int) ;
+
+
+  if (polarid != NULL) {
+   polarindex = indxstring(samplist, numindivs, polarid) ;
+   if (polarindex<0) fatalx("polarid %s not found\n", polarid) ;
+  }
 
   printf("numsnps: %d  numindivs:  %d\n", numsnps, numindivs) ;
 
@@ -175,8 +176,8 @@ int main(int argc, char **argv)
   ZALLOC(iubmask, nsamps, char *) ;
 
 	if (db == 0) {
-	   setfalist(samplist, nsamps, ".ccomp.fa.rz", iublist) ;
-	   setfalist(samplist, nsamps, ".ccompmask.fa.rz", iubmask) ;
+	   setfalist(samplist, nsamps, ".fa", iublist) ;
+	   setfalist(samplist, nsamps, ".filter.fa", iubmask) ;
 	} else {
 	   getfalist(samplist, nsamps, iubfile, iublist) ;	// set falist with the absolute path of hetfa files in .dblist file
 	   getfalist(samplist, nsamps, iubmaskfile, iubmask) ; 
@@ -195,6 +196,19 @@ int main(int argc, char **argv)
     }
    }
 
+ if (verbose) {
+  ZALLOC(qcc, numsnps, char *) ; 
+  ZALLOC(qmm, numsnps, char *) ; 
+  for (k=0; k<numsnps; ++k) { 
+   ZALLOC(qcc[k], numindivs+1, char) ;
+   ZALLOC(qmm[k], numindivs+1, char) ;
+   cclear(qcc[k], CNULL, numindivs+1) ; 
+   cclear(qmm[k], CNULL, numindivs+1) ; 
+   for (j=0; j<numindivs; ++j) { 
+    qcc[k][j]=qmm[k][j] = '?' ;
+   }
+  }
+ }
 
   checkr(samplist, nsamps, iublist, iubmask) ;
 
@@ -208,6 +222,15 @@ int main(int argc, char **argv)
   ZALLOC(iubarr, numindivs+1, char) ;
   ZALLOC(maskarr, numindivs+1, char) ;
   maskarr[numindivs] = iubarr[numindivs] = CNULL ;
+
+  if (debug) { 
+   ZALLOC(dbchar, numsnps, char *) ;
+   for (isnp = 0 ; isnp < numsnps; ++isnp) { 
+    ZALLOC(dbchar[isnp], numindivs+1, char) ;
+    cclear(dbchar[isnp], '?', numindivs+1) ;
+    dbchar[isnp][numindivs] = CNULL ;
+   }
+  }
   for (isnp = 0 ; isnp < numsnps; ++isnp) { 
    cupt = snpmarkers[isnp]  ; 
    chrom = cupt -> chrom ;
@@ -225,13 +248,19 @@ int main(int argc, char **argv)
    if (chrom > maxchrom) continue ;
    if ((xchrom>0) && (chrom != xchrom)) continue ;
     sprintf(ss, "%d", chrom) ;
+
+   if (chrom == 23) strcpy(ss, "X") ;
+   if (chrom == 24) strcpy(ss, "Y") ;
+   if (chrom == 25) strcpy(ss, "MT") ;
+
+
     freestring(&regname) ;
     regname = strdup(ss) ;
     firstsnp = isnp ;
-//fprintf(stderr, "here\n");
     for (k=0; k<numindivs; ++k) { 
      indx = indivmarkers[k] ;
      kk = indxindex(samplist, nsamps, indx -> ID) ;
+     if (kk<0) fatalx("bad sample\n") ;
      getfasta(&fasta, &mask, &rlen, &mlen, kk) ;
 // snp array must have ref allele on forward strans
      printf("fasta retrieved: %d %s %d %d\n", chrom, indx -> ID, rlen, mlen)  ;  fflush(stdout) ;
@@ -239,6 +268,7 @@ int main(int argc, char **argv)
      for (j=firstsnp; j<numsnps; ++j) { 
       cupt = snpmarkers[j] ;
       if (cupt -> chrom != chrom) break ;
+      putgtypes(cupt, k, -1) ;
       pos = cupt -> physpos ;
       t = pos-1 ;
       if (t>=rlen) continue ;
@@ -247,11 +277,24 @@ int main(int argc, char **argv)
       if (hasmask[kk]) cm = mask[t] ;
       else cm = '9' ;
       iub = toupper(iub) ;
+
+     if (verbose) {
+      qcc[j][k] = iub ;  
+      qmm[j][k] = cm ; 
+     }
+
       cval = fixval(iub, cm) ;
       tt = iubcbases(cbases,  cval) ;   
       if (tt<0) continue ;  // invalid default
+// crude fill in.  order of samples matters
+
+      if (cupt -> alleles[0] == 'X') cupt -> alleles[0] = cbases[0] ;
+      if ((cupt -> alleles[1] == 'X') && (cupt -> alleles[0] != cbases[0])) cupt -> alleles[1] = cbases[0] ;
+      if ((cupt -> alleles[1] == 'X') && (cupt -> alleles[0] != cbases[1])) cupt -> alleles[1] = cbases[1] ;
+
       c1 = cupt -> alleles[0] ;
       c2 = cupt -> alleles[1] ;
+
 
       if ((cbases[0] != c1) && (cbases[0] != c2)) { 
        if (verbose) printf("triallelic: %s %s %c %c %c %c\n",  cupt -> ID, indx -> ID, c1, c2, cbases[0], cbases[1]) ;
@@ -261,15 +304,47 @@ int main(int argc, char **argv)
        if (verbose) printf("triallelic: %s %s %c %c %c %c\n",  cupt -> ID, indx -> ID, c1, c2, cbases[0], cbases[1]) ;
        continue ;
       }
-      t = 0;       
-		if (cbases[0] == c1) ++t ;
-      if (cbases[1] == c1) ++t ;
+      t = gvalm(toupper(cval), cm, c1, c2, minfilterval) ; 
+      if (t>2) t = -1 ; 
+/**
+      printf("zz: %d %d ", pos, k) ; 
+      printf("%c %c %3d", cval, cm, t) ;
+      printnl() ;
+*/
       putgtypes(cupt, k, t) ;
-//    printf("zz %d %d %d %c %c %c\n", j, k, t, iub, cbases[0], cbases[1]) ;
+      if (verbose) printf("zzgeno %s %12.0f  %s %d %c %c %c\n", cupt -> ID, cupt -> physpos, indx -> ID, t, iub, cbases[0], cbases[1]) ;
      }
-    
    }
   }
+
+
+// copied from convertf.c 
+  if (polarindex>=0) {
+    for (i=0; i<numsnps; i++)  {
+      cupt = snpmarkers[i] ;
+      g = getgtypes(cupt, polarindex) ;
+      if (g==0) {
+       printf("polarizing %s\n", cupt -> ID) ;
+       flip1(cupt, NO, YES) ;
+       g = getgtypes(cupt, polarindex) ;
+       if (g!=2) fatalx("badbug\n") ;
+      }
+      if (g != 2) cupt -> ignore = YES ;
+    }
+  }
+
+
+ if (verbose) {
+ 
+    for (i=0; i<numsnps; i++)  {
+      cupt = snpmarkers[i] ;
+      printf("zzggg: %12.0f ", cupt -> physpos) ;   
+      printf("%s %s", qcc[i], qmm[i]) ; 
+      printnl() ; 
+    }
+
+ }
+ 
 
   outfiles(snpoutfilename, indoutfilename, genooutfilename, 
    snpmarkers, indivmarkers, numsnps, numindivs, -1, NO) ;
@@ -287,7 +362,6 @@ void readcommands(int argc, char **argv)
   char str[5000]  ;
   char *tempname ;
   int n ;
-	char *p;
 
   while ((i = getopt (argc, argv, "p:d:cvV?")) != -1) {
 
@@ -308,11 +382,12 @@ void readcommands(int argc, char **argv)
 			table_path = strcat(table_path, "/");
 		}
 		db = 0;	// Don't use .dblist
+//		fprintf(stderr, "db: %d\n", db);	
 	}
 	break;
 
       case 'v':
-	printf("version: %s\n", WVERSION) ; 
+	printf("version: %s\n", version) ; 
 	break; 
 
       case 'c':
@@ -327,38 +402,25 @@ void readcommands(int argc, char **argv)
       case '?':
 	default:
 	exit(usage());
+
+//	printf ("Usage: bad params.... \n") ;
+//	fatalx("bad params\n") ;
       }
   }
 
          
    if (parname == NULL) //return ;
 		exit(usage());
+  // pcheck(parname,'p') ;
    printf("parameter file: %s\n", parname) ;
    ph = openpars(parname) ;
    dostrsub(ph) ;
 
-	getstring(ph, "pathname:", &table_path) ;
-	if (table_path != NULL) {
-		p = strrchr(table_path, '/');
- 		if (!p || strcmp(p, "/")) {
- 			table_path = (char*)realloc(table_path, 256);
- 			table_path = strcat(table_path, "/");
- 		}
- 		db = 0;	// Don't use .dblist
-    }
- 
 	if (db == 1) {
-		int def_het = 0, def_mask = 0;
-	   def_het = getstring(ph, "dbhetfa:", &iubfile) ;
-	   def_mask = getstring(ph, "dbmask:", &iubmaskfile) ;
-		if (def_het < 0 || def_mask < 0) {
-			if (def_het < 0) fprintf(stderr, "You are using default dbhetfa value:\n%s\n", iubfile);
-			if (def_mask < 0) fprintf(stderr, "You are using default dbmask value:\n%s\n", iubmaskfile);
-			fprintf(stderr, "If the default database does not apply to you, please use -d option to specify the directory of hetfa and mask files.\n")   ;
-            fprintf(stderr, "... or specify pathname: in parameter file\n") ;
-            fprintf(stderr, "... or give values to dbhetfa and dbmask in the parameter file.\n\n");
-           // fatalx("can't find fata files\n") ;
-		}
+	   getstring(ph, "dbhetfa:", &iubfile) ;
+	   getstring(ph, "dbmask:", &iubmaskfile) ;
+		if (! (iubfile && iubmaskfile))
+			fprintf(stderr, "Please use -d option to specify the directory of hetfa and mask files.\nAlternatively, please give values to dbhetfa and dbmask in the parameter file.\n");
 	}
 
    getint(ph, "minfilterval:", &minfilterval) ;
@@ -370,10 +432,15 @@ void readcommands(int argc, char **argv)
    getstring(ph, "genooutname:", &genooutfilename) ; /* changed 11/02/06 */
    getstring(ph, "genooutfilename:", &genooutfilename) ; /* changed 11/02/06 */
    getstring(ph, "genotypeoutname:", &genooutfilename) ; /* changed 11/02/06 */
-   getstring(ph, "outputformat:", &omode) ; 
+   getstring(ph, "outputformat:", &omode) ;  
    getint(ph, "minchrom:", &minchrom) ;
    getint(ph, "maxchrom:", &maxchrom) ;
    getint(ph, "chrom:", &xchrom) ;
+   getstring(ph, "polarize:", &polarid) ;
+   getint(ph, "debug:", &debug) ;
+
+//   getstring(ph, "dbhetfa:", &iubfile) ;
+//   getstring(ph, "dbmask:", &iubmaskfile) ;
    writepars(ph) ;
    closepars(ph) ;
 
@@ -397,6 +464,7 @@ long setgenoblank (SNP **snpmarkers, int numsnps, int numindivs)
   clearepath(packgenos) ;
 
   for (j=0; j<numsnps; ++j) { 
+
          cupt = snpmarkers[j] ;
          ZALLOC(cupt -> gtypes, 1, int) ;
          cupt -> pbuff = pbuff ;  
@@ -449,25 +517,27 @@ int readfa1(char *faname, char **pfasta, int *flen)
  int ntry = 0, itry ;
 	FILE *fp;
 	int byte[2], rz = 0;
+	//gzFile fp;
  
  if (pfasta != NULL) freestring(pfasta) ;
 
  *flen = 0 ;
  *pfasta = NULL ;
 
-	if (db == 0) {
-		strcpy(refname, table_path);
-		strcat(refname, "Href.fa");
-	} else getdbname(iubfile, "Href", &refname);
+	if (db == 0) refname = strcat(table_path, "Href.fa");
+	else getdbname(iubfile, "Href", &refname);
 
-//	fprintf(stderr, "table_path: %s\n", table_path);
   if (faname  == NULL) { 
    return  0;
   }
 
 	fai_ref = fai_load(refname);
-//	fprintf(stderr, "refname*: %s\n", refname);
-	ref = fai_fetch(fai_ref, regname, &len_r);
+
+//	fprintf(stderr, "refname: %s\n", refname);
+//	fprintf(stderr, "ssreg: %s\n", ssreg);
+//
+//      printf("zzfetch %s\n",refname) ;        fflush(stdout) ;
+	ref = myfai_fetch(fai_ref, regname, &len_r);
 	if (len_r==0) fatalx("bad fetch %s %s\n", refname, regname) ; 	// fetch fai
 
 	fp = fopen(faname, "r");
@@ -481,7 +551,9 @@ int readfa1(char *faname, char **pfasta, int *flen)
   t = strcmp(regname, "24") ; if (t==0) strcpy(ssreg, "Y") ;
   t = strcmp(regname, "90") ; if (t==0) strcpy(ssreg, "MT") ;
 
+//   printf("zzfetch %s\n",faname) ;        fflush(stdout) ;
   ttfasta = myfai_fetch(fai, ssreg, &len) ;
+  if (len==0)  fatalx("bad fetch %s %s\n", faname, regname) ; 
 	
 	len = len < len_r ? len : len_r;
 	if (rz == 1)	// raziped 
@@ -502,7 +574,23 @@ int readfa1(char *faname, char **pfasta, int *flen)
 
 }
 
+int setfalist(char **poplist, int npops, char *dbfile, char **iublist) {
+	int t;
+	for (t = 0; t < npops; ++t) {
+		iublist[t] = strdup(table_path);
+		iublist[t] = (char*) realloc(iublist[t], 64);
+		iublist[t] = strcat(iublist[t], poplist[t]);
+		if ((!strcmp (poplist[t], "Chimp") || !strcmp (poplist[t], "Href")) && strcmp (dbfile, ".fa")) {
+			free (iublist[t]);
+			iublist[t] = "NULL";
+		} else 
+			iublist[t] = strcat(iublist[t], dbfile);
+	}
+	return npops;
+}
+  
 int getfalist(char **poplist, int npops, char *dbfile, char **iublist)  
+
 {
  char line[MAXSTR+1] ;
  char *spt[MAXFF], *sx ;
@@ -540,6 +628,7 @@ int getfalist(char **poplist, int npops, char *dbfile, char **iublist)
 
    fclose(fff) ;
    return nx ;
+
 }
 
 char *myfai_fetch(faidx_t *fai, char *reg, int  *plen)
@@ -591,20 +680,6 @@ void printfapt(FATYPE *fapt)
   fflush(stdout) ;
 }
            
-int fvalid(char cm) 
-// is cm indicating valid? 
-{
-  int t ; 
-
-  if (minfilterval < 0) return YES ;
-  t = (int) cm - (int) '0' ;
-
-  if (t<0) return NO;
-  if (t>=10) return NO ;
-  if (t<minfilterval) return NO ;
-  return YES ; 
-}
-
 
 char fixval(char iub, char cm) 
 {
@@ -614,6 +689,7 @@ char fixval(char iub, char cm)
   if (cm == '-')  return 'N' ; 
   t =(int) (cm) - (int) '0'  ;
   if (t<minfilterval) return '?' ;
+  if (t>9) return '?' ; // Was bug 
   return iub ;
 }
 
@@ -655,7 +731,6 @@ int mkcnt(int *cnt, char *iub, char *mask, int npops, char *pc1, char *pc2)
   }
   return t ;
 }
-
 int  mksamplist(char **samplist, Indiv **indivmarkers, int numindivs) 
 {
   int k, n=0 ;
@@ -668,6 +743,7 @@ int  mksamplist(char **samplist, Indiv **indivmarkers, int numindivs)
     ++n ;
   }
   return n ;
+
 }
 
 int checkr(char **samplist, int nsamps, char **iublist, char **iubmask) 
@@ -678,6 +754,7 @@ int checkr(char **samplist, int nsamps, char **iublist, char **iubmask)
 
   for (k=0; k<nsamps; ++k) {
    sname = samplist[k] ;
+// printf("checkr: %d %s\n", k,sname) ;
    t = 0 ;
    if (ftest(iublist[k]) == NO) { 
     printf("%s hetfa fail to open\n", sname) ;
@@ -706,7 +783,6 @@ void getfasta(char **pfasta, char **pmask, int *rlen, int *mlen, int kk)
   int tmlen=0, len, t  ;
 
   faname = iublist[kk] ;
-//	fprintf(stderr, "faname: %s\nkk: %d\n", faname, kk);
   famask = iubmask[kk] ;
 
   freestring(pfasta) ;
@@ -726,4 +802,13 @@ void getfasta(char **pfasta, char **pmask, int *rlen, int *mlen, int kk)
   }
   *rlen = len ;
   *mlen = tmlen ;
+ 
 }
+void flip1(SNP *cupt, int phasedmode, int flipreference)
+{
+      if (phasedmode == NO)  flipalleles(cupt) ;
+      if (phasedmode == YES)  flipalleles_phased(cupt) ;
+// just flips genotypes
+      if (flipreference) cswap(&cupt -> alleles[0], &cupt -> alleles[1]) ;
+}
+

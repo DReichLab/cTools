@@ -1,5 +1,6 @@
 #include <ctype.h>
 #include <nicklib.h>
+#include <xsearch.h> 
 #define IDSIZE 40
 
 #ifndef ADMUTILS
@@ -142,6 +143,7 @@ void makedir(char *dirname) ;
 int indxindex(char **namelist, int len, char *strid)  ;
 int indindex(Indiv **indivmarkers, int numindivs, char *indid)  ;
 int snpindex(SNP **snpmarkers, int numsnps, char *snpid) ;
+void inddupcheck(Indiv **indivmarkers, int numindivs) ;
 void freesnpindex() ;
 int ignoresnp(SNP *cupt) ;
 double entrop(double *a, int n)  ;
@@ -168,8 +170,8 @@ void killxhets(SNP **snpmarkers, Indiv **indivmarkers, int numsnps, int numindiv
 void fastdupcheck(SNP **snpmarkers, Indiv **indivmarkers, int numsnps, int numindivs) ;
 int grabgtypes(int *gtypes, SNP *cupt, int numindivs) ;
 int kcode(int *w, int len, int base) ;
-void cdup(SNP **snpm, Indiv **indm, int nsnp, int *buff, int lbuff) ;
-void printdup(SNP **snpm, int nsnp, Indiv *inda, Indiv *indb, int nmatch, int nnomatch); 
+// void cdup(SNP **snpm, Indiv **indm, int nsnp, int *buff, int lbuff, int iter) ;
+// void printdup(SNP **snpm, int nsnp, Indiv *inda, Indiv *indb, int nmatch, int nnomatch, int iter); 
 void killdup(Indiv *inda, Indiv *indb, SNP **snpm, int nsnp) ;
 double kurtosis(double *a, int n) ;
 int getlist(char *name, char **list) ; 
@@ -186,6 +188,8 @@ void printmatz5(double *ww, char **eglist, int n) ;
 void printmatz10(double *ww, char **eglist, int n) ;
 char *get3(char *ss) ;
 char *getshort(char *ss, int n) ;
+int gvalm(char cc, char cm, char c1, char c2, int minfilterval)  ;
+int fvalid(char cm, int minfilterval)  ;
 
 
 #undef max 

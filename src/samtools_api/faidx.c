@@ -321,6 +321,8 @@ char *fai_fetch(const faidx_t *fai, const char *str, int *len)
 	beg = end = -1;
 	h = fai->hash;
 	name_end = l = strlen(str);
+        *len = 0 ;
+
 	s = (char*)malloc(l+1);
 	// remove space
 	for (i = k = 0; i < l; ++i)
@@ -342,14 +344,14 @@ char *fai_fetch(const faidx_t *fai, const char *str, int *len)
 			iter = kh_get(s, h, str); // try str as the name
 			if (iter == kh_end(h)) {
 				*len = 0;
-			free(s); return 0;
+			free(s); return NULL;
 			} else s[name_end] = ':', name_end = l;
 		}
 	} else iter = kh_get(s, h, str);
 	if(iter == kh_end(h)) {
 		fprintf(stderr, "[fai_fetch] Warning - Reference %s not found in FASTA file, returning empty sequence\n", str);
 		free(s);
-		return 0;
+		return NULL;
 	};
 	val = kh_value(h, iter);
 	// parse the interval

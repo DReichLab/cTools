@@ -2,8 +2,8 @@
  * cpoly.c: This program is used to extract heterozygote SNPs from multiple samples
  * Author: Nick Patterson
  * Revised by: Mengyao Zhao
- * Last revise date: 2015-08-14
- * Contact: mengyao_zhao@hms.harvard.edu 
+ * Last revise date: 2015-04-30
+ * Contact: nickp@broadinstitute.org     
  */
 
 #include <sys/wait.h>
@@ -11,12 +11,14 @@
 #include <stdio.h>
 #include <nicksam.h>
 #include <getpars.h>  
+#include <mcmcpars.h>
 #include <time.h>  
 #include "bam.h"
 #include "faidx.h"
 #include "globals.h" 
 #include "popsubs.h"
 #include "mcio.h"
+#include "ctools.h"
 
 typedef struct { 
  int *val ; 
@@ -26,13 +28,14 @@ typedef struct {
 } ASC ;
 
 char *table_path = NULL;
+//char *iubfile = NULL ;
+//char *iubmaskfile = NULL ;
+
 char *regname = NULL ; 
-//char *iubfile = "/home/mz128/cteam/dblist/hetfa_postmigration.dblist" ;
-//char *iubmaskfile = "/home/mz128/cteam/dblist/mask_postmigration.dblist" ;
-char *iubfile = "/n/data1/hms/genetics/reich/1000Genomes/cteam_remap/B-cteam_lite/v0.2/C-FullyPublic__SignedLetterNoDelay__SignedLetterDelay/C.hetfa.dblist" ;
-char *iubmaskfile = "/n/data1/hms/genetics/reich/1000Genomes/cteam_remap/B-cteam_lite/v0.2/C-FullyPublic__SignedLetterNoDelay__SignedLetterDelay/C.mask.dblist" ;
+//char *parflist = "/home/np29/biology/neander/nickdir/xwdir/may12src/parfxlm" ;
+
 char *parname = NULL ;
-int  pagesize = 1000*1000 ;  // page size for getiub
+int  pagesize = -1 ;  // page size for getiub
 int minfilterval = 1 ;
 
 int minchrom = 1 ;
@@ -63,7 +66,6 @@ int *hasmask ;
 int npops = 0 ;
 int db = 1;	// Use .dblist
 
-#define VERSION  "300"    
 
 // bugfix bug when polarize off.   Last pop het didn't work
 void readcommands(int argc, char **argv) ;
@@ -82,7 +84,6 @@ int getiub(char *cc, char *ccmask, FATYPE **fainfo, char *reg, int pos) ;
 
 int checkpoly(char *cc, char *ccmask, char *pc1, char *pc2)   ;
 void printfapt(FATYPE *fapt);
-int fvalid(char cm) ;
 void prints(FILE *fff, int pos, char c1, char c2)  ;
 void printgg(FILE *ggg, char *cc, char *ccmask, char c1, char c2, int n) ;
 
@@ -103,22 +104,6 @@ static int usage()
 	fprintf(stderr, "\t-? 	Show the instruction. (For detailed instruction, please see the document here: https://github.com/mengyao/cTools)\n\n");
 	return 1;
 }
-
-int setfalist(char **poplist, int npops, char *dbfile, char **iublist) {
-	int t;
-	for (t = 0; t < npops; ++t) {
-		iublist[t] = strdup(table_path);
-		iublist[t] = (char*) realloc(iublist[t], strlen(iublist[t]) + strlen(poplist[t]) + strlen(dbfile) + 1);
-		iublist[t] = strcat(iublist[t], poplist[t]);
-
-		if ((!strcmp (poplist[t], "Chimp") || !strcmp (poplist[t], "Href")) && !strcmp (dbfile, ".ccomp.fa.rz"))
-			iublist[t] = strcat(iublist[t], ".fa");
-		else if ((!strcmp (poplist[t], "Chimp") || !strcmp (poplist[t], "Href")) && !strcmp (dbfile, ".ccompmask.fa.rz"))
-			iublist[t] = "NULL";
-		else iublist[t] = strcat(iublist[t], dbfile);
-	}
-	return npops;
-}  
 
 int main(int argc, char **argv)
 {
@@ -148,7 +133,7 @@ int main(int argc, char **argv)
  
  hipos = 1000*1000*1000 ;
  lopos = 0 ;
- printf("cpoly: version %s\n", VERSION) ; 
+ printf("cpoly: version %s\n", version) ; 
 
  readcommands(argc, argv) ;
 
@@ -178,7 +163,7 @@ int main(int argc, char **argv)
   else xchrom = atoi(regname) ;
  }
 
-//	fprintf(stderr, "call numlines in [main]\n");
+	fprintf(stderr, "call numlines in [main]\n");
   npops = numlines(indivname) ; 
   ZALLOC(poplist, npops, char *) ;
   npops = getss(poplist, indivname) ;
@@ -221,6 +206,7 @@ int main(int argc, char **argv)
  lo = lopos ; 
  hi = MIN(hipos, lo+pagesize) ;
  loadfa(poplist, npops, &fainfo, reg, lo, hi)  ;
+//fprintf(stderr, "main: fapt->fai: %p\n", fainfo[0]->fai);
  printf("npops: %d\n", npops) ;
   for (k=0;  k< npops; ++k) { 
    fapt = fainfo[k] ;
@@ -245,6 +231,7 @@ int main(int argc, char **argv)
   reg = regname ;
 	
   for (pos = lopos ; pos <= hipos; ++pos) { 
+   //t = getiub(cc, ccmask, fainfo, reg, pos)  ;  
 	t = getiub(cc, ccmask, fainfo, ss, pos)  ;  
    if (t==-5) break ;
    if (t<0) continue ;
@@ -264,8 +251,16 @@ int main(int argc, char **argv)
     continue ;
    }
    ++npoly ;
+
    prints(fff, pos, c1, c2) ;
    printgg(ggg, cc, ccmask, c1, c2, npops) ;
+
+/**
+    printf("zzgg: %12d %c %c " , pos, c1, c2)   ;
+    printf("%s %s\n", cc, ccmask) ; 
+    printnl() ; 
+*/
+   
  }}
 
  if (snpoutfilename != NULL) fclose(fff) ;
@@ -281,21 +276,6 @@ int main(int argc, char **argv)
  return 0 ;
 }
 
-int gvalm(char cc, char cm, char c1, char c2) 
-{
-   int x=0, t ;
-   char cb[2] ; 
-
-   if (fvalid(cm) == NO) return 9 ;      
-   if (isiub2(cc) == NO) return 9  ;  
-   t = iubcbases(cb, cc) ; 
-   if (cb[0] == c1) ++x ;
-   if (cb[1] == c1) ++x ;
-
-   return x ;
-// in  this version c2 not used but should (?) be error checked
-
-}
 
 void printgg(FILE *ggg, char *cc, char *ccmask, char c1, char c2, int n) 
 // known not to be triiallelic
@@ -304,7 +284,7 @@ void printgg(FILE *ggg, char *cc, char *ccmask, char c1, char c2, int n)
 
    if (ggg==NULL) return ;
    for (k=0; k<n; ++k) { 
-    g = gvalm(toupper(cc[k]), ccmask[k], c1, c2) ; // symbol tgo write (0 1 2 9)
+    g = gvalm(toupper(cc[k]), ccmask[k], c1, c2, minfilterval) ; // symbol to write (0 1 2 9)
     fprintf(ggg,"%d", g) ;
    }
    fprintf(ggg, "\n" ) ;
@@ -317,7 +297,9 @@ void prints(FILE *fff, int pos, char c1, char c2)
   fprintf(fff, "%15s ", sss) ;
   fprintf(fff, "%3s 0 %12d ", regname, pos) ;
   fprintf(fff, "%c %c\n", c1, c2) ;
+
   return ;
+
 }
 
 int checktriallelic(char *pc1, char *pc2, char x1, char x2) 
@@ -369,7 +351,7 @@ int checkpoly(char *cc, char *ccmask, char *pc1, char *pc2)
   for (k=0; k<npops; ++k) { 
    cm = ccmask[k] ; 
    cx  = toupper(cc[k]) ;
-   if (fvalid(cm) == NO)  cx = '?' ;
+   if (fvalid(cm, minfilterval) == NO)  cx = '?' ;
    t = isiub2(cx) ; 
    if ((t==NO) && (allowmissing==NO)) return NO ;
    if (t==NO) continue  ; 
@@ -399,7 +381,7 @@ int getdbname(char *dbase, char *name, char **pfqname)
  char ***names ;  
  int n, k, t, i ; 
 
-//	fprintf(stderr, "call numlines in [getdbname]\n");
+	fprintf(stderr, "call numlines in [getdbname]\n");
  n = numlines(dbase) ;
 
  ZALLOC(names, 3, char **) ;
@@ -443,19 +425,15 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
 	region = (char*)malloc((23+strlen(reg))*sizeof(char));
 	sprintf(region, "%s:%d-%d", reg, lo, hipos);
 
-	if (db == 0) {
-		strcpy(refname, table_path);
-		strcat(refname, "Href.fa");
-	} else getdbname(iubfile, "Href", &refname);
+	if (db == 0) refname = strcat(table_path, "Href.fa");
+	else getdbname(iubfile, "Href", &refname);
 
   if (ncall==1) {
    ZALLOC(falist, npops, char *) ;
    ZALLOC(famasklist, npops, char *) ;
 	if (db == 0) {
-	   numfalist = setfalist(poplist, npops, ".ccomp.fa.rz", falist) ;
-	   t = setfalist(poplist, npops, ".ccompmask.fa.rz", famasklist) ;
-	   //numfalist = setfalist(poplist, npops, ".fa", falist) ;
-	   //t = setfalist(poplist, npops, ".filter.fa", famasklist) ;
+	   numfalist = setfalist(poplist, npops, ".fa", falist) ;
+	   t = setfalist(poplist, npops, ".filter.fa", famasklist) ;
 	} else {
 	   numfalist = getfalist(poplist, npops, iubfile, falist) ;	// set falist with the absolute path of hetfa files in .dblist file
 	   t = getfalist(poplist, npops, iubmaskfile, famasklist) ; 
@@ -536,6 +514,7 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
 	if (len_s==0) fatalx("bad fetch %s %s\n", fapt->faname, region);	// fetch fai
 
 	len = len_r < len_s ? len_r : len_s;
+//	len = len_s;
 	if (rz == 1)	// raziped 
 		for (i = 0; i < len; ++i) 
 			if (fapt->rstring[i] == 'Q') fapt->rstring[i] = ref[i];
@@ -549,7 +528,7 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
       if (verbose) printf("zzlh %d %d %d %d\n", lopos, hipos, fapt -> lopos, fapt -> hipos) ;
 
       if (fapt -> faimask == NULL) continue ;
-		sprintf(region, "%s:%d-%d", reg, fapt->lopos, fapt->hipos);
+//sprintf(region, "%s:%d-%d", reg, fapt->lopos, fapt->hipos);
 		len = 0;
 		fapt->mstring = fai_fetch(fapt->faimask, region, &len);
 
@@ -631,7 +610,7 @@ int getiub(char *cc, char *ccmask, FATYPE **fainfo, char *reg, int pos)
 
   if (newreg == YES) { 
    
- //  printf("zznewrrr %s :: %s %d %d %d\n",lastreg, regbuff,  pos, lastlo, lasthi) ;  fflush(stdout) ;
+   printf("zznewrrr %s :: %s %d %d %d\n",lastreg, regbuff,  pos, lastlo, lasthi) ;  fflush(stdout) ;
    fflush(stdout) ;
    freestring(&regname) ;
 
@@ -643,17 +622,18 @@ int getiub(char *cc, char *ccmask, FATYPE **fainfo, char *reg, int pos)
   }
 
   if (newpage == YES) { 
-//fprintf(stderr, "pos-getiub: %d\n", pos);
+   fprintf(stderr, "pos-getiub: %d\n", pos);
    fflush(stdout) ;
    lastlo = pos ;
    lasthi = pos + pagesize ;
    lastlo = MAX(lastlo, lopos) ;
    lasthi = MAX(lasthi, hipos) ;
    lasthi = MIN(lasthi, lastlo+pagesize) ;
-  // printf("calling loodfa %s %d %d \n", regname, lastlo, lasthi) ;
+   printf("calling loodfa %s %d %d \n", regname, lastlo, lasthi) ;
    fflush(stdout) ;
+//fprintf(stderr, "getiub: fapt->fai: %p\n", fainfo[0]->fai);
    loadfa(poplist, npops, &fainfo, regname, lastlo, lasthi)  ;
-  // printf("newpage: %d %p %d %d\n", pos, topheap(), lastlo, lasthi) ;
+   printf("newpage: %d %p %d %d\n", pos, topheap(), lastlo, lasthi) ;
 
    fflush(stdout) ;
   }
@@ -692,7 +672,6 @@ void readcommands(int argc, char **argv)
   char str[512]  ;
   int n, kode ;
   int pops[2] ;
-	char *p;
 
   while ((i = getopt (argc, argv, "p:d:vV?")) != -1) {
 
@@ -722,7 +701,7 @@ void readcommands(int argc, char **argv)
 	break; 
 
       case 'v':
-	printf("version: %s\n", VERSION) ; 
+	printf("version: %s\n", version) ; 
 	break; 
 
 
@@ -738,37 +717,13 @@ void readcommands(int argc, char **argv)
    ph = openpars(parname) ;
    dostrsub(ph) ;
 
-	getstring(ph, "pathname:", &table_path) ;
-	if (table_path != NULL) {
-		p = strrchr(table_path, '/');
- 		if (!p || strcmp(p, "/")) {
- 			table_path = (char*)realloc(table_path, 256);
- 			table_path = strcat(table_path, "/");
- 		}
- 		db = 0;	// Don't use .dblist
-    }
- 
 	if (db == 1) {
-		int def_het = 0, def_mask = 0;
-	   def_het = getstring(ph, "dbhetfa:", &iubfile) ;
-	   def_mask = getstring(ph, "dbmask:", &iubmaskfile) ;
-		if (def_het < 0 || def_mask < 0) {
-			if (def_het < 0) fprintf(stderr, "You are using default dbhetfa value:\n%s\n", iubfile);
-			if (def_mask < 0) fprintf(stderr, "You are using default dbmask value:\n%s\n", iubmaskfile);
-			fprintf(stderr, "If the default database does not apply to you, please use -d option to specify the directory of hetfa and mask files.\n")   ;
-            fprintf(stderr, "... or specify pathname: in parameter file\n") ;
-            fprintf(stderr, "... or give values to dbhetfa and dbmask in the parameter file.\n\n");
-           // fatalx("can't find fata files\n") ;
-		}
-	}
-
-/*	if (db == 1) {
 	   getstring(ph, "dbhetfa:", &iubfile) ;
 	   getstring(ph, "dbmask:", &iubmaskfile) ;
 	if (! (iubfile && iubmaskfile))
 		fprintf(stderr, "Please use -d option to specify the directory of hetfa and mask files.\nAlternatively, please give values to dbhetfa and dbmask in the parameter file.\n");
 	}
-*/
+
    getstring(ph, "regname:", &regname) ;
    getint(ph, "pagesize:", &pagesize) ;
    getint(ph, "minfilterval:", &minfilterval) ;
@@ -799,6 +754,21 @@ void readcommands(int argc, char **argv)
    closepars(ph) ;
    fflush(stdout) ;
 }
+
+int setfalist(char **poplist, int npops, char *dbfile, char **iublist) {
+	int t;
+	for (t = 0; t < npops; ++t) {
+		iublist[t] = strdup(table_path);
+		iublist[t] = (char*) realloc(iublist[t], 64);
+		iublist[t] = strcat(iublist[t], poplist[t]);
+		if ((!strcmp (poplist[t], "Chimp") || !strcmp (poplist[t], "Href")) && strcmp (dbfile, ".fa")) {
+			free (iublist[t]);
+			iublist[t] = "NULL";
+		} else 
+			iublist[t] = strcat(iublist[t], dbfile);
+	}
+	return npops;
+}  
 
 int getfalist(char **poplist, int npops, char *dbfile, char **iublist)  
 {
@@ -837,8 +807,25 @@ int getfalist(char **poplist, int npops, char *dbfile, char **iublist)
 
    fclose(fff) ;
    return nx ;
-}
 
+}
+/*
+char *myfai_fetch(faidx_t *fai, char *reg, int  *plen)
+{
+  char *treg, *s ;
+  treg = strdup(reg) ;
+
+  if (fai==NULL) fatalx("(my_fai_fetch): fai NULL\n") ;
+
+  s = fai_fetch(fai, treg, plen) ;
+  if (*plen > 0) {
+    free(treg) ;
+    return s ;
+  }
+  free(treg) ;
+  return NULL ;
+}
+*/
 void clearfainfo(FATYPE *fapt, int mode)
 {
 
@@ -884,19 +871,6 @@ void printfapt(FATYPE *fapt)
   fflush(stdout) ;
 }
            
-int fvalid(char cm) 
-// is cm indicating valid? 
-{
-  int t ; 
-
-  if (minfilterval<0) return YES ;
-  t = (int) cm - (int) '0' ;
-
-  if (t<0) return NO;
-  if (t>=10) return NO ;
-  if (t<minfilterval) return NO ;
-  return YES ; 
-}
 
 char fixval(char iub, char cm) 
 {
@@ -927,6 +901,7 @@ int abx(int a, int b)
 }
 
 int abxok(int abx, int abxmode) { 
+
  int t ;
 
  if (abxmode >= 10) { 
@@ -935,6 +910,8 @@ int abxok(int abx, int abxmode) {
   return NO ;
  }
  
+  
+   
  switch (abxmode)  { 
  case 0:  
   return YES ;

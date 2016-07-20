@@ -2,8 +2,8 @@
  * ccompress.c: use razip to compress hetfa files (*.hetfa) and mask files (*.fa)
  * Author: Nick Patterson
  * Revised by: Mengyao Zhao
- * Last revise date: 2015-10-26
- * Contact: mengyao_zhao@hms.harvard.edu 
+ * Last revise date: 2014-12-19
+ * Contact: nickp@broadinstitute.org     
  */
 
 #include <unistd.h>
@@ -21,6 +21,8 @@ char *regname = NULL ;
 char *regstring = NULL ;
 faidx_t *fai;
 int chimpmode = NO ;
+char *iubfile = "/home/mz128/cteam/dblist/hetfa_postmigration.dblist" ;
+char *iubmaskfile = "/home/mz128/cteam/dblist/mask_postmigration.dblist" ;
 phandle *ph  = NULL ;
 
 void loadfilebase(char *parname) ;
@@ -29,55 +31,36 @@ char *myfai_fetch(faidx_t *fai, char *reg, int  *plen) ;
 FILE *fff ; 
 
 char *iname = "S_Irula-1" ;  
+char *wkdir = "./" ;	// default writing directory
 char *tempout ;
 
 void readcommands(int argc, char **argv) ;
+int setstring(char *iname, unsigned char *ketfa, unsigned char *countfa, int len)  ;
 void writefa(FILE *fff, char *regname, char *rrr)  ;
 
 static int usage()
 {
 	fprintf(stderr, "\n");
-	fprintf(stderr, "Usage:   ccompress <reference.fa> <hetfa.fa> \n\n");
+	fprintf(stderr, "Usage:   ccompress [options] \n\n");
+	fprintf(stderr, "Options:\n");
+	fprintf(stderr, "\t-i <sample name> [default: S_Irula-1]\n");
+	fprintf(stderr, "\t-w <working dir / output dir> [default: ./]\n");
+	fprintf(stderr, "\t-? Show the instruction.\n\n");
+//	fprintf(stderr, "\t-r <chromosome number> \t The chromosome number can be 1-22, X, Y, MT. [default:	all chromosomes]\n\n");
 	return 1;
 }
 
-int setfalist(char **poplist, int npops, char **iublist) {
-	int t;
-	for (t = 0; t < npops; ++t) iublist[t] = strdup(poplist[t]);
-	return npops;
-}  
-
-void readfa(char **falist, char **fasta, int *flen, int n) 
-{
-
- faidx_t *fai = NULL ;
- int k, len ;
- 
- ivzero(flen, n) ;
- for (k=0; k<n; ++k) {
-
-  if (falist[k] == NULL) { 
-   fasta[k] = NULL ;
-   continue ;
-  }
-  if (fasta[k] != NULL) freestring(&fasta[k]) ;
-  fai = fai_load(falist[k]) ;
-  fasta[k] = myfai_fetch(fai, regname, &len) ;
-  flen[k] = len ;
- }
-
-}
 
 int main(int argc, char *argv[])
 {
- char *faname, *p;
+ char *faname ;
  int x ; 
  char ss[1000] ;
  char *falist[2] ;  
  char *famask[2] ;  
+ char *poplist[2] ;  
  char *iublist[2] ;  
  char *iubmask[2] ;  
-char *poplist[2] ;  
  char *fasta[2] ;  
  int flen[2] ;
  char c1, c2 ; 
@@ -86,32 +69,16 @@ char *poplist[2] ;
  char tmpfaname[200]  ;
  char fainame[200] ; 
  char **reglist ;
-	char *dir, *file;
- int nregs, k;
+ int nregs, k ;
 
+// regname = strdup("22") ;
  readcommands(argc, argv);
 
-	poplist[0] = argv[1];
-	poplist[1] = argv[2];
-	p = strrchr(poplist[1], '.');
-	x = strlen(poplist[1]);
-	iname = (char*)malloc(x*sizeof(char));
-	memset (iname, '\0', sizeof(iname));
-	if (!strcmp(p, ".fa")) strncpy(iname, poplist[1], x - 3); 
-	else if (!strcmp(p, ".hetfa")) strncpy(iname, poplist[1], x - 6);
-	p = strrchr(iname, '/');
-	++p;
-	file = (char*)malloc(32 * sizeof(char));
-	file = strrchr(poplist[1], '/');
-	dir = (char*)malloc(x*sizeof(char));
-	strncpy(dir, poplist[1], x - strlen(file));
+  poplist[0] = strdup("Href") ;
 
-	  setfalist(poplist, 2, iublist)  ;
-	  setfalist(poplist, 2, iubmask)  ;
-	realloc(iubmask[1], (x + 8) * sizeof(char));
-	//sprintf(iubmask[1], "%s.filter.fa", iname);
-	sprintf(iubmask[1], "%s.mask.fa", iname);
-
+  poplist[1] = strdup(iname) ;
+  getfalist(poplist, 2, iubfile, iublist)  ;
+  getfalist(poplist, 2, iubmaskfile, iubmask)  ;
   strcpy(fainame, iublist[1]) ;
   strcat(fainame, ".fai") ;
   nregs = numlines(fainame) ;
@@ -119,10 +86,11 @@ char *poplist[2] ;
   nregs = getss(reglist, fainame) ;
   printf("regs:\n") ;
   printstringsw(reglist, nregs, 5, 10) ;
-
-  sprintf(outfaname, "%s/%s.ccomp.fa", dir, p) ;  
   
-  sprintf(tmpfaname, "%s/%s.ccomptmp.fa", dir, p) ;  
+
+  sprintf(outfaname, "%s/%s.ccomp.fa", wkdir, iname) ;  
+  
+  sprintf(tmpfaname, "%s/%s.ccomptmp.fa", wkdir, iname) ;  
   openit(tmpfaname, &fff, "w") ;
 
   fasta[0] = fasta[1] = NULL ;  
@@ -130,6 +98,8 @@ char *poplist[2] ;
   for (k=0; k<nregs; ++k) { 
 
    regname = reglist[k] ;
+//fprintf(stderr, "iublist[0]: %s\niublist[1]: %s\n", iublist[0], iublist[1]);
+//fprintf(stderr, "iublist: %s\n", iublist);
    readfa(iublist, fasta, flen, 2) ; 
 
    len = MIN(flen[0], flen[1]) ;
@@ -146,21 +116,26 @@ char *poplist[2] ;
   printf("chromosome: %12s done\n", regname) ;
  }
  fclose(fff) ;
+ //sprintf(ss, "gzip %s", tmpfaname) ;  
  sprintf(ss, "htsbox razip %s", tmpfaname) ;  
  system (ss) ;  
+ //sprintf(ss, "mv %s.gz %s.gz", tmpfaname, outfaname) ;
  sprintf(ss, "mv %s.rz %s.rz", tmpfaname, outfaname) ;
  system (ss) ;  
- sprintf(outfaname, "%s/%s.ccompmask.fa", dir, p) ;  
+ sprintf(outfaname, "%s/%s.ccompmask.fa", wkdir, iname) ;  
  sprintf(ss, "cp %s %s", iubmask[1], outfaname) ; 
  system(ss) ;
+ //sprintf(ss, "gzip  %s",  outfaname) ; 
  sprintf(ss, "htsbox razip  %s",  outfaname) ; 
  system(ss) ;
 
+	sprintf(ss, "rm %s/%s.ccomptmp.fa", wkdir, iname);
+	system(ss);
   printf("## end of ccompress\n") ;
 
-	free(dir);
-	free(iname);
+//	free(iname);
   return 0 ;
+
 }
 
 void writefa(FILE *fff, char *regname, char *rrr) 
@@ -220,7 +195,94 @@ void readcommands(int argc, char **argv)
   char str[512]  ;
   int n, kode ;
   int pops[2] ;
-	if (argc < 3) exit(usage());
+
+  while ((i = getopt (argc, argv, "i:r:w:?")) != -1) {
+
+    switch (i)
+      {
+
+      case 'i':
+	iname = strdup(optarg) ;
+	break;
+
+      case 'w':
+	wkdir = strdup(optarg) ;
+	break;
+
+      case 'r':	// Currently this doesn't work.
+	regname = strdup(optarg) ;
+	break;
+
+      case '?':
+	exit(usage());
+	break;
+
+	default:
+//	printf ("Usage: bad params.... %c\n", i) ;
+	fatalx("bad params flag:%c\n, i") ;
+      }
+  }
+
+}
+
+int getfalist(char **poplist, int npops, char *dbfile, char **iublist) 
+{
+ char line[MAXSTR+1] ;
+ char *spt[MAXFF], *sx ;
+ char c ;
+ int nsplit ;
+ int  t, k, s, nx = 0  ;
+ FILE *fff ;
+ char *scolon ; 
+  
+  if (dbfile == NULL) return 0 ;
+  openit(dbfile, &fff, "r") ;
+
+  while (fgets(line, MAXSTR, fff) != NULL)  { 	// Read the dblist file.
+   nsplit = splitup(line, spt, MAXFF) ; // Store the line into the array spt, devided by \s.
+   if (nsplit<1) continue ;
+   sx = spt[0] ;
+   if (sx[0] == '#') { 
+    freeup(spt, nsplit) ;
+    continue ;
+   }
+
+//	npops is the length of the array poplist. 
+//	if spt[0] is the t th element of poplist, return t; spt[0] is not in poplist, return -1.
+   t = indxstring(poplist, npops, spt[0]) ;	
+   if (t<0) { 
+    freeup(spt, nsplit) ; 
+    continue ;
+   }
+    sx = spt[2] ;
+    iublist[t] = strdup(sx) ;
+    ++nx ;
+    freeup(spt, nsplit) ;
+  }
+
+   fclose(fff) ;
+   return nx ;
+
+}
+int readfa(char **falist, char **fasta, int *flen, int n) 
+{
+
+ faidx_t *fai = NULL ;
+ int k, len ;
+ 
+ ivzero(flen, n) ;
+ for (k=0; k<n; ++k) {
+
+  if (falist[k] == NULL) { 
+   fasta[k] = NULL ;
+   continue ;
+  }
+  if (fasta[k] != NULL) freestring(&fasta[k]) ;
+//fprintf(stderr, "falist[%d]: %s\n", k, falist[k]);
+  fai = fai_load(falist[k]) ;
+  fasta[k] = myfai_fetch(fai, regname, &len) ;
+  flen[k] = len ;
+ }
 
 }
 
