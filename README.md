@@ -1,4 +1,5 @@
 # cTools
+Last revision   8/29/16
 
 New version (July 2016);  extensive rewrite and bugfix to cpulldown (old program somtimes pulled down bases that should have been masked)
 
@@ -19,12 +20,6 @@ Tools for handling samples:
   <li>ccompress</li>
   <li>cmakefilter</li>
 </ol>
-
-##Download the programs
-`git clone https://github.com/mengyao/cTools.git`
-
-or click the "Download ZIP" button of this web page:
-https://github.com/mengyao/cTools
 
 ##Compile cTools
 In the src folder:
@@ -111,10 +106,11 @@ S_Yoruba-1  -   /home/mz128/cteam/usr/data/S_Yoruba-1.filter.fa
 
 
 ----------------------------------------
-*For questions please contact Mengyao Zhao (mengyao_zhao@hms.harvard.edu) or Nick Patterson (nickp@broadinstitute.org).*
+*For questions please contact Nick Patterson (nickp@broadinstitute.org).*
 
 <!--
 Written by Nick on 6/15/14
 Revised by Mengyao Zhao
 Last revision: 10/22/15
+Last revision   8/29/16
 -->
