@@ -1,11 +1,12 @@
 # cTools
-Last revision   8/29/16
-
 New version (July 2016);  extensive rewrite and bugfix to cpulldown (old program somtimes pulled down bases that should have been masked)
 
-This document is the instruction of using the cTools to access the light
-version (compressed) Simons genomic diversity project (SGDP lite) files. The
-cTools include:
+This document desrcibes how to use cTools to access the light
+version (compressed) Simons genomic diversity project (SGDP lite) files.
+
+The latest cteam-lite dataset release can be found  here: http://reichdata.hms.harvard.edu/pub/datasets/sgdp/ 
+
+cTools includes:
 
 Analysis tools:
 
