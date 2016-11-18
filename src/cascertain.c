@@ -563,13 +563,13 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
      
 	fapt = fainfo[k] ;
 	
-	fp = fopen(fapt->faname, "r");
+        openit(fapt -> faname, &fp, "r") ;
 	for (i = 0; i < 2; ++i) byte[i] = getc(fp);
 	if (byte[0] == 0x1f && byte[1] == 0x8b) rz = 1;
 	fclose(fp);
 
 	fapt->rstring = fai_fetch(fapt->fai, region, &len_s);
-	if (len_s==0) fatalx("bad fetch %s %s\n", fapt->faname, region) ; 	// fetch fai
+	if (len_s==0) fatalx("bad fetch %s %s\n", fapt->alias, region) ; 	// fetch fai
 	
 	len = len_r < len_s ? len_r : len_s;
 	if (rz == 1)	// raziped 
@@ -587,8 +587,11 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
 		sprintf(region, "%s:%d-%d", reg, fapt->lopos, fapt->hipos);
 		len_s = 0;
 		fapt->mstring = fai_fetch(fapt->faimask, region, &len_s);
-	  if (len_s==0) fatalx("bad fetch (mask)  %s %s\n", fapt -> faimask, region) ;
-      fapt -> mlen = len_s ;
+	  if (len_s==0) { 
+           fapt -> mstring = NULL ; 
+           printf("*** warning: bad fetch (mask)  %s %s\n", fapt -> alias, region) ;
+          }
+          fapt -> mlen = len_s ;
   }
 	free (ref);
 	fai_destroy(fai_ref);
@@ -617,7 +620,6 @@ char getfacc(FATYPE *fapt, int pos, int xmode)
 int getiub(char *cc, char *ccmask, FATYPE **fainfo, char *reg, int pos) 
 /** return 
  -2 (pos out of range) 
- -1 polarization fails
  -5 end of chromosome 
   else number of valids 
 */
@@ -681,8 +683,6 @@ int getiub(char *cc, char *ccmask, FATYPE **fainfo, char *reg, int pos)
 
   for (k=0; k<npops; ++k) { 
    fapt = fainfo[k] ;
-   if (pos < fapt -> lopos) return -2 ;
-   if (pos > fapt -> hipos) return -2 ;
    cc[k] = getfacc(fapt, pos, 1) ; 	// genotype at pos; cc[k] is an iub code
 //fprintf(stderr, "pos: %d\tcc[%d]: %c\n", pos, k, cc[k]);
    if (hasmask[k]) ccmask[k] = getfacc(fapt, pos, 2) ; 	// mask at pos

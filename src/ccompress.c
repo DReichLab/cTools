@@ -2,9 +2,11 @@
  * ccompress.c: use razip to compress hetfa files (*.hetfa) and mask files (*.fa)
  * Author: Nick Patterson
  * Revised by: Mengyao Zhao
- * Last revise date: 2014-12-19
+ * Last revise date: 2016-11-15
  * Contact: nickp@broadinstitute.org     
  */
+
+#define WVERSION "200"
 
 #include <unistd.h>
 #include <nicksam.h>
@@ -21,8 +23,10 @@ char *regname = NULL ;
 char *regstring = NULL ;
 faidx_t *fai;
 int chimpmode = NO ;
-char *iubfile = "/home/mz128/cteam/dblist/hetfa_postmigration.dblist" ;
-char *iubmaskfile = "/home/mz128/cteam/dblist/mask_postmigration.dblist" ;
+
+char *iubfile = "/home/np29/biology/sgdp/info/hetfap.dblist" ;
+char *iubmaskfile = "/home/np29/biology/sgdp/info/maskp.dblist" ;
+
 phandle *ph  = NULL ;
 
 void loadfilebase(char *parname) ;
@@ -30,7 +34,7 @@ char *myfai_fetch(faidx_t *fai, char *reg, int  *plen) ;
 
 FILE *fff ; 
 
-char *iname = "S_Irula-1" ;  
+char *iname = NULL ;         
 char *wkdir = "./" ;	// default writing directory
 char *tempout ;
 
@@ -44,7 +48,8 @@ static int usage()
 	fprintf(stderr, "Usage:   ccompress [options] \n\n");
 	fprintf(stderr, "Options:\n");
 	fprintf(stderr, "\t-i <sample name> [default: S_Irula-1]\n");
-	fprintf(stderr, "\t-w <working dir / output dir> [default: ./]\n");
+	fprintf(stderr, "\t-d hetfa database\n" ) ;
+	fprintf(stderr, "\t-m mask database\n" ) ;
 	fprintf(stderr, "\t-? Show the instruction.\n\n");
 //	fprintf(stderr, "\t-r <chromosome number> \t The chromosome number can be 1-22, X, Y, MT. [default:	all chromosomes]\n\n");
 	return 1;
@@ -69,16 +74,28 @@ int main(int argc, char *argv[])
  char tmpfaname[200]  ;
  char fainame[200] ; 
  char **reglist ;
- int nregs, k ;
+ int nregs, k, t ;
 
 // regname = strdup("22") ;
+ printf("ccompress version %s\n", WVERSION) ;
  readcommands(argc, argv);
 
+  if (iname == NULL) { 
+   usage() ; 
+   return 1 ; 
+  }
   poplist[0] = strdup("Href") ;
-
   poplist[1] = strdup(iname) ;
-  getfalist(poplist, 2, iubfile, iublist)  ;
-  getfalist(poplist, 2, iubmaskfile, iubmask)  ;
+   
+  t = getfalist(poplist, 2, iubfile, iublist)  ;
+  if (t!=2) { 
+   printstrings(iublist, t) ;  fatalx("bad iubfile\n") ;
+  } 
+  t = getfalist(poplist, 2, iubmaskfile, iubmask)  ;
+  if (t!=2) { 
+   printstrings(iubmask, t) ;  fatalx("bad iubmask\n") ;
+  } 
+  printf("pop: %s\nmask: %s\n", iublist[1], iubmask[1]) ;
   strcpy(fainame, iublist[1]) ;
   strcat(fainame, ".fai") ;
   nregs = numlines(fainame) ;
@@ -122,16 +139,21 @@ int main(int argc, char *argv[])
  //sprintf(ss, "mv %s.gz %s.gz", tmpfaname, outfaname) ;
  sprintf(ss, "mv %s.rz %s.rz", tmpfaname, outfaname) ;
  system (ss) ;  
- sprintf(outfaname, "%s/%s.ccompmask.fa", wkdir, iname) ;  
- sprintf(ss, "cp %s %s", iubmask[1], outfaname) ; 
- system(ss) ;
- //sprintf(ss, "gzip  %s",  outfaname) ; 
- sprintf(ss, "htsbox razip  %s",  outfaname) ; 
- system(ss) ;
-
-	sprintf(ss, "rm %s/%s.ccomptmp.fa", wkdir, iname);
-	system(ss);
-  printf("## end of ccompress\n") ;
+ t = strcmp(iubmask[1], "NULL") ; 
+ if (t != 0) { 
+  sprintf(outfaname, "%s/%s.ccompmask.fa", wkdir, iname) ;  
+  sprintf(ss, "cp %s %s", iubmask[1], outfaname) ; 
+  system(ss) ;
+  //sprintf(ss, "gzip  %s",  outfaname) ; 
+  sprintf(ss, "htsbox razip  %s",  outfaname) ; 
+  system(ss) ;
+  sprintf(ss, "rm %s/%s.ccomptmp.fa", wkdir, iname);
+  system(ss);
+ }
+ else { 
+  printf ("no mask\n") ;
+ }
+ printf("## end of ccompress\n") ;
 
 //	free(iname);
   return 0 ;
@@ -196,10 +218,18 @@ void readcommands(int argc, char **argv)
   int n, kode ;
   int pops[2] ;
 
-  while ((i = getopt (argc, argv, "i:r:w:?")) != -1) {
+  while ((i = getopt (argc, argv, "d:m:i:r:w:?")) != -1) {
 
     switch (i)
       {
+
+      case 'd':
+	iubfile = strdup(optarg) ;
+	break;
+
+      case 'm':
+	iubmaskfile = strdup(optarg) ;
+	break;
 
       case 'i':
 	iname = strdup(optarg) ;

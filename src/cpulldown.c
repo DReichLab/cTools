@@ -270,11 +270,20 @@ int main(int argc, char **argv)
       if (cupt -> chrom != chrom) break ;
       putgtypes(cupt, k, -1) ;
       pos = cupt -> physpos ;
+
+/**
+      if (pos == 6943729) debug = YES ; 
+      if (pos != 6943729) debug = NO ; 
+*/
+
       t = pos-1 ;
       if (t>=rlen) continue ;
       gval = -1 ;
       iub = fasta[t] ;
-      if (hasmask[kk]) cm = mask[t] ;
+      cm = '-' ; 
+      if (hasmask[kk]) { 
+       if (t<mlen) cm = mask[t] ;
+      }
       else cm = '9' ;
       iub = toupper(iub) ;
 
@@ -285,6 +294,7 @@ int main(int argc, char **argv)
 
       cval = fixval(iub, cm) ;
       tt = iubcbases(cbases,  cval) ;   
+      if (debug) printf("zzd: %d  %c %c %c %c\n", k, iub, cm, cbases[0], cbases[1]) ;
       if (tt<0) continue ;  // invalid default
 // crude fill in.  order of samples matters
 
@@ -540,7 +550,7 @@ int readfa1(char *faname, char **pfasta, int *flen)
 	ref = myfai_fetch(fai_ref, regname, &len_r);
 	if (len_r==0) fatalx("bad fetch %s %s\n", refname, regname) ; 	// fetch fai
 
-	fp = fopen(faname, "r");
+        openit(faname, &fp, "r") ;
 	for (k = 0; k < 2; ++k) byte[k] = getc(fp);
 	if (byte[0] == 0x1f && byte[1] == 0x8b) rz = 1;
 	fclose(fp);
@@ -793,7 +803,6 @@ void getfasta(char **pfasta, char **pmask, int *rlen, int *mlen, int kk)
   else t = strcmp(famask, "NULL") ;
   if (t != 0)  {
    readfa1(famask, pmask, &tmlen) ;
-   len = MIN(len, tmlen) ;
   }
   else { 
    tmlen = len ;

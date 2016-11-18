@@ -5,7 +5,7 @@
 
 #define CTOOLDIR  "/n/data1/hms/genetics/reich/1000Genomes/cteam_remap/B-cteam_lite/v0.2/C-FullyPublic__SignedLetterNoDelay__SignedLetterDelay/"  
 
-char *version = "1100" ;
+char *version = "1121" ;
 char *iubfile =  CTOOLDIR"/C.hetfa.dblist"   ;
 char *iubmaskfile =  CTOOLDIR"/C.mask.dblist"   ;
 

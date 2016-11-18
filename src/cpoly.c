@@ -43,6 +43,12 @@ int xchrom = -1 ;
 int maxchrom = 25 ;
 char *minch = NULL;
 char *maxch = NULL;
+int debug = NO ;
+
+int doxchrom = YES ; 
+int doychrom = YES ; 
+int domt = NO ; 
+
 
 char *polarid = NULL ;
 int polarindex = -1 ;
@@ -88,6 +94,7 @@ void prints(FILE *fff, int pos, char c1, char c2)  ;
 void printgg(FILE *ggg, char *cc, char *ccmask, char c1, char c2, int n) ;
 
 int abxmode = 0 ;
+int checkmode = NO ;
 
 ASC **asctable ;
 ASC **noasctable ;
@@ -102,6 +109,7 @@ static int usage()
 	fprintf(stderr, "\t-V	Print more information while the program is running.\n");
 	fprintf(stderr, "\t-v	Show version information.\n");
 	fprintf(stderr, "\t-? 	Show the instruction. (For detailed instruction, please see the document here: https://github.com/mengyao/cTools)\n\n");
+	fprintf(stderr, "\t-c 	Checkmode only; don't run\n");
 	return 1;
 }
 
@@ -137,20 +145,28 @@ int main(int argc, char **argv)
 
  readcommands(argc, argv) ;
 
-	fprintf(stderr, "minch: %s\n", minch);
 	if (minch != NULL) {
 		if (minch[0] == 'X') minchrom = 23;
 		else if (minch[0] == 'Y') minchrom = 24;
 		else if (!strcmp(minch, "MT")) minchrom = 25; 
 		else minchrom = atoi(minch);
+        }
 
+         if (maxch != NULL) {
 		if (maxch[0] == 'X') maxchrom = 23;
 		else if (maxch[0] == 'Y') maxchrom = 24;
-		else if (!strcmp(maxch, "MT")) maxchrom = 25; 
+		else if (!strcmp(maxch, "MT")) {
+                 maxchrom = 25; 
+                 domt = YES ; 
+                }
 		else maxchrom = atoi(maxch);
 	}
 
- if (indivname==NULL) fatalx("indivname: omitted\n") ;
+ if (indivname==NULL) {
+   usage() ;
+   printf("indivname: omitted\n") ;
+   return 1 ;
+ }
 
  if (snpoutfilename != NULL) openit(snpoutfilename, &fff, "w") ;
  else fff = stdout ; 
@@ -162,8 +178,10 @@ int main(int argc, char **argv)
 	else if (!strcmp(regname, "MT")) xchrom = 25; 
   else xchrom = atoi(regname) ;
  }
+ if (xchrom==25) domt = YES ;
 
-	fprintf(stderr, "call numlines in [main]\n");
+ //  fprintf(stderr, "call numlines in [main]\n");
+ 
   npops = numlines(indivname) ; 
   ZALLOC(poplist, npops, char *) ;
   npops = getss(poplist, indivname) ;
@@ -216,11 +234,22 @@ int main(int argc, char **argv)
  ZALLOC(cc, xnpops, char) ; 
  ZALLOC(ccmask, xnpops, char) ; 
  cc[npops] = CNULL ;
- ccmask[npops-1] = CNULL ; // don't test chimp
+ ccmask[npops] = CNULL ; // don't test chimp
+
+ printf("minchrom: %d  maxchrom %d\n", minchrom, maxchrom) ;
+ if (checkmode) { 
+  printf("checkmode set.  End of Run\n") ;
+  return 0 ;  
+ }
+
 
  nmono = npoly = 0 ;
  for (chrom = minchrom; chrom <= maxchrom; ++chrom) {
   if ((xchrom > 0) && (xchrom != chrom)) continue ;
+  if ((chrom == 23) && (doxchrom == NO)) continue ;  
+  if ((chrom == 24) && (doychrom == NO)) continue ;  
+  if ((chrom == 25) && (domt == NO)) continue ;  
+
   sprintf(ss, "%d", chrom) ;
   if (chrom == 23) strcpy(ss, "X") ;
   if (chrom == 24) strcpy(ss, "Y") ;
@@ -231,13 +260,12 @@ int main(int argc, char **argv)
   reg = regname ;
 	
   for (pos = lopos ; pos <= hipos; ++pos) { 
-   //t = getiub(cc, ccmask, fainfo, reg, pos)  ;  
-	t = getiub(cc, ccmask, fainfo, ss, pos)  ;  
+    t = getiub(cc, ccmask, fainfo, ss, pos)  ;  
+    if (debug) printf("zziub %d\n%s\n%s\n\n", t, cc, ccmask) ;
    if (t==-5) break ;
    if (t<0) continue ;
     
    t = checkpoly(cc, ccmask, &c1, &c2) ; 
-
    if (t==NO) continue ;
     if (abxmode != 0) {
      abxkode = abx(base2num(c1), base2num(c2)) ;
@@ -381,7 +409,7 @@ int getdbname(char *dbase, char *name, char **pfqname)
  char ***names ;  
  int n, k, t, i ; 
 
-	fprintf(stderr, "call numlines in [getdbname]\n");
+// fprintf(stderr, "call numlines in [getdbname]\n");
  n = numlines(dbase) ;
 
  ZALLOC(names, 3, char **) ;
@@ -505,13 +533,17 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
 
      fapt = fainfo[k] ;
 
-	fp = fopen(fapt->faname, "r");
+        openit(fapt -> faname, &fp, "r") ;
 	for (i = 0; i < 2; ++i) byte[i] = getc(fp);
 	if (byte[0] == 0x1f && byte[1] == 0x8b) rz = 1;
 	fclose(fp);
 	
 	fapt->rstring = fai_fetch(fapt->fai, region, &len_s);
-	if (len_s==0) fatalx("bad fetch %s %s\n", fapt->faname, region);	// fetch fai
+	if (len_s==0) {
+         printf("fetch fails\n") ;
+         printfapt(fapt) ; 
+         fatalx("bad fetch %s %s\n", fapt->alias, region);	// fetch fai
+        }
 
 	len = len_r < len_s ? len_r : len_s;
 //	len = len_s;
@@ -531,8 +563,10 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
 //sprintf(region, "%s:%d-%d", reg, fapt->lopos, fapt->hipos);
 		len = 0;
 		fapt->mstring = fai_fetch(fapt->faimask, region, &len);
-
-	  if (len==0) fatalx("bad fetch (mask)  %s %s\n", fapt -> faimask, region) ;
+	  if (len==0) { 
+           fapt -> mstring = NULL ; 
+           printf("*** warning: bad fetch (mask)  %s %s\n", fapt -> alias, region) ;
+          }
       fapt -> mlen = len ;
   }
 
@@ -580,6 +614,8 @@ int getiub(char *cc, char *ccmask, FATYPE **fainfo, char *reg, int pos)
   static long ncall = 0 ;
 
   ++ncall ;
+  cclear(cc, '?', npops) ;
+  cclear(ccmask, '?', npops) ;
   fapt = fainfo[0] ; 
   lastreg = fapt -> regname ;
   strcpy(regbuff, reg) ;
@@ -609,8 +645,7 @@ int getiub(char *cc, char *ccmask, FATYPE **fainfo, char *reg, int pos)
   if (ncall == 1) newreg = YES ;
 
   if (newreg == YES) { 
-   
-   printf("zznewrrr %s :: %s %d %d %d\n",lastreg, regbuff,  pos, lastlo, lasthi) ;  fflush(stdout) ;
+// printf("zznewrrr %s :: %s %d %d %d\n",lastreg, regbuff,  pos, lastlo, lasthi) ;  fflush(stdout) ;
    fflush(stdout) ;
    freestring(&regname) ;
 
@@ -640,15 +675,15 @@ int getiub(char *cc, char *ccmask, FATYPE **fainfo, char *reg, int pos)
 
   for (k=0; k<npops; ++k) { 
    fapt = fainfo[k] ;
-   if (pos<fapt -> lopos) return -2 ;
-   if (pos>fapt -> hipos) return -2 ;
+// if (pos<fapt -> lopos) return -2 ;
+// if (pos>fapt -> hipos) return -2 ;
    cc[k] = getfacc(fapt, pos, 1) ;
    if (hasmask[k]) ccmask[k] = getfacc(fapt, pos, 2) ;
    else ccmask[k] = '9' ;
   }
 
   t = 0 ; 
-  if ((polarid != NULL) && (base2num(cc[npops-1]) < 0)) return -1 ;
+  if ((polarid != NULL) && (base2num(cc[polarindex]) < 0)) return -1 ;
   for (k=0; k<npops; ++k) { 
    if (isiub2(cc[k])) ++t ;
   }
@@ -673,7 +708,7 @@ void readcommands(int argc, char **argv)
   int n, kode ;
   int pops[2] ;
 
-  while ((i = getopt (argc, argv, "p:d:vV?")) != -1) {
+  while ((i = getopt (argc, argv, "p:d:cvV?")) != -1) {
 
 
     switch (i)
@@ -702,6 +737,10 @@ void readcommands(int argc, char **argv)
 
       case 'v':
 	printf("version: %s\n", version) ; 
+	break; 
+
+      case 'c':
+	checkmode = YES ;
 	break; 
 
 
@@ -744,9 +783,13 @@ void readcommands(int argc, char **argv)
    getstring(ph, "indivoutname:", &indoutfilename) ; /* changed 11/02/06 */
    getstring(ph, "snpoutname:", &snpoutfilename) ; /* changed 11/02/06 */
    getstring(ph, "genooutname:", &genooutfilename) ; 
+   getstring(ph, "genotypeoutname:", &genooutfilename) ; 
  
    t = 1 ; getint(ph, "lopos:", &lopos) ; lopos = MAX(lopos, t) ;
    t = BIGINT ; getint(ph, "hipos:", &hipos) ; hipos = MIN(hipos, t) ;
+   getint(ph, "doxchrom:",  &doxchrom) ;
+   getint(ph, "doychrom:",  &doychrom) ;
+   getint(ph, "domt:",  &domt) ;
 
    printf("### THE INPUT PARAMETERS\n");
    printf("##PARAMETER NAME: VALUE\n");

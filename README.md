@@ -1,12 +1,13 @@
 # cTools
+Last revision   11/14/16 
+
 New version (July 2016);  extensive rewrite and bugfix to cpulldown (old program somtimes pulled down bases that should have been masked)
+(Nov 2016)
+Better handling of short maskk files and some bugfixes to cpoly
 
-This document desrcibes how to use cTools to access the light
-version (compressed) Simons genomic diversity project (SGDP lite) files.
-
-The latest cteam-lite dataset release can be found  here: http://reichdata.hms.harvard.edu/pub/datasets/sgdp/ 
-
-cTools includes:
+This document is the instruction of using the cTools to access the light
+version (compressed) Simons genomic diversity project (SGDP lite) files. The
+cTools include:
 
 Analysis tools:
 
@@ -111,7 +112,7 @@ S_Yoruba-1  -   /home/mz128/cteam/usr/data/S_Yoruba-1.filter.fa
 
 <!--
 Written by Nick on 6/15/14
-Revised by Mengyao Zhao
+Revised by Mengyao Zhao and Nick
 Last revision: 10/22/15
-Last revision   8/29/16
+Last revision  11/14/16 
 -->

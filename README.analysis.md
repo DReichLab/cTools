@@ -279,6 +279,7 @@ A full parameter list of the parameter_file:
 
 <!--
 Written by Nick on 6/15/14
-Revised by Mengyao Zhao
-Last revision: 9/11/16   
+Revised by Mengyao Zhao and Nick
+Last revision: 11/14/16  
+
 -->
