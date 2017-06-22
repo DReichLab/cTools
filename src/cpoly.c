@@ -6,6 +6,8 @@
  * Contact: nickp@broadinstitute.org     
  */
 
+// memory leak. wwill fix soon
+
 #include <sys/wait.h>
 #include <stdlib.h>
 #include <stdio.h>
