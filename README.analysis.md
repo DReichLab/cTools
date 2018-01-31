@@ -172,7 +172,7 @@ For example, to use cpulldown to pull out data from Papuan and Dai, you need to:
 
 2. Using the information from all.ind to create your input.ind as following:
 
-   ```
+```
 B_Papuan-15 M Papuan
 A_Papuan-16 M Papuan
 S_Papuan-6 M Papuan
@@ -195,12 +195,12 @@ S_Dai-1 F Dai
 S_Dai-3 F Dai
 S_Dai-2 M Dai
 
-   ```
+```
 
 3. Create your input.snp file. The format of this .snp file is described in the "Related file formats" section of this document. If you don't know the "genetic location" of the SNP, please put value "0" in that column. In this condition, the "genetic location" column of the output.snp file will NOT be meaningful either.  
 4. Create a parameter file example.par as following:
 
-   ```
+```
 indivname:    input.ind
 snpname:      input.snp
 indivoutname:     output.ind
