@@ -45,6 +45,8 @@ struct __faidx_t {
 #define kroundup32(x) (--(x), (x)|=(x)>>1, (x)|=(x)>>2, (x)|=(x)>>4, (x)|=(x)>>8, (x)|=(x)>>16, ++(x))
 #endif
 
+void ckopen(char *name) ;
+
 static inline void fai_insert_index(faidx_t *idx, const char *name, int len, int line_len, int line_blen, uint64_t offset)
 {
 	khint_t k;
@@ -271,6 +273,7 @@ faidx_t *fai_load(const char *fn)
 	faidx_t *fai;
 	str = (char*)calloc(strlen(fn) + 5, 1);
 	sprintf(str, "%s.fai", fn);
+        char *ss ; 
 
 #ifdef _USE_KNETFILE
     if (strstr(fn, "ftp://") == fn || strstr(fn, "http://") == fn)
@@ -287,11 +290,11 @@ faidx_t *fai_load(const char *fn)
 #endif
         fp = fopen(str, "rb");
 	if (fp == 0) {
-		fprintf(stderr, "[fai_load] build FASTA index.\n");
+		fprintf(stderr, "[fai_load] build FASTA index.::%s\n", fn);
 		fai_build(fn);
 		fp = fopen(str, "rb");
 		if (fp == 0) {
-			fprintf(stderr, "[fai_load] fail to open FASTA index.\n");
+			fprintf(stderr, "[fai_load] fail to open FASTA index.::%s\n", fn);
 			free(str);
 			return 0;
 		}
@@ -300,10 +303,14 @@ faidx_t *fai_load(const char *fn)
 	fai = fai_read(fp);
 	fclose(fp);
 
-	fai->rz = razf_open(fn, "rb");
+	fai->rz = razf_open(fn, "r");
 	free(str);
-	if (fai->rz == 0) {
-		fprintf(stderr, "[fai_load] fail to open FASTA file.\n");
+	if (fai->rz == NULL) {
+                ss = strerror(errno) ;
+		fprintf(stderr, "[fai_load] fail to open FASTA file. ::%s\n",fn);
+//              ckopen((char *) fn) ;
+                printf("error info: %s\n", ss) ; 
+                abort() ; 
 		return 0;
 	}
 	return fai;

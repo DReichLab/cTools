@@ -1,3 +1,6 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
  
   double thp1=1.0, thp2 = 5.0 ;  /* params for theta */
   double thxp1=1.0, thxp2 = 10.0 ;  /* params for theta X  */
@@ -36,3 +39,6 @@
 
   FILE *fstdetails  = NULL;
 
+#ifdef __cplusplus
+}
+#endif

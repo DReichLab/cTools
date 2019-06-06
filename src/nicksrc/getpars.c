@@ -153,6 +153,22 @@ stripcomment (char *str)
 #define MAXFIELD 1000
 
 int
+getlongstring (phandle * pp, char *parname, char **strng)
+// whole of line
+{
+
+  char *field[MAXFIELD];
+  int n, kode;
+
+  kode = findpname (pp, parname);
+  if (kode < 0)
+    return kode;
+  *strng = strdup (pp->pdata[kode]);
+  return 1;
+}
+
+
+int
 getstring (phandle * pp, char *parname, char **strng)
 {
 
@@ -428,28 +444,5 @@ dostrsub (phandle * pp)
     fatalx ("(getpars) dostrsub looping\n");
   if (nchange > 0)
     dostrsub (pp);
-
-}
-
-int
-upstring (char *ss)
-
-/* 
- YES if at least one upper case character 
- and no lower case  
-*/
-{
-  int nupper = 0;
-  int i;
-  for (i = 0; i < strlen (ss); i++)
-  {
-    if (islower (ss[i]))
-      return NO;
-    if (isupper (ss[i]))
-      ++nupper;
-  }
-  if (nupper > 0)
-    return YES;
-  return NO;
 
 }

@@ -83,10 +83,15 @@ void mkqual(int *iqual, char *qual, int len) ;
 void getpophdr(char **pophdr, char **poplist, int npops) ;
 int getfastalist(char **poplist, int npops, char *dbfile, char **rglist, int *rgpops)  ;
 int getrg(char **poplist, int npops, char *dbfile, char **rglist, int *rgpops)  ;
+int getrgj(char **rawpoplist, int npops, char *dbfile, char **rglist, int *rgpops) ;
+void printrghit()  ;
 int mkfullpoplist(char **fullpoplist, int *f2pops, char **rawpoplist, int npops) ;
 int countg(char *uu, int nuu, int snpref, int snpvar)  ;
 int countc(char *uu, int nuu, char var, char ref)  ;
 void printread(READ *readpt) ;
+int grabreference(char *reg, int pos, int len, char *refstring)  ;
+void getnumreads(long *plong, long *ptotal)  ;
+void makergcats(char *rrr, char *bamname)  ;
 
 char *getfaiub(int k) ;
 int isloshlass(char *pop) ;

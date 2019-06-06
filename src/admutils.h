@@ -26,6 +26,7 @@ typedef struct {
   double totscore ;
   double rawqval ;
   double qval ;
+  int ishaploid ;  
 } Indiv; 
 
 typedef struct {
@@ -45,6 +46,7 @@ typedef struct {
   int  markernum ; /* marker number */
   char *pbuff ; 
   char *ebuff ;   /* for random ethnic path */
+  char *probbuff ;   /* for random ethnic path */
   int  isfake ;   /* 1 if fake marker  else 0 */
   int  isrfake ;  
 /* real marker treated as fake.  Used for 2D scoring */
@@ -68,7 +70,13 @@ typedef struct {
   int tagnumber ;
   char alleles[2] ;
   int chimpfudge ;
+  char cbest ;
+  int scount ; 
+  double *dwork ;  
+  double dipscore[3] ;  
+  double **diplike ; 
 } SNP; 
+// diplike is P(data|dip=d) dimension numindivs*3  
 
 typedef struct {
  char ID[IDSIZE] ;
@@ -173,6 +181,8 @@ int kcode(int *w, int len, int base) ;
 // void cdup(SNP **snpm, Indiv **indm, int nsnp, int *buff, int lbuff, int iter) ;
 // void printdup(SNP **snpm, int nsnp, Indiv *inda, Indiv *indb, int nmatch, int nnomatch, int iter); 
 void killdup(Indiv *inda, Indiv *indb, SNP **snpm, int nsnp) ;
+void cdup(SNP **snpm, Indiv **indm, int nsnp, int *buff, int lbuff) ;
+void printdup(SNP **snpm, int numsnp, Indiv *inda, Indiv *indb, int nmatch, int nnomatch) ;
 double kurtosis(double *a, int n) ;
 int getlist(char *name, char **list) ; 
 void printvers(char *progname, char *vers) ;
@@ -188,8 +198,14 @@ void printmatz5(double *ww, char **eglist, int n) ;
 void printmatz10(double *ww, char **eglist, int n) ;
 char *get3(char *ss) ;
 char *getshort(char *ss, int n) ;
+int setid2pops(char *idpopstring, Indiv **indmarkers, int numindivs) ;
 int gvalm(char cc, char cm, char c1, char c2, int minfilterval)  ;
 int fvalid(char cm, int minfilterval)  ;
+int setfalist(char **poplist, int npops, char *dbfile, char **iublist, char *table_path) ;
+int getfalist(char **poplist, int npops, char *dbfile, char **iublist) ;
+int cmap(SNP **snpmarkers, int numsnps)  ;
+void setinfiles(char **pind, char **psnp, char **pgeno, char *stem) ;
+int getdbname(char *dbase, char *name, char **pfqname) ;
 
 
 #undef max 

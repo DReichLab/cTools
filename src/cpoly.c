@@ -29,7 +29,6 @@ typedef struct {
  int np ;
 } ASC ;
 
-char *table_path = NULL;
 //char *iubfile = NULL ;
 //char *iubmaskfile = NULL ;
 
@@ -40,12 +39,18 @@ char *parname = NULL ;
 int  pagesize = -1 ;  // page size for getiub
 int minfilterval = 1 ;
 
+int minderiv = -1 ; 
+int maxderiv = 99999 ; 
+
 int minchrom = 1 ;
 int xchrom = -1 ;
 int maxchrom = 25 ;
 char *minch = NULL;
 char *maxch = NULL;
 int debug = NO ;
+
+char *trashdir = "/var/tmp" ;
+int qtmode = NO ;
 
 int doxchrom = YES ; 
 int doychrom = YES ; 
@@ -72,7 +77,6 @@ char *poplistname = NULL ;
 char **poplist ; 
 int *hasmask ;
 int npops = 0 ;
-int db = 1;	// Use .dblist
 
 
 // bugfix bug when polarize off.   Last pop het didn't work
@@ -107,7 +111,7 @@ static int usage()
 	fprintf(stderr, "\n");
 	fprintf(stderr, "Usage:   cpoly -p <parameter file> [options] \n\n");
 	fprintf(stderr, "Options:\n");
-	fprintf(stderr, "\t-d	directory of the data files (Please set this parameter, if you do not set .dblist files. If this parameter is used to give the data file location, .dblist files will not be used.)\n");
+	fprintf(stderr, "Options: dbhetfa, dbmask now obligatory\n") ;
 	fprintf(stderr, "\t-V	Print more information while the program is running.\n");
 	fprintf(stderr, "\t-v	Show version information.\n");
 	fprintf(stderr, "\t-? 	Show the instruction. (For detailed instruction, please see the document here: https://github.com/mengyao/cTools)\n\n");
@@ -119,7 +123,7 @@ int main(int argc, char **argv)
 {
 
  char *spt[MAXFF], *zspt[MAXFF] ;
- int  k, t, t2, q ;
+ int  k, t, t2, q, g, isbad ;
  ASC *ascpt ;
  char *reg ;
  FATYPE **fainfo, *fapt ; 
@@ -282,6 +286,20 @@ int main(int argc, char **argv)
    }
    ++npoly ;
 
+  isbad = NO  ;
+  if ((polarindex >= 0) && (allowmissing==NO))  {
+   t = 0 ;
+   for (k=0; k<npops; ++k) {
+    g = gvalm(toupper(cc[k]), ccmask[k], c1, c2, minfilterval) ; // symbol to write (0 1 2 9)
+    if (g==9) isbad = YES ;
+    t += (2-g) ;
+   }
+   if (t<minderiv) isbad = YES ;
+   if (t>maxderiv) isbad = YES ;
+  }
+  if (isbad) continue ;
+
+
    prints(fff, pos, c1, c2) ;
    printgg(ggg, cc, ccmask, c1, c2, npops) ;
 
@@ -405,44 +423,15 @@ int checkpoly(char *cc, char *ccmask, char *pc1, char *pc2)
    *pc2 = num2base(x2) ;
    return YES ;
 }
-
-int getdbname(char *dbase, char *name, char **pfqname) 
-{
- char ***names ;  
- int n, k, t, i ; 
-
-// fprintf(stderr, "call numlines in [getdbname]\n");
- n = numlines(dbase) ;
-
- ZALLOC(names, 3, char **) ;
-
- for (i=0; i<=2; ++i) {
-  for (k=0; k<n; ++k) { 
-   ZALLOC(names[i], n, char *) ;
-  }
- }
-
- n = getnames(&names, n, 3, dbase) ;
- t = indxstring(names[0], n, name) ; 
- if (t<0) fatalx("%s not found in %s\n", name, dbase) ;
- *pfqname = strdup(names[2][t]) ;
- 
- for (i=0; i<=2; ++i) { 
-  freeup(names[i], n) ;
-  free(names[i]) ; 
- }
- free(names) ;
- 
- return 1 ; 
-}
-
 int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, int hipos) 
 {
  static int k, numfalist, t;
  static char **falist, **famasklist ;
  static FATYPE **fainfo, *fapt ;
  int *falen ;
- int lo, hi, len, len_r, len_s, i ;
+ int lo, hi, len, len_r, len_s, i, tt, l, j ;
+ unsigned char c ; 
+
  static int ncall = 0 ;
 	char* region, *ref, *refname = (char*)malloc(256*sizeof(char));
 	faidx_t *fai_ref;	// Use this to open the reference sequence. 
@@ -455,16 +444,14 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
 	region = (char*)malloc((23+strlen(reg))*sizeof(char));
 	sprintf(region, "%s:%d-%d", reg, lo, hipos);
 
-	if (db == 0) refname = strcat(table_path, "Href.fa");
-	else getdbname(iubfile, "Href", &refname);
+     
+	getdbname(iubfile, "Href", &refname);
 
   if (ncall==1) {
    ZALLOC(falist, npops, char *) ;
    ZALLOC(famasklist, npops, char *) ;
-	if (db == 0) {
-	   numfalist = setfalist(poplist, npops, ".fa", falist) ;
-	   t = setfalist(poplist, npops, ".filter.fa", famasklist) ;
-	} else {
+
+	{
 	   numfalist = getfalist(poplist, npops, iubfile, falist) ;	// set falist with the absolute path of hetfa files in .dblist file
 	   t = getfalist(poplist, npops, iubmaskfile, famasklist) ; 
 	}
@@ -473,7 +460,7 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
       for (k=0; k<npops; ++k) { 
         if (falist[k] == NULL) printf("no fasta file for: %s\n", poplist[k]) ;
       }
-	  fatalx("Do not find the data files. Please use -d option or set dbhetfa and dbmask in your parameter file.\n") ;
+	  fatalx("Do not find the data files. Please check dbhetfa and dbmask in your parameter file.\n") ;
    }
    for (k=0; k<npops; ++k) {
     hasmask[k] = YES ;
@@ -497,7 +484,8 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
 
     fapt -> faname = strdup(falist[k]) ;
     fapt -> alias = strdup(poplist[k]) ;
-    fapt -> famask = strdup(famasklist[k]) ;
+    fapt -> famask = strdup("NULL")   ;
+    if (hasmask[k]) fapt -> famask = strdup(famasklist[k]) ;
 
     verbose = YES;
     if (verbose) {
@@ -710,7 +698,7 @@ void readcommands(int argc, char **argv)
   int n, kode ;
   int pops[2] ;
 
-  while ((i = getopt (argc, argv, "p:d:cvV?")) != -1) {
+  while ((i = getopt (argc, argv, "p:cvV?")) != -1) {
 
 
     switch (i)
@@ -719,19 +707,6 @@ void readcommands(int argc, char **argv)
       case 'p':
 	parname = strdup(optarg) ;
 	break;
-
-	    case 'd':
-		{
-			char* p;
-			table_path = strdup(optarg) ;
-			p = strrchr(table_path, '/');
-			if (!p || strcmp(p, "/")) {
-				table_path = (char*)realloc(table_path, 256);
-				table_path = strcat(table_path, "/");
-			}
-			db = 0;	// Don't use .dblist
-		}
-		break;
 
       case 'V':
 	verbose = YES ;
@@ -758,12 +733,11 @@ void readcommands(int argc, char **argv)
    ph = openpars(parname) ;
    dostrsub(ph) ;
 
-	if (db == 1) {
-	   getstring(ph, "dbhetfa:", &iubfile) ;
-	   getstring(ph, "dbmask:", &iubmaskfile) ;
-	if (! (iubfile && iubmaskfile))
-		fprintf(stderr, "Please use -d option to specify the directory of hetfa and mask files.\nAlternatively, please give values to dbhetfa and dbmask in the parameter file.\n");
-	}
+        getstring(ph, "dbhetfa:", &iubfile) ;
+        getstring(ph, "dbmask:", &iubmaskfile) ;
+	if (! (iubfile && iubmaskfile)) {
+		fatalx("Please give values to dbhetfa and dbmask in the parameter file.\n");
+        }
 
    getstring(ph, "regname:", &regname) ;
    getint(ph, "pagesize:", &pagesize) ;
@@ -792,6 +766,8 @@ void readcommands(int argc, char **argv)
    getint(ph, "doxchrom:",  &doxchrom) ;
    getint(ph, "doychrom:",  &doychrom) ;
    getint(ph, "domt:",  &domt) ;
+   getint(ph, "minderiv:", &minderiv) ;
+   getint(ph, "maxderiv:", &maxderiv) ;
 
    printf("### THE INPUT PARAMETERS\n");
    printf("##PARAMETER NAME: VALUE\n");
@@ -800,60 +776,6 @@ void readcommands(int argc, char **argv)
    fflush(stdout) ;
 }
 
-int setfalist(char **poplist, int npops, char *dbfile, char **iublist) {
-	int t;
-	for (t = 0; t < npops; ++t) {
-		iublist[t] = strdup(table_path);
-		iublist[t] = (char*) realloc(iublist[t], 64);
-		iublist[t] = strcat(iublist[t], poplist[t]);
-		if ((!strcmp (poplist[t], "Chimp") || !strcmp (poplist[t], "Href")) && strcmp (dbfile, ".fa")) {
-			free (iublist[t]);
-			iublist[t] = "NULL";
-		} else 
-			iublist[t] = strcat(iublist[t], dbfile);
-	}
-	return npops;
-}  
-
-int getfalist(char **poplist, int npops, char *dbfile, char **iublist)  
-{
- char line[MAXSTR+1] ;
- char *spt[MAXFF], *sx ;
- char c ;
- int nsplit ;
- int  t, k, s, nx = 0  ;
- FILE *fff ;
- char *scolon ; 
-  
-  if (dbfile == NULL) return 0 ;
-  openit(dbfile, &fff, "r") ;
-
-  while (fgets(line, MAXSTR, fff) != NULL)  {
-   nsplit = splitup(line, spt, MAXFF) ; 
-   if (nsplit<1) continue ;
-   sx = spt[0] ;
-   if (sx[0] == '#') { 
-    freeup(spt, nsplit) ;
-    continue ;
-   }
-   t = indxstring(poplist, npops, spt[0]) ; 
-   if (t<0) { 
-    freeup(spt, nsplit) ; 
-    continue ;
-   }
-    sx = spt[2] ;
-
-	if (! sx) fprintf(stderr, "Cannot find the data files for sample %s. Please check your .dblist files.\n", spt[0]);
-
-    iublist[t] = strdup(sx) ;
-    freeup(spt, nsplit) ;
-    ++nx ;
-  }
-
-   fclose(fff) ;
-   return nx ;
-
-}
 /*
 char *myfai_fetch(faidx_t *fai, char *reg, int  *plen)
 {
@@ -977,4 +899,15 @@ int abxok(int abx, int abxmode) {
  default:  
   fatalx("abxmode %d not implemented\n", abxmode) ;
  }
+}
+
+void ckopen(char *name)  
+{
+  FILE *fff ; 
+
+  openit(name, &fff, "r") ;
+  printf("open OK\n") ; 
+
+  fclose(fff) ;
+
 }

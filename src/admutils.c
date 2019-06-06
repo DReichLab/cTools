@@ -2,14 +2,15 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 // #include <openssl/md2.h>
-#include <admutils.h> 
-#include  <packit.h>   
+#include "admutils.h" 
 
+#include  "packit.h"   
 static int fastdupnum = 10 ;
 static double fastdupthresh = 0.75 ;
 static double fastdupkill = 0.75 ;
 static int snptab = NO ;
 
+#define MAXSTR 1024
 
 int hashit (char *str)  ;
 
@@ -277,11 +278,8 @@ int numvalids(Indiv *indx, SNP **snpmarkers, int fc, int lc)
   for (k=fc; k<=lc; ++k) {   
     cupt = snpmarkers[k] ; 
     if (cupt -> isfake) continue ; 
-    if (cupt -> ignore) continue ;
-/**
     gettln(cupt, indx, NULL, NULL, &numstates, &ignore) ; 
     if (ignore) continue ; 
-*/
     if (cupt -> ngtypes == 0) continue ; 
     if (getgtypes(cupt, idnum) >= 0) ++nval ; 
   } 
@@ -376,23 +374,26 @@ int indindex(Indiv **indivmarkers, int numindivs, char *indid)
      }
      return -1 ;
 }
-void inddupcheck(Indiv **indivmarkers, int numindivs) 
-{
- // fail hard if duplicate
-     int t, k, n ; 
-     char **ss ;  
 
-     freesnpindex() ;
-     n = numindivs ;
-     ZALLOC(ss, n, char *) ;
-     for (k=0; k< n; k++) {  
-      ss[k] = strdup(indivmarkers[k] -> ID) ;
-     }
-     t = finddup(ss, n) ;
-     if (t>=0) fatalx("duplicate sample: %s\n", ss[t]) ;
-     freeup(ss, n) ;
-     free(ss) ;
+void inddupcheck (Indiv ** indivmarkers, int numindivs)
+{
+  // fail hard if duplicate
+  int t, k, n;
+  char **ss;
+
+  freesnpindex ();
+  n = numindivs;
+  ZALLOC (ss, n, char *);
+  for (k = 0; k < n; k++) {
+    ss[k] = strdup (indivmarkers[k]->ID);
+  }
+  t = finddup (ss, n);
+  if (t >= 0)
+    fatalx ("duplicate sample: %s\n", ss[t]);
+  freeup (ss, n);
+  free (ss);
 }
+
 
 int snpindex(SNP **snpmarkers, int numsnps, char *snpid) 
 {
@@ -659,79 +660,6 @@ killxhets(SNP **snpmarkers, Indiv **indivmarkers, int numsnps, int numindivs)
  }
 }
   
-void printdup(SNP **snpm, int numsnp, Indiv *inda, Indiv *indb, int nmatch, int nnomatch, int iter) 
-{
-       int t1, t2 ;
-       double y ;
-
-       if (nmatch<=0) return ;
-       if (inda -> ignore) return ;
-       if (indb -> ignore) return ;
-
-       t1 = numvalids(inda, snpm, 0, numsnp-1) ;
-       t2 = numvalids(indb, snpm, 0, numsnp-1) ;
-       printf("dup? %s %s  match: %d mismatch: %d   %d %d ", 
-        inda->ID, indb -> ID, nmatch, nnomatch, t1, t2) ;
-       printf("%20s ", inda->egroup) ;
-       printf("%20s", indb->egroup) ;
-       y = nnomatch / (double) (nnomatch+nmatch) ;
-       printf(" %9.3f", y) ;
-       printf(" %d", iter) ; 
-       printnl() ; 
-}
-
-
-void cdup(SNP **snpm, Indiv **indm, int nsnp, int *buff, int lbuff, int iter) 
-{ 
- static int ncall = 0 ;
- SNP * cupt ;
- Indiv *inda, *indb ;
- double ytot, yhit ;
- int g1, g2, k1, k2, match, nomatch ;
- int i1, i2, j ;
-#define MINMARK 200 
-
-
-
- ++ncall ;
- if (ncall<=1) {
-//printf ("cdup: %d\n", ncall) ;
-  printf("fastdupthresh, kill: %9.3f %9.3f\n", fastdupthresh, fastdupkill) ;  fflush(stdout) ;
-//printimat(buff, lbuff, 1) ;
- }
-
- if (lbuff <= 1) return ;
-// printf("zzcdup1 %d %d\n", ncall, lbuff) ;  fflush(stdout) ;
- if (lbuff>20) printf("skipping...\n") ;
- for (i1=0; i1<lbuff; ++i1) {  
-  for (i2=i1+1; i2<lbuff; ++i2) {
-   k1 = buff[i1] ; 
-   k2 = buff[i2] ;  
-   match = nomatch = 0 ;
-   for (j=0; j<nsnp; ++j) {  
-    cupt = snpm[j] ;
-    if (cupt -> ignore) continue ;
-    if (cupt -> isfake) continue ;
-    g1 = getgtypes(cupt, k1) ;
-    g2 = getgtypes(cupt, k2) ;
-    if ( (g1<0) || (g2<0) ) continue ;
-    if (g1==g2) ++match ;
-    if (g1!=g2) ++nomatch ;
-   }
-
-   inda = indm[k1] ;
-   indb = indm[k2] ;
-   ytot = (double) (match + nomatch) ;
-   if (ytot< MINMARK) continue ;
-   yhit = ((double) match) / ytot  ; 
-
-   if (yhit>fastdupthresh) { 
-    printdup(snpm, nsnp, inda, indb, match, nomatch, iter)  ;
-    if (yhit>fastdupkill) killdup(inda, indb, snpm, nsnp) ;
-   }
-  }
- }
-}
 
 void
 fastdupcheck(SNP **snpmarkers, Indiv **indivmarkers, int numsnps, int numindivs)
@@ -739,40 +667,30 @@ fastdupcheck(SNP **snpmarkers, Indiv **indivmarkers, int numsnps, int numindivs)
  SNP *cupt ; 
  Indiv *indx ;
  int *gtypes ;
- int g, i, j, k, n, t ;
- int *snphets, *indsnp, tab[15], ww[15], **codeit, *cc, *cbuff ; 
+ int i, j, k, n ;
+ int *snphets, *indsnp, tab[15], ww[15], **codeit, *cc, g, *cbuff ; 
  int *buff, val, vv, lbuff, itry, ilo, ihi ;
- int dd[2] ;    
 
  ZALLOC(gtypes, numindivs, int) ;
  ZALLOC(cbuff, 2*numindivs, int) ;
  ZALLOC(codeit, numindivs, int *) ;
  ZALLOC(snphets, numsnps, int) ;
  ZALLOC(indsnp, numsnps, int) ;
-
- t = 0 ;
  for (i=0; i<numsnps; i++) {  
   cupt = snpmarkers[i]  ;
   if (cupt -> ignore) continue ;  
   if (cupt -> isfake) continue ; 
   if (cupt -> chrom > 22) continue ;
-  ivzero(dd, 2) ;
+  grabgtypes(gtypes, cupt, numindivs) ;
   for (k=0; k<numindivs; k++) { 
-    g = getgtypes(cupt, k) ;
-    if (g<0) continue ; 
-    dd[1] += g ; 
-    dd[0] += (2-g) ; 
+    if (gtypes[k] == 1) ++snphets[i] ;
   }
-  snphets[i] = MIN(dd[0], dd[1]) ;  
-  if (snphets[i] > 0) ++t ;
  }
- printf("number of polymorphic snps: %d\n", t) ; fflush(stdout) ;
  ivst(snphets, snphets, -1, numsnps) ;
  isortit(snphets, indsnp, numsnps) ;
 // make fastdupnum shots at exact match on 15 snps */
  for (itry = 1; itry < fastdupnum; itry++) {
-  printf("fdup iteration: %d\n", itry) ;  fflush(stdout) ;
-  ilo = 15*(itry-1) ;  
+  ilo = 15*itry ;  
   if ((ilo+15)>=numsnps) break ;
   for (i=0; i<15; i++) { 
    j = indsnp[i+ilo] ; 
@@ -805,14 +723,14 @@ fastdupcheck(SNP **snpmarkers, Indiv **indivmarkers, int numsnps, int numindivs)
    cc=codeit[i] ;  
    vv = cc[0] ;
    if (vv != val) {  
-    cdup(snpmarkers, indivmarkers, numsnps, buff, lbuff, itry) ;
+    cdup(snpmarkers, indivmarkers, numsnps, buff, lbuff) ;
     lbuff = 0 ; 
     val = vv ; 
    }
    buff[lbuff] = cc[1] ;
    ++lbuff ;
   }
-  cdup(snpmarkers, indivmarkers, numsnps, buff, lbuff, itry) ;
+  cdup(snpmarkers, indivmarkers, numsnps, buff, lbuff) ;
  }  // itry
 
  free(snphets) ;
@@ -820,6 +738,56 @@ fastdupcheck(SNP **snpmarkers, Indiv **indivmarkers, int numsnps, int numindivs)
  free(gtypes) ;
  free(codeit) ;
  free(cbuff) ;
+}
+
+void cdup(SNP **snpm, Indiv **indm, int nsnp, int *buff, int lbuff) 
+{ 
+ static int ncall = 0 ;
+ SNP * cupt ;
+ Indiv *inda, *indb ;
+ double ytot, yhit ;
+ int g1, g2, k1, k2, match, nomatch ;
+ int i1, i2, j ;
+#define MINMARK 200 
+
+
+ if (lbuff <= 1) return ;
+ ++ncall ;
+
+ if (ncall<=1) {
+//printf ("cdup: %d\n", ncall) ;
+  printf("fastdupthresh, kill: %9.3f %9.3f\n", fastdupthresh, fastdupkill) ;
+//printimat(buff, lbuff, 1) ;
+ }
+// if (ncall==1) printf(" cdup %9.3f %9.3f\n", fastdupthresh, fastdupkill) ;
+ for (i1=0; i1<lbuff; ++i1) {  
+  for (i2=i1+1; i2<lbuff; ++i2) {
+   k1 = buff[i1] ; 
+   k2 = buff[i2] ;  
+   match = nomatch = 0 ;
+   for (j=0; j<nsnp; ++j) {  
+    cupt = snpm[j] ;
+    if (cupt -> ignore) continue ;
+    if (cupt -> isfake) continue ;
+    g1 = getgtypes(cupt, k1) ;
+    g2 = getgtypes(cupt, k2) ;
+    if ( (g1<0) || (g2<0) ) continue ;
+    if (g1==g2) ++match ;
+    if (g1!=g2) ++nomatch ;
+   }
+
+   inda = indm[k1] ;
+   indb = indm[k2] ;
+   ytot = (double) (match + nomatch) ;
+   if (ytot< MINMARK) continue ;
+   yhit = ((double) match) / ytot  ; 
+
+   if (yhit>fastdupthresh) { 
+    printdup(snpm, nsnp, inda, indb, match, nomatch)  ;
+    if (yhit>fastdupkill) killdup(inda, indb, snpm, nsnp) ;
+   }
+  }
+ }
 }
 
 void killdup(Indiv *inda, Indiv *indb, SNP **snpm, int nsnp) 
@@ -833,6 +801,26 @@ void killdup(Indiv *inda, Indiv *indb, SNP **snpm, int nsnp)
        if (t1>t2) indx = indb ;
        indx -> ignore = YES ; 
        printf("dup.  %s ignored\n", indx -> ID) ;
+}
+
+void printdup(SNP **snpm, int numsnp, Indiv *inda, Indiv *indb, int nmatch, int nnomatch) 
+{
+       int t1, t2 ;
+       double y ;
+
+       if (nmatch<=0) return ;
+       if (inda -> ignore) return ;
+       if (indb -> ignore) return ;
+
+       t1 = numvalids(inda, snpm, 0, numsnp-1) ;
+       t2 = numvalids(indb, snpm, 0, numsnp-1) ;
+       printf("dup? %s %s  match: %d mismatch: %d   %d %d ", 
+        inda->ID, indb -> ID, nmatch, nnomatch, t1, t2) ;
+       printf("%20s ", inda->egroup) ;
+       printf("%20s", indb->egroup) ;
+       y = nnomatch / (double) (nnomatch+nmatch) ;
+       printf(" %9.3f", y) ;
+       printnl() ; 
 }
 
 int kcode(int *w, int len, int base) 
@@ -884,7 +872,6 @@ double kurtosis(double *a, int n)
 
 int getlist(char *name, char **list) 
 {
-#define MAXSTR 128
 #define MAXFF 5
   FILE *fff ;
   char line[MAXSTR] ;
@@ -1070,6 +1057,8 @@ char *getshort(char *ss, int n)
 }
 
 
+
+
 int setid2pops(char *idpopstring, Indiv **indmarkers, int numindivs) 
 // replace pop by ID for certain samples
 {
@@ -1128,6 +1117,231 @@ int fvalid(char cm, int minfilterval)
 
   return YES ; 
 }
+
+
+int setfalist(char **poplist, int npops, char *dbfile, char **iublist, char *table_path) 
+{
+	int t;
+	for (t = 0; t < npops; ++t) {
+		iublist[t] = strdup(table_path);
+		iublist[t] = (char*) realloc(iublist[t], 64);
+		iublist[t] = strcat(iublist[t], poplist[t]);
+		if ((!strcmp (poplist[t], "Chimp") || !strcmp (poplist[t], "Href")) && strcmp (dbfile, ".fa")) {
+			free (iublist[t]);
+			iublist[t] = "NULL";
+		} else 
+			iublist[t] = strcat(iublist[t], dbfile);
+	}
+	return npops;
+}
+  
+
+int mkmaplist(char *fname, char **kword, char **val) 
+// return list of (kword, values) sorted in descending kword lenth
+// return # of keywords
+{
+   FILE *fff ;  
+  char line[MAXSTR + 1];
+  char ww[MAXSTR];
+  char rest[MAXSTR];
+  int len, plen, nmap, n ;
+  char **tkword, **tval ; 
+  int *slenm, *indx, k, x, l ;
+
+   
+   
+   openit(fname, &fff, "r") ;
+
+   n = numlines(fname) ; 
+   ZALLOC(tkword, n, char *) ;
+   ZALLOC(tval, n, char *) ;
+ 
+   nmap = 0 ; 
+
+  line[MAXSTR] = '\0';          // defensive programmming
+  while (fgets (line, MAXSTR, fff) != NULL) {
+
+    len = strlen (line);
+
+    if (isspace (line[len - 1]))
+      line[len - 1] = CNULL ;
+
+    if (first_word (line, ww, rest) > 0) {
+
+      if (ww[0] == '#')
+        continue;
+      plen = strlen (ww);
+      if (ww[plen - 1] != ':') continue ; 
+      ww[plen-1] = CNULL ;
+      if (upstring(ww) == NO) continue ; 
+  
+      tkword[nmap] = strdup(ww) ; 
+      tval[nmap] = strdup(rest) ; 
+      ++nmap ; 
+
+    }
+
+  }
+
+  fclose(fff) ;
+
+  if (nmap == 0) { 
+   freeup(tkword, n) ;
+   freeup(val, n) ;
+   return 0 ;
+  }
+ 
+// sort in descending order of length
+   ZALLOC(slenm, nmap, int) ; 
+   ZALLOC(indx, nmap, int) ; 
+   for (k=0; k<nmap; ++k) { 
+    x = 10000 * strlen(tkword[k]) + (nmap - k) ; 
+    slenm[k] = -x ;
+   }
+   isortit(slenm, indx, nmap) ; 
+   for (k=0; k<nmap; ++k)  { 
+    x = indx[k] ;
+    kword[k] = strdup(tkword[x]) ;
+    val[k] = strdup(tval[x]) ;
+   }
+
+
+  freeup(tkword, n) ;
+  freeup(tval, n) ;
+  free(slenm) ;
+  free(indx) ;
+
+  return nmap ;
+
+}
+int getfalist(char **poplist, int npops, char *dbfile, char **iublist)  
+
+{
+ char line[MAXSTR+1] ;
+ char *spt[MAXFF], *sx ;
+ char c ;
+ int nsplit ;
+ int  tt, t, k, s, nx = 0  ;
+ FILE *fff ;
+ char *scolon ; 
+ char **kword, **val ;
+ int nn, nu ; 
+  
+  if (dbfile == NULL) return 0 ;
+  openit(dbfile, &fff, "r") ;
+
+  nn = numlines(dbfile) ;
+
+  ZALLOC(kword, nn, char *) ;
+  ZALLOC(val, nn, char *) ;
+
+  nu =  mkmaplist(dbfile, kword, val)  ; 
+/**
+  printf("##zz nu: %d\n", nu) ;
+  printstrings(kword, nu) ;
+  printstrings(val, nu) ;
+  printnl() ;
+*/
+  
+
+  while (fgets(line, MAXSTR, fff) != NULL)  {
+   nsplit = splitup(line, spt, MAXFF) ; 
+   if (nsplit<1) continue ;
+   sx = spt[0] ;
+   if (sx[0] == '#') { 
+    freeup(spt, nsplit) ;
+    continue ;
+   }
+   t = indxstring(poplist, npops, spt[0]) ; 
+   if (t<0) { 
+    freeup(spt, nsplit) ; 
+    continue ;
+   }
+    sx = spt[2] ;
+    tt = strcmp(sx, "NULL") ; 
+    if (tt == 0) {  
+     iublist[t] = NULL ;
+    }
+    else {
+     mapstrings(&sx, kword, val, nu) ;  
+     iublist[t] = strdup(sx) ; 
+    }
+    freeup(spt, nsplit) ;
+    ++nx ;
+  }
+
+   fclose(fff) ;
+   return nx ;
+
+}
+
+
+int getdbname(char *dbase, char *name, char **pfqname) 
+{
+ int n, k, t, i ; 
+ char **tpoplist, **tfalist ; 
+ int numfalist ; 
+
+// fprintf(stderr, "call numlines in [getdbname]\n");
+
+ ZALLOC(tpoplist, 1, char *) ;
+ ZALLOC(tfalist, 1, char *) ;
+ tpoplist[0] = strdup(name) ; 
+ numfalist = getfalist(tpoplist, 1, dbase, tfalist) ;	
+ if (numfalist == 0) fatalx("name: %s not found in %s\n", name, dbase) ;
+
+ *pfqname = strdup(tfalist[0]) ;
+ 
+ freeup(tpoplist, 1) ;
+ freeup(tfalist, 1) ;
+ 
+ return 1 ; 
+}
+
+
+int cmap(SNP **snpmarkers, int numsnps) 
+{
+   int t, k ; 
+   double y1, y2 ; 
+   SNP *cupt ;  
+   for (k=1 ; k<=10; ++k) { 
+    t = ranmod(numsnps) ;
+    cupt = snpmarkers[t] ; 
+    y1 = cupt -> genpos ; 
+    y2 = cupt -> physpos / 1.0e8  ; 
+    if (fabs(y1-y2) > .001) return YES ;
+   }
+   return NO ;
+}
+
+void setinfiles(char **pind, char **psnp, char **pgeno, char *stem) 
+{
+  char ss[MAXSTR] ; 
+
+  snprintf(ss, MAXSTR, "%s.ind", stem) ; 
+  fcheckr(ss) ; 
+  *pind = strdup(ss) ; 
+
+  snprintf(ss, MAXSTR, "%s.snp", stem) ; 
+  fcheckr(ss) ; 
+  *psnp = strdup(ss) ; 
+
+
+  snprintf(ss, MAXSTR, "%s.geno", stem) ; 
+  fcheckr(ss) ; 
+  *pgeno = strdup(ss) ; 
+
+  printf("input files set from %s\n", stem) ; 
+
+
+
+}
+
+
+
+
+
+
 
 
 

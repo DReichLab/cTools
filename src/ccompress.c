@@ -41,6 +41,8 @@ char *tempout ;
 void readcommands(int argc, char **argv) ;
 int setstring(char *iname, unsigned char *ketfa, unsigned char *countfa, int len)  ;
 void writefa(FILE *fff, char *regname, char *rrr)  ;
+int readfa(char **falist, char **fasta, int *flen, int n) ;
+int getfalist(char **poplist, int npops, char *dbfile, char **iublist) ;
 
 static int usage()
 {

@@ -24,7 +24,7 @@ static int numbox = QSIZE * ZLIM;
 
 
 
-static double zzprob (double zval);
+static double zzprob (double pval);
 static double znewt (double z, double ptail);
 
 static double ltlg1 (double a, double x);
@@ -87,13 +87,35 @@ ntail (double zval)
       return q;
     }
 
-  pi = 2.0 * acos (0.0);
+  pi = PI; 
 
   t = exp (-0.5 * zval * zval);
   t /= (sqrt (2.0 * pi) * zval);
 
   return t;
 
+}
+void tailstats(double *x, double a, int isupper) 
+// P(z>a) and conditional mean and variance if isupper = YES
+{
+  double p0, y1, y2, m, z1, z2 ;
+
+  if (isupper == NO) { 
+   tailstats(x, -a, YES) ; 
+   x[1] = -x[1] ; 
+   return ; 
+  }
+  p0 = x[0] = ntail(a) ; 
+  y1 = exp(-a*a/2.0) / sqrt(2.0*PI) ; 
+//  printf("zz %12.6f %12.6f\n", p0, y1) ;  
+  y2 = a*y1 + p0 ; 
+  z1 = m = x[1] = y1/p0 ; 
+  z2 = x[2] = y2/p0 - m*m ; 
+  if (!isfinite(z1) || (!isfinite(z2))) {
+   x[1] = a ; 
+   x[2] = 0 ; 
+  }
+  return ; 
 }
 
 double
@@ -365,8 +387,7 @@ z2x2 (double *a)
 	      fatalx ("(conchi) zero row or column sum\n");
 	    }
 	  y = a[k] - ee;
-	  if (k == 0)
-	    dev00 = y;
+	  if (k == 0) dev00 = y;
 	  chsq += (y * y) / ee;
 	}
     }
@@ -972,6 +993,7 @@ hwstat (double *x)
 
 double
 bprob (double p, double a, double b)
+// beta log density 
 {
   double q, yl;
   q = 1.0 - p;
@@ -986,7 +1008,7 @@ bprob (double p, double a, double b)
 
 double
 gammprob (double x, double p, double lam)
-/* gamma density */
+/* gamma log density */
 {
   double xx, yl;
   xx = MAX (x, 1.0e-8);
@@ -1314,9 +1336,6 @@ critchi (int df, double p)
 */
 
 
-#ifndef	I_PI			/* 1 / pi */
-#define	I_PI        0.3183098861837906715377675
-#endif
 #define	F_EPSILON     0.000001	/* accuracy of critf approximation */
 #define	F_MAX      9999.0	/* maximum F ratio */
 
@@ -1707,7 +1726,7 @@ jfgtx (int *tab, int lo, int hi, int val)
 }
 
 int
-jfirstgtx (int val, int *tab, int n)
+firstgtjfirstgtx (int val, int *tab, int n)
 // tab sorted in ascending order 
 // return first index with tab[x] >= val
 {
@@ -1913,20 +1932,24 @@ static double
 betacf (double a, double b, double x)
 /* Used by betai: Evaluates continued fraction for incomplete beta function 
    by modified Lentz's method.   */
+/** 
+ modified by NJP to do extended precision and more iterations  
+ Seems to work ofr (a+b < 1000000) 
+*/
 {
-#define MAXIT 100
+#define MAXIT 1000
 #define EPS 3.0e-7
 #define FPMIN 1.0e-30
 
   int m, m2;
-  double aa, c, d, del, h, qab, qam, qap;
+  long double aa, c, d, del, h, qab, qam, qap;
 
   qab = a + b;
   qap = a + 1.0;
   qam = a - 1.0;
   c = 1.0;			/* First step of Lentz's method.  */
   d = 1.0 - qab * x / qap;
-  if (fabs (d) < FPMIN)
+  if (fabsl (d) < FPMIN)
     d = FPMIN;
   d = 1.0 / d;
   h = d;
@@ -1935,28 +1958,28 @@ betacf (double a, double b, double x)
       m2 = 2 * m;
       aa = m * (b - m) * x / ((qam + m2) * (a + m2));
       d = 1.0 + aa * d;		/* One step (the even one) of the recurrence. */
-      if (fabs (d) < FPMIN)
+      if (fabsl (d) < FPMIN)
 	d = FPMIN;
       c = 1.0 + aa / c;
-      if (fabs (c) < FPMIN)
+      if (fabsl (c) < FPMIN)
 	c = FPMIN;
       d = 1.0 / d;
       h *= d * c;
       aa = -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2));
       d = 1.0 + aa * d;		/* Next step of the recurence the odd one) */
-      if (fabs (d) < FPMIN)
+      if (fabsl (d) < FPMIN)
 	d = FPMIN;
       c = 1.0 + aa / c;
-      if (fabs (c) < FPMIN)
+      if (fabsl (c) < FPMIN)
 	c = FPMIN;
       d = 1.0 / d;
       del = d * c;
       h *= del;
-      if (fabs (del - 1.0) < EPS)
+      if (fabsl (del - 1.0) < EPS)
 	break;			/* Are we done? */
     }
   if (m > MAXIT)
-    fatalx ("a or b too big, or MAXIT too small in betacf\n");
+    fatalx ("a or b too big, or MAXIT too small in betacf: %9.3f %9.3f %12.6f\n", a, b, x);
   return h;
 }
 
@@ -1974,13 +1997,6 @@ bpars (double *a, double *b, double mean, double var)
   xb = x * (1 - m);
 
 
-/**
-  ym = xa/(xa+xb) ;  
-  yv = xa*xb/((xa+xb)*(xa+xb)*(xa+xb+1)) ;
-  printf("%9.3f %9.3f\n", mean, ym) ;  
-  printf("%9.3f %9.3f\n", var, yv) ;
-*/
-
   *a = xa;
   *b = xb;
 
@@ -1996,6 +2012,7 @@ bmoments (double a, double b, double *mean, double *var)
   x = a + b;
   *mean = a / x;
   *var = (a * b) / (x * x * (x + 1));
+
 
 }
 
@@ -2276,6 +2293,7 @@ circconv (double *jp, double *c, double *jmean, int g)
 double
 bino (int a, int b)
 {
+  if (bcosize < 0) setbino(50) ;
   if (b > a)
     return 0.0;
   if (a < 0)
@@ -2445,5 +2463,758 @@ ubias (int a, int n, int k)
     v -= 1.0;
   }
   return y;
+}
+
+double pi() 
+{
+  return 2.0*acos(0.0) ; 
+}
+
+void bjasympt(double *ptail, double *mtail, double *tail, double mplus, double mminus, int n) 
+{  
+ double xplus, xminus, bjstat, y ;  
+
+ *ptail = *mtail = *tail = 1.0 ; 
+ if (n<=2) return ;  
+ 
+ y = 2*log(n)*log(log(n)) ;  
+
+ xplus = mplus*y ;  // x/scale = mstat
+ xminus = mminus*y ;  
+
+ *ptail = 1.0 -exp(-xplus) ;
+ *mtail = 1.0 -exp(-xminus) ;
+ bjstat = MIN(xplus, xminus) ;
+ *tail = 1.0-exp(-2*bjstat) ;
+
+
+
+}
+double bjugauss(double *p, double *u, double *a, int n) 
+// calculate u stats and p stats with gaussian null  
+{
+ double *w ; 
+ int i, k ; 
+ double pmax, pmin, x ;
+
+ ZALLOC(w, n, double) ;  
+ copyarr(a, w, n) ; 
+
+ sortit(w, NULL, n) ;
+  for (k=0; k<n; ++k) { 
+   i = 1 + k ;  
+   u[k] = 1.0 - ntail(w[k]) ;  //  think about roundoff
+   p[k] = betai(i, n-i+1, u[k]) ; 
+  }
+  vmaxmin(p, n, &pmax, &pmin) ; 
+  free(w) ;
+  x  =  MIN(pmin, 1.0-pmax) ;
+  return x ;
+}
+// 2-sample Berk-Jones (new??) 
+
+void bj2(double *aa, double *bb, int a, int b,  double *plpv, double *prpv, double *ppv) 
+{
+ int j, k, t , r  ; 
+ double *u, *p,  *xx  ; 
+ int *cat, *ind, *type ;  
+ int n =  a + b   ;  
+ double lpv, rpv, pv, y ;
+
+ ZALLOC(xx, n, double) ; 
+
+ ZALLOC(cat, n, int) ; 
+ ZALLOC(ind, n, int) ; 
+ ZALLOC(type, n, int) ; 
+
+ copyarr(aa, xx, a) ; 
+ copyarr(bb, xx+a, b) ;
+
+ ivclear(cat, 1, a) ; 
+ ivclear(cat+a, 2, b) ; 
+
+ sortit(xx, ind, n) ;  
+ for (k=0; k<n; ++k) { 
+  j = ind[k] ; 
+  type[k] = cat[j] ; 
+ }
+
+ bj2x(type, a, b, &lpv, &rpv, &pv) ;   
+
+ *plpv = lpv ;
+ *prpv = rpv ;
+ *ppv = pv ;
+
+ free(xx) ; 
+ free(cat) ; 
+ free(ind) ; 
+ free(type) ; 
+
+
+}
+ 
+void bj2x(int *type, int a, int b, double *plpv, double *prpv, double *ppv) 
+{
+
+ int j, k, t , r  ; 
+ double *u, *p, *aa, *bb, *xx  ; 
+ int  *ind, *rcount ;  
+ int n =  a + b   ;  
+ double **hp, **ltail, **rtail ; 
+ double *pl, *pr ; 
+ double lstat, rstat, stat ;                              
+ double lpv, rpv, pv, y ;
+ int *lthresh, *rthresh ; 
+
+ t = n + 2 ;
+ hp = initarray_2Ddouble(t, t, 0) ; 
+ ZALLOC(rcount, n, int) ; 
+
+ ltail = initarray_2Ddouble(t, t, 0) ; 
+ rtail = initarray_2Ddouble(t, t, 0) ; 
+
+ ZALLOC(pl, n, double) ; 
+ ZALLOC(pr, n, double) ; 
+
+ y = genhp(hp, a, b) ; 
+// printf("%d %d %15.9f\n", a, b, y) ;
+ gentail(ltail, rtail, hp, a, b) ;  
+
+ pl[0] = pr[0] = 1 ; 
+ for (k=1; k<n; ++k)  { 
+   rcount[k] = rcount[k-1] ; 
+   if (type[k] == 1) ++rcount[k]  ;  
+   r = rcount[k] ; 
+   pl[k] = ltail[k][r] ; 
+   pr[k] = rtail[k][r] ; 
+//   printf("%3d %3d %12.6f %12.6f\n", k, r, pl[k], pr[k]) ;  
+ }
+
+ ZALLOC(lthresh, n+1, int) ;
+ ZALLOC(rthresh, n+1, int) ;
+ vmaxmin(pl, n, NULL, &lstat) ;
+ vmaxmin(pr, n, NULL, &rstat) ;
+ stat = MIN(lstat, rstat) ;   
+ setthresh(lthresh,  ltail, a, b, lstat, 1) ;
+ ivclear(rthresh, n+99, n+1) ; 
+ lpv = genhpt(a, b, lthresh, rthresh) ; 
+//  printf("lstat: %9.3f lpv: %12.6f\n", lstat, lpv) ; 
+ 
+ setthresh(rthresh,  rtail, a, b, rstat, 2) ;
+ ivclear(lthresh, 0, n+1) ; 
+ rpv = genhpt(a, b, lthresh, rthresh) ; 
+//  printf("rstat: %9.3f rpv: %12.6f\n", rstat, rpv) ; 
+ setthresh(lthresh,  ltail, a, b, stat, 1) ;
+ setthresh(rthresh,  rtail, a, b, stat, 2) ;
+ pv = genhpt(a, b, lthresh, rthresh) ; 
+//  printf("stat: %9.3f pv: %12.6f\n", stat, pv) ; 
+
+ free(lthresh) ; 
+ free(rthresh) ; 
+ free(rcount) ; 
+ free2D(&hp, t) ;
+ free(pl) ; 
+ free(pr) ; 
+
+ *plpv = lpv ;
+ *prpv = rpv ;
+ *ppv = pv ;
+ 
+}
+void setthresh(int *thresh, double **tail, int a, int b, double stat, int mode) 
+{
+  int t, n, m, r, k   ; 
+
+  n = a + b ;  
+  t = n + 2 ; 
+
+  thresh[0] = 0 ;  
+  
+  if (mode==1) { 
+   thresh[n] = 0 ;
+   for (k=1; k<n; ++k) { 
+     for (r=0; r<=a; ++r) { 
+       if (tail[k][r] >= stat) break ; 
+     }
+     thresh[k] = r ; 
+   }
+   return ;
+  }
+
+   thresh[n] = n + 99 ; 
+   for (k=1; k<n; ++k) { 
+     for (r=a; r>=0; --r) { 
+       if (tail[k][r] >= stat) break ; 
+     }
+     thresh[k] = r ; 
+   }
+   return ;
+
+
+
+
+}
+
+void gentail(double **ltail, double **rtail, double **hp, int a, int b) 
+{
+
+  int t, n, m, r   ; 
+  double yl, yr ;  
+
+  n = a + b ;  
+  t = n + 2 ; 
+  clear2D(&ltail, t, t, 1) ;
+  clear2D(&rtail, t, t, 1) ;
+
+  
+  for (m=1;  m <= n ; ++ m)  {  
+
+   yl =  yr = 0 ; 
+   for (r=0; r <=a ; ++r) {  
+    yl += hp[m][r] ; 
+    ltail[m][r] = yl ; 
+   }
+
+   for (r=a; r >= 0; --r) {  
+    yr += hp[m][r] ;  
+    rtail[m][r] = yr ; 
+   }
+  }
+}
+
+double genhp(double **hp, int a, int b) 
+{
+
+  int n, t ; 
+  int m, r, mm, rx, nx ;  
+  double p, q, y ; 
+
+  if ((a==0) || (b==0)) fatalx("(genhp): set with size 0: %d %d\n", a, b) ;
+  
+  n = a + b ;  
+  t = n + 2 ; 
+  clear2D(&hp, t, t, 0) ;
+  hp[0][0] = 1 ;    
+  for (m=0; m<n; ++m) { 
+   mm = m + 1 ; 
+   for (r = 0; r <= a; ++r)  {  
+    y = hp[m][r] ;  
+    if (y==0.0) continue ;  
+    rx = a - r  ;  nx = n - m ;  
+    p = (double) rx / (double) nx ;  // prob of picking A
+    q = 1-p ;  
+    hp[mm][r] += q*y ;  
+    hp[mm][r+1] += p*y ;  
+   }
+  }
+  y = asum(hp[n], t) ; 
+  return y ;  
+} 
+long double ldsum(long double *a, int n) 
+{
+ long double y = 0 ; 
+ int k ;  
+ for (k=0; k<n; ++k) { 
+  y += a[k] ; 
+ }
+ return y ; 
+}
+double genhpt(int a, int b, int *lt, int *rt) 
+{
+
+  int n, t, i, j  ; 
+  int m, r, mm, rx, nx ;  
+  int lo, hi ; 
+  long double p, q, y ; 
+  long double **hp ; 
+
+  if ((a==0) || (b==0)) fatalx("(genhp): set with size 0: %d %d\n", a, b) ;
+  
+  n = a + b ;  
+  t = n + 2 ; 
+  hp = initarray_2Dlongdouble(t, t, 0) ;
+  hp[0][0] = 1 ;    
+  for (m=0; m<n; ++m) { 
+   mm = m + 1 ; 
+   lo = lt[mm] ; 
+   hi = rt[mm] ;
+   for (r = 0; r <= a; ++r)  {  
+    y = hp[m][r] ;  
+    if (y==0.0) continue ;  
+    rx = a - r  ;  nx = n - m ;  
+    p = (double) rx / (double) nx ;  // prob of picking A
+    q = 1-p ;  
+    hp[mm][r] += q*y ;  
+    hp[mm][r+1] += p*y ;  
+   }
+   for (r=0; r<lo; ++r) { 
+    hp[mm][r] = 0 ; 
+   }
+   for (r=a; r>hi; --r) { 
+    hp[mm][r] = 0 ; 
+   }
+// y = asum(hp[mm], t) ;  
+// printf("zz %d %9.3f  %d  %d\n", mm, y, lo, hi) ; 
+  }
+  y = ldsum(hp[n], t) ; 
+  free2Dlongdouble(&hp, t) ;
+  return 1.0-y ;  
+}
+
+void mlegamm(double *a, double n, double *p, double *lam)
+{
+
+  double a1, a2 ;
+  int k, num=0 ;
+
+  a1 = a2 = 0 ;
+  for (k=0; k<n; ++k) {
+   if (a[k] <= 0.0) continue ;
+   a1 += a[k] ;
+   a2 += log(a[k]) ;
+   ++num ;
+  }
+  a1 /= (double) num ;
+  a2 /= (double) num ;
+  mleg(a1, a2, p, lam) ;
+
+}
+
+void mlebeta(double *a, int n, double *p1, double *p2)
+
+{
+
+
+  double a1, a2 ;
+  int k, num=0 ;
+
+  a1 = a2 = 0 ;
+  estbpars(a, n,  p1, p2) ; //  initial momen ts estimator
+  for (k=0; k<n; ++k) {
+   if (a[k] <= 0.0) continue ;
+   if (a[k] >= 1.0) continue ;
+   a1 += log(a[k]) ;
+   a2 += log(1-a[k]) ;
+   ++num ;
+  }
+  a1 /= (double) num ;
+  a2 /= (double) num ;
+  mleb(p1, p2, a1, a2) ;
+
+}
+
+
+
+void estbpars(double *a, int n, double *p1, double *p2)
+
+{
+
+// moments estimator for beta
+
+  double *w1, ymean, yvar ;
+
+  ZALLOC(w1, n, double) ;
+
+  ymean = asum(a, n) / (double) n ;
+  vsp(w1, a, -ymean, n) ;
+  yvar = asum2(w1, n) / (double) n ;
+
+  bpars(p1, p2, ymean, yvar) ;
+
+  free(w1) ;
+
+
+}
+
+
+static void mleb1(double *p1, double *p2, double u, double mul)       
+{
+  double b1, b2, TT[1], R[1], H[1], X[1]  ;  
+  int iter, ret ;
+  double  fval ; 
+
+  b1 = *p1 ; 
+  b2 = *p2 ; 
+
+  for (iter = 1; iter <= 30; ++iter) {  
+   fval = u - (psi(b1) - psi(b1+b2)) ; 
+   if (fval <= 0) break ; 
+   b1 *= mul ;
+//  printf("zz1 %15.9f %12.6f\n", b1, fval) ;
+  }
+
+  for (iter = 1; iter <= 30; ++iter) {  
+   fval = u - (psi(b1) - psi(b1+b2)) ; 
+   if (fval >= 0) break ; 
+   b1 /= mul ;
+//   printf("zz2 %15.9f %12.6f\n", b1, fval) ;
+  }
+
+  *p1 = b1 ;
+
+}
+void mleb(double *p1, double *p2, double u, double v) 
+
+// u = mean(log x_i)  v = mean(log (1-x_i)) 
+{
+
+  double b1, b2, TT[4], R[2], H[2], X[2], bb1, bb2 ;  
+  int iter, ret ;
+  double yerr, oldyerr = 1.0e20 ; 
+
+  b1 = *p1 ; 
+  b2 = *p2 ; 
+
+   mleb1(&b1, &b2, u, 2) ; 
+   mleb1(&b2, &b1, v, 2) ; 
+
+   mleb1(&b1, &b2, u, 1.5) ; 
+   mleb1(&b2, &b1, v, 1.5) ; 
+
+  for (iter=1; iter <= 20; ++iter)  { 
+   if (oldyerr < yerr) { 
+    mleb1(&b1, &b2, u, 2) ; 
+    mleb1(&b2, &b1, v, 2) ; 
+    continue ;  
+   } 
+   R[0] = psi(b1)-psi(b1+b2) -u ;
+   R[1] = psi(b2)-psi(b1+b2) -v ;
+
+   yerr = fabs(R[0]) + fabs(R[1]) ;
+
+   
+   TT[0] = tau(b1) - tau(b1+b2) ;
+   TT[3] = tau(b2) - tau(b1+b2) ;
+   TT[1] = TT[2] = -tau(b1+b2) ;  
+
+   vst(X, R, -1, 2) ;
+
+/**
+   printf("iter: %3d %15.9f %15.9f\n", iter, b1, b2) ;
+   printmatl(R, 1, 2) ; 
+   printmatl(TT, 2, 2) ;  
+*/
+   ret = solvit(TT, X, 2, H) ;  
+   if (ret<0) fatalx("(mleb) TT not pos def\n") ;
+// printmatl(H, 1, 2) ; 
+   bb1 = b1 + H[0] ;
+   bb2 = b2 + H[1] ;
+   if (bb1<0) bb1 = b1/2 ; 
+   if (bb2<0) bb2 = b2/2 ; 
+   b1 = bb1 ; 
+   b2 = bb2 ;
+   if (yerr < 1.0e-12) break ;
+   oldyerr = yerr ;
+
+  }
+  *p1 = b1 ; 
+  *p2 = b2 ; 
+
+}
+
+int loadmptable(double ***mptab) 
+// return number of rows in table 
+{
+
+ int n, nr, nc, i, j, t ; 
+ static double **tab ; 
+
+ n = MPTABSIZE ; 
+ 
+ nr = n/6 ; nc = 6 ; 
+
+ tab = initarray_2Ddouble(nc, nr, 0) ; 
+ t = 0 ; 
+ for (i=0; i<nr ; ++i) { 
+  for (j=0; j<nc ; ++j) { 
+   tab[j][i] = MPTABLE[t] ;
+   ++t ; 
+ }} 
+ 
+ *mptab = tab ; 
+ return nr ; 
+/** 
+ 0  g 
+ 1 lq
+ 2 med
+ 3 up
+ 4 r 
+ 5 r/tau = sqrt(g) 
+*/
+
+}
+
+int qinterp(double *a, double *b, int n, double val, double *ans) 
+/**
+ a and b are matched values 
+ sort a and corresponding b  Set val as linear combo of 2 a values 
+ return linear combo of corresponding b values 
+ called by quartile 
+ return approx index in sorted list.  -1 if lo n+1000 if hi
+*/
+
+{ 
+ 
+ double *xa, *xb ; 
+ int *ind, k, x  ; 
+ double y1,y2, yy ;
+
+ ZALLOC(xa, n+2, double) ; 
+ ZALLOC(xb, n+2, double) ; 
+ ZALLOC(ind, n+2, int) ; 
+
+ copyarr(a, xa+1, n) ; 
+ copyarr(b, xb+1, n) ; 
+
+ 
+ sortit(xa+1, ind, n) ; 
+
+ for (k=0; k<n ;  ++k) { 
+  x = ind[k] ; 
+  xb[k+1] = b[x] ; 
+ } 
+
+ xb[0] = xb[1] ; 
+ xb[n+1] = xb[n] ; 
+ xa[0] = xa[1]  -  1.0e20 ; 
+ xa[n+1] = xa[n] + 1.0e20 ; 
+
+ x = firstgtx(val, xa, n+2) ;  
+
+ if (x<=1) { 
+  *ans = xb[0] ;
+  free(xa) ; 
+  free(xb) ; 
+  free(ind) ; 
+  return -1 ; 
+ }
+ if (x==(n+1)) { 
+  *ans = xb[n] ;
+  free(xa) ; 
+  free(xb) ; 
+  free(ind) ; 
+  return n + 1000 ;
+ }
+ y1 = xa[x] - val ; 
+ y2 = val - xa[x-1] ; 
+ yy = y1 + y2 ; 
+
+ y1 /= yy ; 
+ y2 /= yy ; 
+ 
+ 
+ *ans = y1*xb[x-1] + y2*xb[x] ;  
+
+  free(xa) ; 
+  free(xb) ; 
+  free(ind) ; 
+    
+  return x ;
+
+}
+double quartile(double *x, int n, double q) 
+{
+  double *a, *b, val, ans ; 
+  int i;
+
+  if (n==1) return b[0] ; 
+
+  ZALLOC(a, n, double) ;  
+  ZALLOC(b, n, double) ;  
+
+  for (i = 0; i < n; i++) {
+    a[i] = (double) i;
+  }
+
+  val = q * (double) (n-1) ; 
+  copyarr(x, b, n) ; 
+  sortit(b, NULL, n) ;
+
+  qinterp(a, b, n, val, &ans) ;
+
+  free(a) ; 
+  free(b) ; 
+
+  return ans ; 
+
+
+
+ free(a) ; 
+
+}
+double poissexp(int k, double mean)
+// expected value of # k hits mean m
+{
+ double y ; 
+ y = -mean ; 
+ y += (double) k * log (mean) ; 
+ y -= logfac(k) ; 
+
+ return exp(y) ; 
+
+}
+
+double wynn(double *v, int n, double *acc, int *nacc)
+{
+ double *x0, *x1, *xn, y ;
+ double t, amax, amin, tlast, normlim ;
+ int iter = 0, j, nn, isok  ;
+
+ normlim = vnorm(v,n) * 1.0e-8  ; 
+ vmaxmin(v, n, &amax, &amin) ;
+ if (amax<=amin) {
+  vclear(acc, amax, n/2) ;
+  *nacc = n/2 ;
+  return amax ;
+ }
+
+ ZALLOC(x0, n, double) ;
+ ZALLOC(x1, n, double) ;
+ ZALLOC(xn, n, double) ;
+ copyarr(v, x1, n) ;
+ nn = n ;
+ tlast = acc[0] = v[n-1] ; 
+ for (;;) {
+  for (j=0; (j+1) < nn ; ++j) {
+   isok = YES ;
+   y = x1[j+1] - x1[j] ; 
+   if (fabs(y) < normlim) { 
+    isok = NO ;  break ; 
+   }
+   t = x0[j+1] + 1.0/y ;
+   xn[j] = t ;
+  }
+  if (isok == NO) break ;
+  --nn ;
+  if (nn<2) break ;
+  copyarr(x1, x0, n) ;
+  copyarr(xn, x1, n) ;
+
+  for (j=0; (j+1) < nn ; ++j) {
+   isok = YES ;
+   y = x1[j+1] - x1[j] ; 
+   if (fabs(y) < normlim) { 
+    isok = NO ;  break ; 
+   }
+   t = x0[j+1] + 1.0/y ;
+   xn[j] = t ;
+  }
+  if (isok == NO) break ;
+  --nn ;
+  if (nn<2) break ;
+  copyarr(x1, x0, n) ;
+  copyarr(xn, x1, n) ;
+  tlast = acc[iter] = t ;
+  ++iter ;
+ }
+ free(x0) ; free(x1) ; free(xn) ;
+ *nacc = iter ;
+ return tlast ;
+}
+
+double *vwynn(double **vv, int n, int dim, double **acc, int *nacc)
+{
+ double **x0, **x1, **xn, *tt, *ans ;
+ double t, amax, amin, tlast, normlim ;
+ int iter = 0, j, nn, isok   ;
+ double *ww, *ww2, y ; 
+
+ ans = tt = NULL ;
+ *nacc = 0 ;   
+ if (n==0) return ans ; 
+ ans = tt = vv[n-1] ;
+ normlim = 0 ; 
+ for (j=0; j<n; ++j) { 
+  normlim += vnorm(vv[j], dim) ; 
+ }
+ normlim *= (1.0e-8) / (double) n ;  
+ x0 = initarray_2Ddouble(n, dim, 0) ;
+ x1 = initarray_2Ddouble(n, dim, 0) ;
+ xn = initarray_2Ddouble(n, dim, 0) ;
+ ZALLOC(ww, dim, double) ;
+ ZALLOC(ww2, dim, double) ;
+
+ copyarr2D(vv, x1, n, dim) ;
+ nn = n ;
+ for (;;) {
+  for (j=0; (j+1) < nn ; ++j) {
+   vvm(ww, x1[j+1], x1[j], dim) ; 
+   vabs(ww2, ww,  dim) ; 
+   vmaxmin(ww2, dim, NULL, &y) ; 
+   isok = YES ;
+   if (y < normlim) { 
+    isok = NO ;  break ; 
+   }
+   vin(ww, ww, dim) ;
+   vvp(xn[j], x0[j+1], ww, dim) ; 
+    tt = xn[j] ; 
+  }
+  if (isok == NO) break ;
+  --nn ;
+  if (nn<2) break ;
+  copyarr2D(x1, x0, n, dim) ;
+  copyarr2D(xn, x1, n, dim) ;
+
+  for (j=0; (j+1) < nn ; ++j) {
+   vvm(ww, x1[j+1], x1[j], dim) ; 
+   vabs(ww2, ww,  dim) ; 
+   vmaxmin(ww2, dim, NULL, &y) ; 
+   isok = YES ;
+   if (y < normlim) { 
+    isok = NO ;  break ; 
+   }
+   vin(ww, ww, dim) ;
+   vvp(xn[j], x0[j+1], ww, dim) ; 
+   tt = xn[j] ; 
+  }
+  if (isok == NO) break ;
+  --nn ;
+  if (nn<2) break ;
+  copyarr2D(x1, x0, n, dim) ;
+  copyarr2D(xn, x1, n, dim) ;
+  copyarr(tt, acc[iter], dim) ; 
+  ans = tt = acc[iter] ; 
+  ++iter ;
+ }
+ free2D(&x0, n) ; free2D(&x1, n) ; free2D(&xn, n);
+ free(ww) ;
+ free(ww2) ;
+ *nacc = iter ;
+
+ return ans ;
+}
+
+double rad2deg(double rad) 
+{
+  return rad*360.0/(2.0*pi()) ; 
+}
+
+double deg2rad(double deg) 
+{
+  return deg*2.0*pi()/360.0 ; 
+
+}
+
+
+double truncexpmean(double m, double thresh, int isupper) 
+// mean of truncated exponential of mean m 
+{
+
+
+  double t, x, z ; 
+
+  if (m==0) return 0 ; 
+
+  t = thresh/m ; 
+
+
+  if (isupper) return m*(t+1.0) ; 
+
+  z = exp(-t) ; 
+  x = 1 - t*z/(1-z) ; 
+
+  return m*x ; 
+
+
 }
 

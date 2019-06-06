@@ -22,6 +22,7 @@ bal (double *a, double *b, int n)
 
 /** 
  normalize mean 0 s.d 1 
+ no error checking 
 */
 {
   double t;
@@ -356,6 +357,32 @@ choldc (double *a, int n, double *p)
   return 1;
 
 }
+int isposdef (double *a, int n) 
+{
+  double *aa, *p ; 
+  int ret, k ; 
+ 
+/** 
+ quick check on diagonal
+*/  
+  for (k=0; k<n; ++k) { 
+   if (a[k*n+k] <= 0.0) return NO ;
+  }
+
+  ZALLOC(aa, n*n, double) ; 
+  ZALLOC(p, n, double) ; 
+
+  copyarr(a, aa, n*n) ;
+  ret = choldc(aa, n, p) ;
+
+
+ free(aa) ; 
+ free(p) ;
+
+ if (ret>0) return YES ; 
+ return NO ; 
+
+}
 
 void
 pmat (double *mat, int n)
@@ -559,6 +586,45 @@ qval (double *vv, double *q, double *l, int n)
 }
 
 double
+seekzz (double *vv, double *vtarget, double *vsource, int *dead, int *constraint, int n)
+// vsource feasible vtarget maybe ;  constraint = 1 => positive
+{
+
+  double *vmove, fmove, y;
+  int k, kfix = -1;
+
+
+  ZALLOC (vmove, n, double);
+  vvm (vmove, vtarget, vsource, n);
+
+  fmove = 1;
+
+  for (k = 0; k < n; ++k) {
+    if ((vtarget[k] < 0) && (dead[k] == 1) && (constraint[k] == 1)) fatalx ("(seekz) bug\n");
+    if (dead[k] == 1) continue;
+    if (vtarget[k] >= 0) continue;
+    if (constraint[k] == 0) continue ;
+    y = -vsource[k] / vmove[k];
+    if (y < fmove) {
+      fmove = y;
+      kfix = k;
+    }
+  }
+  if (kfix < 0) {
+    copyarr (vtarget, vv, n);
+    fmove = 1;
+  }
+  else {
+    vst (vmove, vmove, fmove, n);
+    vvp (vv, vsource, vmove, n);
+    vv[kfix] = 0;
+  }
+
+  free (vmove);
+  return fmove;
+}
+
+double
 seekz (double *vv, double *vtarget, double *vsource, int *dead, int n)
 // vsource feasible vtarget maybe 
 {
@@ -573,8 +639,7 @@ seekz (double *vv, double *vtarget, double *vsource, int *dead, int n)
   fmove = 1;
 
   for (k = 0; k < n; ++k) {
-    if ((vtarget[k] < 0) && (dead[k] == 1))
-      fatalx ("(seekz) bug\n");
+    if ((vtarget[k] < 0) && (dead[k] == 1)) fatalx ("(seekz) bug\n");
     if (dead[k] == 1)
       continue;
     if (vtarget[k] >= 0)
@@ -599,155 +664,21 @@ seekz (double *vv, double *vtarget, double *vsource, int *dead, int n)
   return fmove;
 }
 
-double
-qmp (double *vnew, double *vold, double *q, double *l, int *dead, int level,
-     int n)
+double qmp (double *vnew, double *vold, double *q, double *l, int *dead, int level, int n)
 {
-  int *vfix, nfix, k;
-  int *dd;
-  double *vvals, *v2, *xpt, *bpt, *grad, *vv, *rhs, *oldgrad;
-  double y, y1, y2;
-  int t, olddead, newdead, stuck = 0;
-  double pp[3];
+  int *constraint ; 
+  double y ;
 
-  ZALLOC (vvals, n, double);
-  ZALLOC (v2, n, double);
-  ZALLOC (xpt, n, double);
-  ZALLOC (bpt, n, double);
-  ZALLOC (vfix, n, int);
-  ZALLOC (dd, n, int);
-  ZALLOC (vv, n, double);
-  ZALLOC (grad, n, double);
-  ZALLOC (oldgrad, n, double);
+   ZALLOC(constraint, n, int) ;
+   ivclear(constraint, 1, n) ;
 
-  ZALLOC (rhs, n, double);
+   y = qmpc (vnew, vold, q, l, dead, level, constraint, n) ;
 
-  copyarr (vold, vv, n);
-  vst (rhs, l, -0.5, n);
-
-  if (level > 200) {
-    fatalx (" (qmp) looping\n");
-  }
-
-  for (;;) {
-
-    for (k = 0; k < n; ++k) {
-      if (dead[k])
-        vv[k] = 0;
-    }
-    qgrad (grad, vv, q, l, n);
-    for (k = 0; k < n; ++k) {
-      if (dead[k])
-        grad[k] = 0;
-    }
-
-    copyiarr (dead, dd, n);
-    nfix = 0;
-    for (k = 0; k < n; ++k) {
-      if (vv[k] <= 0)
-        vv[k] = 0;
-      if ((vv[k] == 0) && (grad[k] >= 0)) {
-        vfix[nfix] = k;
-        ++nfix;
-        dd[k] = 1;
-      }
-    }
-
-    y1 = qval (vv, q, l, n);
-
-    if (level<100) { 
-     t = oldsolvitfix (q, rhs, n, xpt, vfix, vvals, nfix);
-    }
-    else { 
-     t = oldsolvitfix (q, rhs, n, xpt, vfix, vvals, nfix);
-    }
-    if (t<0) fatalx("(qmp) solvitfix failure kode: %d\n", t) ;
-
-    seekz (bpt, xpt, vv, dd, n);
-    y2 = qval (bpt, q, l, n);
-
- 
- if (level>100) {
-  printf("zzloop  %d %d %12.6f %12.6f\n", intsum(dd, n), level, y1, y2) ;
-  printf("zz1: ") ; printmatw(vv, 1, n, 10) ;
-  printf("zz2: ") ; printmatw(xpt, 1, n, 10) ;
-  printimatw(dd, 1, n, 10) ;
-  printf("zz3: ") ; printmatw(bpt, 1, n, 10) ;
-  printf("zz4: ") ; printmatw(grad, 1, n, 10) ;
-  fflush(stdout) ;
- }
-
-    if (y2 < y1) {
-      copyarr (bpt, vv, n);
-      continue;
-    }
-
-    copyiarr (dead, dd, n);
-    qgrad (grad, bpt, q, l, n);
-    copyarr (grad, oldgrad, n);
-    for (k = 0; k < n; k++) {
-      if (dead[k] == 1) {
-        bpt[k] = 0;
-        grad[k] = oldgrad[k] = 0;
-      }
-
-      if ((bpt[k] <= 0) && (grad[k] >= 0)) {
-        grad[k] = oldgrad[k] = 0;
-      }
-      if (xpt[k] <= 0.0) {
-        grad[k] = 0;
-        dd[k] = 1;
-      }
-    }
-
-// printf("zz5: ") ; printmatw(grad, 1, n, 10) ;
-    y = asum2 (grad, n) / (double) n;
-    if (y > 1.0e-8)
-      y2 = qmp (vv, bpt, q, l, dd, level + 1, n);
-    if (y2 < y1) {
-      continue;
-    }
-
-// now are there coords at boundary 
-
-    y = asum2 (oldgrad, n) / (double) n;
-    if (y < 1.0e-8)
-      break;
-
-    vvm (v2, bpt, oldgrad, n);
-    pp[0] = -qval (v2, q, l, n);
-    pp[1] = -qval (bpt, q, l, n);
-    vvp (v2, bpt, oldgrad, n);
-    pp[2] = -qval (v2, q, l, n);
-    mquad (pp[0], pp[1], pp[2], &y);
-//  printf ("zzmquad: %9.3f\n", y);
-    vst (v2, oldgrad, y, n);
-    vvp (xpt, v2, bpt, n);
-    seekz (bpt, v2, xpt, dead, n);
-    y2 = qval (bpt, q, l, n);
-    if (y2 < y1) {
-      copyarr (bpt, vv, n);
-      continue;
-    }
-    break;
-
-  }
-
-  copyarr (vv, vnew, n);
-
-  free (vvals);
-  free (v2);
-  free (xpt);
-  free (bpt);
-  free (vfix);
-  free (grad);
-  free (dd);
-  free (rhs);
-  free (vv);
-
-  return y1;
+   free(constraint) ; 
+   return y ; 
 
 }
+
 
 double
 qmin (double *vv, double *q, double *l, int n)
@@ -799,11 +730,11 @@ qminfix (double *vv, double *q, double *l, int n, int *fixlist,
 
 }
 
-
 double
-qminpos (double *vv, double *q, double *l, int n)
+qminposc (double *vv, double *q, double *l, int *constraint, int n)
 // q is pos def matrix.  Find min v q v' + l.v ;  vv is minimum.  returns minimum value
 // q is scaled sensibly to improve numerics.   Method constrained hill climb
+// constraint[k] = 1 => pos constraint
 {
   double *qq, *ll;
   double *best, *w1;
@@ -822,7 +753,7 @@ qminpos (double *vv, double *q, double *l, int n)
   ZALLOC (best, n, double);
   ZALLOC (dead, n, int);
 
-  vclear (best, 0, n);          // start at boundary qmp will move away on positive gradient
+  vclear (best, 0, n);          // start at boundary qmpc will move away on positive gradient
   getdiag (w1, q, n);
 // crude check for pos def. 
   for (k = 0; k < n; ++k) {
@@ -845,20 +776,9 @@ qminpos (double *vv, double *q, double *l, int n)
   vvd (qq, q, s2, n * n);
   vvd (ll, l, scale, n);
 
-  qmp (best, best, qq, ll, dead, 0, n);
+  qmpc (best, best, qq, ll, dead, 0, constraint, n);
   vvd (vv, best, scale, n);
 
-// check
-  qgrad (w1, vv, q, l, n);
-  y = 0;
-  for (k = 0; k < n; ++k) {
-    if (vv[k] > 0)
-      y += fabs (w1[k]);
-    if ((vv[k] <= 0) && (w1[k] < 0)) {
-      y -= w1[k];
-    }
-  }
-// printf("zzerr:  %15.9f\n", y) ;
 
   free (qq);
   free (ll);
@@ -875,8 +795,28 @@ qminpos (double *vv, double *q, double *l, int n)
 }
 
 double
-qminposfix (double *vv, double *q, double *l, int n, int *fixlist,
-            double *fixvals, int nfix)
+qminpos (double *vv, double *q, double *l, int n)
+// q is pos def matrix.  Find min v q v' + l.v ;  vv is minimum.  returns minimum value
+// q is scaled sensibly to improve numerics.   Method constrained hill climb
+{
+
+   int *constraint ;
+   double y ;
+
+   ZALLOC(constraint, n, int) ;
+   ivclear(constraint, 1, n) ;
+
+   y = qminposc (vv,  q, l, constraint, n) ;
+
+   free(constraint) ; 
+
+   return y ; 
+
+}
+
+double
+qminposfixc (double *vv, double *q, double *l, int n, int *fixlist,
+            double *fixvals, int nfix, int *constraint)
 {
 
   double *wfix, *w1, *w2, *qq, *ll;
@@ -892,7 +832,7 @@ qminposfix (double *vv, double *q, double *l, int n, int *fixlist,
   }
 
   if (nfix == 0) {
-    return qminpos (vv, q, l, n);
+    return qminposc (vv, q, l, constraint, n);
   }
 
   ZALLOC (wfix, n, double);
@@ -921,7 +861,7 @@ qminposfix (double *vv, double *q, double *l, int n, int *fixlist,
     ll[k] = -2 * wfix[k];
   }
 
-  qminpos (vv, qq, ll, n);
+  qminposc (vv, qq, ll, constraint, n);
 
   free (wfix);
   free (w1);
@@ -932,3 +872,178 @@ qminposfix (double *vv, double *q, double *l, int n, int *fixlist,
   return qval (vv, q, l, n);
 
 }
+double
+qminposfix (double *vv, double *q, double *l, int n, int *fixlist,
+            double *fixvals, int nfix)
+{
+
+  double *wfix, *w1, *w2, *qq, *ll;
+  int i, j, k;
+  double y;
+  int *constraint ; 
+
+  if (nfix == n) {
+    for (j = 0; j < nfix; ++j) {
+      k = fixlist[j];
+      vv[k] = fixvals[j];
+    }
+    return qval (vv, q, l, n);
+  }
+
+  ZALLOC(constraint, n, int) ; 
+  ivclear(constraint, 1, n) ;
+
+  y = qminposfixc(vv, q, l, n, fixlist, fixvals, nfix, constraint) ;
+
+  free(constraint) ; 
+  return y ;  
+
+}
+
+double qmpc (double *vnew, double *vold, double *q, double *l, int *dead, int level,  int *constraint, int n)
+// constraint[] == 1 => positive
+{
+  int *vfix, nfix, k;
+  int *dd;
+  double *vvals, *v2, *xpt, *bpt, *grad, *vv, *rhs, *oldgrad;
+  double y, y1, y2;
+  int t, olddead, newdead, stuck = 0;
+  double pp[3];
+
+  ZALLOC (vvals, n, double);
+  ZALLOC (v2, n, double);
+  ZALLOC (xpt, n, double);
+  ZALLOC (bpt, n, double);
+  ZALLOC (vfix, n, int);
+  ZALLOC (dd, n, int);
+  ZALLOC (vv, n, double);
+  ZALLOC (grad, n, double);
+  ZALLOC (oldgrad, n, double);
+
+  ZALLOC (rhs, n, double);
+
+  copyarr (vold, vv, n);
+  vst (rhs, l, -0.5, n);
+
+  if (level > 200) {
+    fatalx (" (qmpc) looping\n");
+  }
+
+  for (;;) {
+
+    for (k = 0; k < n; ++k) {
+      if (dead[k])
+        vv[k] = 0;
+    }
+    qgrad (grad, vv, q, l, n);
+    for (k = 0; k < n; ++k) {
+      if (dead[k])
+        grad[k] = 0;
+    }
+
+    copyiarr (dead, dd, n);
+    nfix = 0;
+    for (k = 0; k < n; ++k) {
+      if ((vv[k] <= 0) && (constraint[k]==1)) vv[k] = 0;
+      if ((vv[k] == 0) && (grad[k] >= 0)&& (constraint[k]==1)) {
+        vfix[nfix] = k;
+        ++nfix;
+        dd[k] = 1;
+      }
+    }
+
+    y1 = qval (vv, q, l, n);
+
+    if (level<100) { 
+     t = oldsolvitfix (q, rhs, n, xpt, vfix, vvals, nfix);
+    }
+    else { 
+     t = oldsolvitfix (q, rhs, n, xpt, vfix, vvals, nfix);
+    }
+    if (t<0) fatalx("(qmpc) solvitfix failure kode: %d\n", t) ;
+
+    seekzz (bpt, xpt, vv, dd, constraint, n);
+    y2 = qval (bpt, q, l, n);
+
+ 
+ if (level>100) {
+  printf("zzloop  %d %d %12.6f %12.6f\n", intsum(dd, n), level, y1, y2) ;
+  printf("zz1: ") ; printmatw(vv, 1, n, 10) ;
+  printf("zz2: ") ; printmatw(xpt, 1, n, 10) ;
+  printimatw(dd, 1, n, 10) ;
+  printf("zz3: ") ; printmatw(bpt, 1, n, 10) ;
+  printf("zz4: ") ; printmatw(grad, 1, n, 10) ;
+  fflush(stdout) ;
+ }
+
+    if (y2 < y1) {
+      copyarr (bpt, vv, n);
+      continue;
+    }
+
+    copyiarr (dead, dd, n);
+    qgrad (grad, bpt, q, l, n);
+    copyarr (grad, oldgrad, n);
+    for (k = 0; k < n; k++) {
+      if (dead[k] == 1) {
+        bpt[k] = 0;
+        grad[k] = oldgrad[k] = 0;
+      }
+
+      if ((bpt[k] <= 0) && (grad[k] >= 0) && (constraint[k]==1)) {
+        grad[k] = oldgrad[k] = 0;
+      }
+      if ((xpt[k] <= 0.0) && (constraint[k]==1)) {
+        grad[k] = 0;
+        dd[k] = 1;
+      }
+    }
+
+    y = asum2 (grad, n) / (double) n;
+    if (y > 1.0e-8)
+      y2 = qmpc (vv, bpt, q, l, dd, level + 1, constraint, n);
+    if (y2 < y1) {
+      continue;
+    }
+
+// now are there coords at boundary 
+
+    y = asum2 (oldgrad, n) / (double) n;
+    if (y < 1.0e-8)
+      break;
+
+    vvm (v2, bpt, oldgrad, n);
+    pp[0] = -qval (v2, q, l, n);
+    pp[1] = -qval (bpt, q, l, n);
+    vvp (v2, bpt, oldgrad, n);
+    pp[2] = -qval (v2, q, l, n);
+    mquad (pp[0], pp[1], pp[2], &y);
+//  printf ("zzmquad: %9.3f\n", y);
+    vst (v2, oldgrad, y, n);
+    vvp (xpt, v2, bpt, n);
+    seekzz (bpt, v2, xpt, dead, constraint, n) ;
+    y2 = qval (bpt, q, l, n);
+    if (y2 < y1) {
+      copyarr (bpt, vv, n);
+      continue;
+    }
+    break;
+
+  }
+
+  copyarr (vv, vnew, n);
+
+  free (vvals);
+  free (v2);
+  free (xpt);
+  free (bpt);
+  free (vfix);
+  free (grad);
+  free (dd);
+  free (rhs);
+  free (vv);
+
+  return y1;
+
+}
+

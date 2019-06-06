@@ -3,7 +3,7 @@ Last revision   11/14/16
 
 New version (July 2016);  extensive rewrite and bugfix to cpulldown (old program somtimes pulled down bases that should have been masked)
 (Nov 2016)
-Better handling of short maskk files and some bugfixes to cpoly
+Better handling of short mask files and some bugfixes to cpoly
 
 This document is the instruction of using the cTools to access the light
 version (compressed) Simons genomic diversity project (SGDP lite) files. The

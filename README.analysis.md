@@ -26,8 +26,20 @@ dbhetfa:       DIR/hetfa.dblist
 dbmask:        DIR/mask.dblist
 
 Format of the .dblist files are 3 columns.  The first column (sample name) must match 
-the sample ID in the .ind input file.  Last columns is full path name.
+the sample ID in the .ind input file.  Last column is full path name.
 For the mask.dblist NULL is valid => no mask.  
+
+*** IMPORTANT *** you must specify dbhetfa and dbmask.  Older varsions of ctools had (unsatisfactory defaults)
+
+*** new *** 
+A simple macro facility is provided.  
+Lines of the form 
+MMM:   vvv will cause a string substiituion of vvv wherever MMM occurs in the path name column, 
+ a)  MMM should contain no lower case, and the ":" is compulsory.  
+ b)  Sample ID should not terminate in ":".  
+The intent here is to make it simple to specify directory hierarchies cnotaining data for many samples, 
+ and to make it easy to update the dbetfa and dbmask databases if the hierarchy moves location.  
+
 
 
 ## 1. cascertain
@@ -277,9 +289,12 @@ A full parameter list of the parameter_file:
 | allowmissing| The output may contain sites that for some samples the data are missing.|
 |polarize| The polarize parameter is optional.  If present the parameter should be a sample name present in the indivname file. Then only homozygotes of this sample are considered, and the first allele of any snp is the base for the poliarize sample. As an example: "polarize: Href", the first allele of every snp in snpoutname will be the Href allele. Usually the polarize sample will be a pseudo-diploid such as Href or Chimp. |
 
+*** note *** for some hetfa files, especialy archaic females there is no Y cheomosome provided and you should code 
+maxchrom: 23  
+
 <!--
 Written by Nick on 6/15/14
 Revised by Mengyao Zhao and Nick
-Last revision: 11/14/16  
+Last revision: 5/31/19   
 
 -->

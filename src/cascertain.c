@@ -2,9 +2,13 @@
 * cascertain.c: Pull down the SNPs that match the ascertain criterion.
 * Author: Nick Patterson
 * Revised by: Mengyao Zhao
-* Last revise date: 2015-04-27
+* Last revise date: 2019-04-10
 * Contact: nickp@broadinstitute.org    
 */
+
+/** 
+ bugfix:  checkasc had hard limit on npops 
+*/ 
 
 #include <sys/wait.h>
 #include <stdlib.h>
@@ -21,6 +25,7 @@
 #include "admutils.h"
 #include "mcio.h"  
 #include "ctools.h"  
+#include "mcmcpars.h" 
 
 typedef struct { 
  int *val ; 
@@ -29,7 +34,6 @@ typedef struct {
  int np ;
 } ASC ;
 
-char *table_path = NULL;
 char *regname = NULL ; 
 char *snpname = NULL ; 
 //char *iubfile = NULL;
@@ -38,6 +42,9 @@ char *snpname = NULL ;
 char *parname = NULL ;
 int  pagesize = 20*1000*1000 ;  // page size for getiub
 int minfilterval = 1 ;
+
+char *trashdir = "/var/tmp" ;
+int qtmode = NO ;
 
 int minchrom = 1 ;
 int maxchrom = 23 ;
@@ -78,6 +85,7 @@ void printfapt(FATYPE *fapt);
 void prints(FILE *fff, int pos, char c1, char c2)  ;
 int getdbname(char *dbase, char *name, char **pfqname) ;
 int fvalid(char cm, int minfilterval) ;
+int mkcnt(int *cnt, char *iub, char *mask, int npops, char *pc1, char *pc2)  ;
 
 char **poplist ; 
 int *hasmask ;
@@ -95,7 +103,6 @@ static int usage()
 	fprintf(stderr, "\n");
 	fprintf(stderr, "Usage:   cascertain -p <parameter file> [options] <ref.fa>\n\n");
 	fprintf(stderr, "Options:\n");
-	fprintf(stderr, "\t-d	directory of the data files (Please set this parameter, if you do not set .dblist files. If this parameter is used to give the data file location, .dblist files will not be used.)\n");
 	fprintf(stderr, "\t-V	Print more information while the program is running.\n");
 	fprintf(stderr, "\t-v	Show version information.\n");
 	fprintf(stderr, "\t-? 	Show the instruction. (For detailed instruction, please see the document here: https://github.com/mengyao/cTools)\n\n");
@@ -106,7 +113,7 @@ int main(int argc, char **argv)
 {
 
  char *spt[MAXFF], *zspt[MAXFF] ;
- int  k, t, t2 ;
+ int  k, ret, t, t2 ;
  ASC *ascpt ;
  char *reg ;
  FATYPE **fainfo, *fapt ; 
@@ -138,7 +145,7 @@ int main(int argc, char **argv)
 	}
 
 
- printf ("ascertain: %s reg: %s\n", ascstring, regname) ; 
+// printf ("ascertain: %s reg: %s\n", ascstring, regname) ; 
  if (snpname != NULL) openit(snpname, &fff, "w") ;
  else fff = stdout ; 
  if (regname != NULL) { 
@@ -158,7 +165,7 @@ int main(int argc, char **argv)
   }
  }
 
-	if (! ascstring) fatalx("No ascertain criterion. Please check your parameter file.\n");
+ if (! ascstring) fatalx("No ascertain criterion. Please check your parameter file.\n");
  t = strlen(ascstring) ; 
  if (ascstring[t-1] == ';') ascstring[t] = CNULL ;
  nasc = setasc(ascstring, monosamplist, nmonosamps, monoval) ; // side effect set poplist npops
@@ -168,6 +175,8 @@ int main(int argc, char **argv)
 
  printf("poplist:\n") ;
  printstrings(poplist, npops) ;
+
+ fflush(stdout) ; 
   
  for (k=0; k<nasc; ++k) { 
   ascpt = asctable[k] ;
@@ -196,6 +205,8 @@ int main(int argc, char **argv)
 
  cc[npops] = CNULL ;
  ccmask[npops-1] = CNULL ; // don't test chimp
+
+  if (verbose) printf("zz1\n") ; fflush(stdout) ; 
  	for (chrom = minchrom; chrom <= maxchrom; ++chrom) { 
   		if ((xchrom > 0) && (xchrom != chrom)) continue ;
   		sprintf(ss, "%d", chrom) ;
@@ -204,13 +215,17 @@ int main(int argc, char **argv)
   		freestring(&regname) ;
   		regname = strdup(ss);
   		reg = regname ;
+                if (verbose) printf("zz2\n") ; fflush(stdout) ; 
 
   		for (pos = lopos ; pos <= hipos; ++pos) { 
-			t = getiub(cc, ccmask, fainfo, ss, pos)  ; // zz pos
-		   if (t==-5) break ;
-   			if (t<0) continue ;
+		       ret = getiub(cc, ccmask, fainfo, ss, pos)  ; // zz pos
+                       if (verbose) printf("zz3 %d %d\n", pos, ret) ; fflush(stdout) ; 
+                       if (ret==-5) break ;
+   			if (ret<0) continue ;
    
    			t = checkasc(asctable, nasc, cc, ccmask, &c1, &c2, regname, pos) ; 
+                         if (verbose) printf("zz4 %d\n", t) ; fflush(stdout) ; 
+
    			if (t==YES) {
     			if (abxmode != 0) {
      				abxkode = abx(base2num(c1), base2num(c2)) ;
@@ -219,6 +234,7 @@ int main(int argc, char **argv)
      				if (t==NO) continue ;
     			}
     			t2 = checkasc(noasctable, nonasc, cc, ccmask, &c1, &c2, regname, pos) ;
+                         if (verbose) printf("zz5 %d\n", t2) ; fflush(stdout) ; 
     			if (t2==NO) prints(fff, pos, c1, c2) ;  
     			if (verbose && (t2==NO)) printf("hit: %d %d %s %c%c\n", chrom, pos, cc, c1 , c2) ;
    			}
@@ -243,6 +259,7 @@ void prints(FILE *fff, int pos, char c1, char c2)
   fprintf(fff, "%15s ", sss) ;
   fprintf(fff, "%3s 0 %12d ", regname, pos) ;
   fprintf(fff, "%c %c\n", c1, c2) ;
+  fflush(fff) ; 
 
    return ;
 }
@@ -292,19 +309,29 @@ void mkcnt1(int *cnt1, int *cnt2, int npops, char *cc, char cbase, char *regname
 int checkasc(ASC **asct, int nasct, char *cc, char *ccmask, char *pc1, char *pc2, char *regname, int pos) 
 // regname, pos used for hash to find single allele of het
 {
- int valid[20] ;
- int allelecnt[20], asc1[20] ;
+ static long ncall = 0 ;
+ static int *valid = NULL, *allelecnt, *asc1  ;
  int cnum, t ;
  char cm, cx, cchimp, c1, c2 ; 
  int isdiff = NO, kasc, k ;
  ASC *ascpt ;
 
+ ++ncall ;
  if (nasct==0) return NO  ;
+  
  cchimp = cc[npops-1] ;
  *pc1 = *pc2 = c1 = c2 = cchimp ;
  
  cnum = base2num(cchimp) ;
  if (cnum<0) return NO ;
+
+ if (valid == NULL) { 
+  ZALLOC(valid, npops+1, int) ;
+  ZALLOC(allelecnt, npops+1, int) ;
+  ZALLOC(asc1, npops+1, int) ;
+ }
+ 
+ 
  ivclear(valid, 1, npops) ;
  for (k=0; k<npops-1; ++k) { 
   cm = ccmask[k] ; 
@@ -371,7 +398,6 @@ void mkmstring(char *w1, char **mlist, int nmlist, int mval)
   }
   t = strlen(w1) ; 
   w1[t-1] = CNULL ;
-  printf("zzmkmstring:\n") ;  printstring(w1, 50) ;
 }
 
 int setasc(char *ascstring, char **mlist, int nmlist, int mval) 
@@ -479,19 +505,14 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
 	sprintf(region, "%s:%d-%d", reg, lo, hipos);
 
 
-	if (db == 0) refname = strcat(table_path, "Href.fa");
-	else getdbname(iubfile, "Href", &refname);
+	getdbname(iubfile, "Href", &refname);
 
   if (ncall==1) {
    ZALLOC(falist, npops, char *) ;
    ZALLOC(famasklist, npops, char *) ;
-	if (db == 0) {
-	   numfalist = setfalist(poplist, npops, ".fa", falist) ;
-	   t = setfalist(poplist, npops, ".filter.fa", famasklist) ;
-	} else {
+
 	   numfalist = getfalist(poplist, npops, iubfile, falist) ;	// set falist with the absolute path of hetfa files in .dblist file; falist contains the iubfile names
 	   t = getfalist(poplist, npops, iubmaskfile, famasklist) ;
-	}
 
    if (numfalist != npops) {
       for (k=0; k<npops; ++k) { 
@@ -505,6 +526,7 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
     hasmask[k] = YES ;
     if (famasklist[k] == NULL) {  
      hasmask[k] = NO ;
+     famasklist[k] = strdup("NULL") ;
      continue ;
     }
     t = strcmp(famasklist[k], "NULL") ; 
@@ -720,26 +742,14 @@ void readcommands(int argc, char **argv)
 
 	if (argc < 2) exit(usage());
 
-  while ((i = getopt (argc, argv, "p:d:vV?")) != -1) {
+  printf("debug version\n") ;
+  while ((i = getopt (argc, argv, "p:vV?")) != -1) {
 
     switch (i)
       {
 
       case 'p':
 	parname = strdup(optarg) ;
-	break;
-
-      case 'd':
-	{
-		char* p;
-		table_path = strdup(optarg) ;	// table_path is the path end with /
-		p = strrchr(table_path, '/');
-		if (!p || strcmp(p, "/")) {
-			table_path = (char*)realloc(table_path, 256);
-			table_path = strcat(table_path, "/");
-		}
-		db = 0;	// Don't use .dblist
-	}
 	break;
 
       case 'V':
@@ -762,12 +772,11 @@ void readcommands(int argc, char **argv)
    ph = openpars(parname) ;
    dostrsub(ph) ;
 	
-	if (db == 1) {
 	   getstring(ph, "dbhetfa:", &iubfile) ;
 	   getstring(ph, "dbmask:", &iubmaskfile) ;
-		if (! (iubfile && iubmaskfile))
-			fprintf(stderr, "Please use -d option to specify the directory of hetfa and mask files.\nAlternatively, please give values to dbhetfa and dbmask in the parameter file.\n");
-	}
+           if (! (iubfile && iubmaskfile)) {
+			fatalx("Please  give values to dbhetfa and dbmask in the parameter file.\n");
+           }
    getstring(ph, "regname:", &regname) ;
    getstring(ph, "snpname:", &snpname) ;
    getint(ph, "pagesize:", &pagesize) ;
@@ -795,56 +804,6 @@ void readcommands(int argc, char **argv)
    fflush(stdout) ;
 }
 
-int setfalist(char **poplist, int npops, char *dbfile, char **iublist) {
-	int t;
-	for (t = 0; t < npops; ++t) {
-		iublist[t] = strdup(table_path);
-		iublist[t] = (char*) realloc(iublist[t], 64);
-		iublist[t] = strcat(iublist[t], poplist[t]);
-		if ((!strcmp (poplist[t], "Chimp") || !strcmp (poplist[t], "Href")) && strcmp (dbfile, ".fa")) {
-			free (iublist[t]);
-			iublist[t] = "NULL";
-		} else 
-			iublist[t] = strcat(iublist[t], dbfile);
-	}
-	return npops;
-}  
-
-int getfalist(char **poplist, int npops, char *dbfile, char **iublist)  
-{
- char line[MAXSTR+1] ;
- char *spt[MAXFF], *sx ;
- char c ;
- int nsplit ;
- int  t, k, s, nx = 0  ;
- FILE *fff ;
- char *scolon ;
- 
-  if (dbfile == NULL) return 0 ;
-  openit(dbfile, &fff, "r") ;	// open .dblist file
-
-  while (fgets(line, MAXSTR, fff) != NULL)  {
-   nsplit = splitup(line, spt, MAXFF) ; 
-   if (nsplit<1) continue ;
-   sx = spt[0] ;
-   if (sx[0] == '#') { 
-    freeup(spt, nsplit) ;
-    continue ;
-   }
-   t = indxstring(poplist, npops, spt[0]) ; 
-   if (t<0) { 
-    freeup(spt, nsplit) ; 
-    continue ;
-   }
-    sx = spt[2] ;
-    iublist[t] = strdup(sx) ;
-    freeup(spt, nsplit) ;
-    ++nx ;
-  }
-
-   fclose(fff) ;
-   return nx ;
-}
 
 char *myfai_fetch(faidx_t *fai, char *reg, int  *plen)
 {
@@ -1001,33 +960,4 @@ int abxok(int abx, int abxmode) {
  default:  
   fatalx("abxmode %d not implemented\n", abxmode) ;
  }
-}
-
-int getdbname(char *dbase, char *name, char **pfqname) 
-{
- char ***names ;  
- int n, k, t, i ; 
-
- n = numlines(dbase) ;
-
- ZALLOC(names, 3, char **) ;
-
- for (i=0; i<=2; ++i) {
-  for (k=0; k<n; ++k) { 
-   ZALLOC(names[i], n, char *) ;
-  }
- }
-
- n = getnames(&names, n, 3, dbase) ;
- t = indxstring(names[0], n, name) ; 
- if (t<0) fatalx("%s not found in %s\n", name, dbase) ;
- *pfqname = strdup(names[2][t]) ;
- 
- for (i=0; i<=2; ++i) { 
-  freeup(names[i], n) ;
-  free(names[i]) ; 
- }
- free(names) ;
- 
- return 1 ; 
 }

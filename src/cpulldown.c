@@ -36,7 +36,6 @@
 #define MAXFL  50   
 #define MAXSTR  512
 
-char *table_path = NULL;
 
 
 extern enum outputmodetype outputmode  ;
@@ -49,9 +48,10 @@ extern long packlen;             //!< allocated size of packgenos data space
 extern long rlen;                //!< number of bytes in packgenos space that each SNP's data occupies
 
 char *trashdir = "/var/tmp" ;
+int qtmode = NO ;
+
 extern int verbose  ;
 int debug = NO ;
-int qtmode = NO ;
 Indiv **indivmarkers;
 SNP **snpmarkers ;
 int numsnps, numindivs ; 
@@ -111,7 +111,6 @@ static int usage()
 	fprintf(stderr, "\n");
 	fprintf(stderr, "Usage:   cpulldown -p <parameter file> [options] \n\n");
 	fprintf(stderr, "Options:\n");
-	fprintf(stderr, "\t-d	directory of the data files (Please set this parameter, if you do not set .dblist files. If this parameter is used to give the data file location, .dblist files will not be used.)\n");
 	fprintf(stderr, "\t-V	Print more information while the program is running.\n");
 	fprintf(stderr, "\t-c	checkmode\n");
 	fprintf(stderr, "\t-v	Show version information.\n");
@@ -175,13 +174,8 @@ int main(int argc, char **argv)
   ZALLOC(iublist, nsamps, char *) ;
   ZALLOC(iubmask, nsamps, char *) ;
 
-	if (db == 0) {
-	   setfalist(samplist, nsamps, ".fa", iublist) ;
-	   setfalist(samplist, nsamps, ".filter.fa", iubmask) ;
-	} else {
 	   getfalist(samplist, nsamps, iubfile, iublist) ;	// set falist with the absolute path of hetfa files in .dblist file
 	   getfalist(samplist, nsamps, iubmaskfile, iubmask) ; 
-	}
 
    for (k=0; k<nsamps; ++k) {
     hasmask[k] = YES ;
@@ -373,27 +367,13 @@ void readcommands(int argc, char **argv)
   char *tempname ;
   int n ;
 
-  while ((i = getopt (argc, argv, "p:d:cvV?")) != -1) {
+  while ((i = getopt (argc, argv, "p:cvV?")) != -1) {
 
     switch (i)
       {
 
       case 'p':
 	parname = strdup(optarg) ;
-	break;
-
-      case 'd':
-	{
-		char* p;
-		table_path = strdup(optarg) ;
-		p = strrchr(table_path, '/');
-		if (!p || strcmp(p, "/")) {
-			table_path = (char*)realloc(table_path, 256);
-			table_path = strcat(table_path, "/");
-		}
-		db = 0;	// Don't use .dblist
-//		fprintf(stderr, "db: %d\n", db);	
-	}
 	break;
 
       case 'v':
@@ -426,12 +406,11 @@ void readcommands(int argc, char **argv)
    ph = openpars(parname) ;
    dostrsub(ph) ;
 
-	if (db == 1) {
 	   getstring(ph, "dbhetfa:", &iubfile) ;
 	   getstring(ph, "dbmask:", &iubmaskfile) ;
-		if (! (iubfile && iubmaskfile))
-			fprintf(stderr, "Please use -d option to specify the directory of hetfa and mask files.\nAlternatively, please give values to dbhetfa and dbmask in the parameter file.\n");
-	}
+	if (! (iubfile && iubmaskfile)) {
+		fatalx("Please give values to dbhetfa and dbmask in the parameter file.\n");
+        }
 
    getint(ph, "minfilterval:", &minfilterval) ;
    getstring(ph, "genotypename:", &genotypename) ;
@@ -488,35 +467,6 @@ long setgenoblank (SNP **snpmarkers, int numsnps, int numindivs)
     return ngenos ;
 }
 
-int getdbname(char *dbase, char *name, char **pfqname) 
-{
- char ***names ;  
- int n, k, t, i ; 
-
- n = numlines(dbase) ;
-
- ZALLOC(names, 3, char **) ;
-
- for (i=0; i<=2; ++i) {
-  for (k=0; k<n; ++k) { 
-   ZALLOC(names[i], n, char *) ;
-  }
- }
-
- n = getnames(&names, n, 3, dbase) ;
- t = indxstring(names[0], n, name) ; 
- if (t<0) fatalx("%s not found in %s\n", name, dbase) ;
- *pfqname = strdup(names[2][t]) ;
- 
- for (i=0; i<=2; ++i) { 
-  freeup(names[i], n) ;
-  free(names[i]) ; 
- }
- free(names) ;
- 
- return 1 ; 
-}
-
 int readfa1(char *faname, char **pfasta, int *flen) 
 {
 
@@ -533,9 +483,7 @@ int readfa1(char *faname, char **pfasta, int *flen)
 
  *flen = 0 ;
  *pfasta = NULL ;
-
-	if (db == 0) refname = strcat(table_path, "Href.fa");
-	else getdbname(iubfile, "Href", &refname);
+	getdbname(iubfile, "Href", &refname);
 
   if (faname  == NULL) { 
    return  0;
@@ -581,63 +529,6 @@ int readfa1(char *faname, char **pfasta, int *flen)
 	free (ref);
 	fai_destroy(fai_ref);
   return len ;
-
-}
-
-int setfalist(char **poplist, int npops, char *dbfile, char **iublist) {
-	int t;
-	for (t = 0; t < npops; ++t) {
-		iublist[t] = strdup(table_path);
-		iublist[t] = (char*) realloc(iublist[t], 64);
-		iublist[t] = strcat(iublist[t], poplist[t]);
-		if ((!strcmp (poplist[t], "Chimp") || !strcmp (poplist[t], "Href")) && strcmp (dbfile, ".fa")) {
-			free (iublist[t]);
-			iublist[t] = "NULL";
-		} else 
-			iublist[t] = strcat(iublist[t], dbfile);
-	}
-	return npops;
-}
-  
-int getfalist(char **poplist, int npops, char *dbfile, char **iublist)  
-
-{
- char line[MAXSTR+1] ;
- char *spt[MAXFF], *sx ;
- char c ;
- int nsplit ;
- int  tt, t, k, s, nx = 0  ;
- FILE *fff ;
- char *scolon ; 
-  
-  if (dbfile == NULL) return 0 ;
-  openit(dbfile, &fff, "r") ;
-
-  while (fgets(line, MAXSTR, fff) != NULL)  {
-   nsplit = splitup(line, spt, MAXFF) ; 
-   if (nsplit<1) continue ;
-   sx = spt[0] ;
-   if (sx[0] == '#') { 
-    freeup(spt, nsplit) ;
-    continue ;
-   }
-   t = indxstring(poplist, npops, spt[0]) ; 
-   if (t<0) { 
-    freeup(spt, nsplit) ; 
-    continue ;
-   }
-    sx = spt[2] ;
-    tt = strcmp(sx, "NULL") ; 
-    if (tt == 0) {  
-     iublist[t] = NULL ;
-    }
-    else iublist[t] = strdup(sx) ;
-    freeup(spt, nsplit) ;
-    ++nx ;
-  }
-
-   fclose(fff) ;
-   return nx ;
 
 }
 
@@ -797,6 +688,12 @@ void getfasta(char **pfasta, char **pmask, int *rlen, int *mlen, int kk)
 
   freestring(pfasta) ;
   freestring(pmask) ;
+   
+  if (faname == NULL) fatalx("null faname\n") ;
+  t = strcmp(faname, "") ; 
+  if (t == 0) fatalx("empty  faname\n") ;
+
+  if (verbose) printf("zzfaname: %s %d\n", faname, strlen(faname)) ; 
 
   readfa1(faname, pfasta, &len) ;
   if (famask == NULL) t = 0 ; 

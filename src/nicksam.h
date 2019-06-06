@@ -58,11 +58,13 @@ typedef struct {
   char lib[MAXLEN] ;
   char samp[MAXLEN] ;
   char rgstring[MAXLEN] ;
+  int  rgcat ;  
   int mapthresh ;
   int lobasequal ;
   int ispair ;
   int isdup ;
   double pmdscore ;
+  char *readbuff ;
 } READ  ;
 
 typedef struct {
@@ -118,6 +120,51 @@ typedef struct {
  double pmdlo ;
  double pmdhi ;
 }  THRESH ;
+
+
+typedef struct  {
+ int mq ; 
+ int bq ; 
+ int strand ;
+ int  pp ;   // - is 3' end  
+ long hist[16] ; 
+ long hsum ; 
+ long oldhsum ; 
+ double erate[6] ; 
+ double olderate[6] ; 
+ double deamin[2] ;  
+ int ignore ; 
+} HIST ;
+
+typedef struct  {
+ int mq ; 
+ int bq ; 
+ int strand ;
+ int  pp ;   // - is 3' end  
+ double erate[6] ; 
+ double deamin[2] ;  
+ int ignore ; 
+ int flag[6] ;
+ int hitcount ; 
+ long hist[16] ;
+ double bcscore[16] ; 
+} HISTS ;
+    
+    
+typedef struct  {
+ int maxmq ; 
+ int maxbq ; 
+ int nump ; 
+ char *sampname  ;
+ char *bamname ; 
+ char  *histname ; 
+ int bighistlen ; 
+ int rgcat ; 
+ double baserate[6] ;  
+ double basedeamin[6] ;  
+ char deaminbases[5] ; //  pos 1 -1 strand 0; 1 -1 strand 1  example: C, G, C, G  
+} HISTINFO ;
+
 
 #endif 
 #define NJPSAM  

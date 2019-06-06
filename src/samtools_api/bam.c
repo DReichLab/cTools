@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <ctype.h>
-#include "bam.h"
+#include <bam.h>
 #include "bam_endian.h"
 #include "kstring.h"
 
