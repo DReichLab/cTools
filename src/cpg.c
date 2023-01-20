@@ -38,7 +38,7 @@ extern long packlen;             //!< allocated size of packgenos data space
 extern long rlen;                //!< number of bytes in packgenos space that each SNP's data occupies
 
 char *trashdir = "/var/tmp" ;
-char *chimpname = "/groups/reich/datasets/filters/hg19/epo/pt2__cs-hg19.fa" ;
+char *chimpname = "/home/np29/broaddatax/tables//pt2__cs-hg19.fa" ;
 faidx_t *chimpfai ;
 
 extern int verbose  ;

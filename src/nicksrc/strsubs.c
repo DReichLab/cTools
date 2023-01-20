@@ -67,6 +67,7 @@ freeup (char *strpt[], int numpt)
 /** free up array of strings */
 {
   int i;
+  if (strpt == NULL) return ; 
   for (i = numpt - 1; i >= 0; i--) {
     if (strpt[i] != NULL)
       freestring (&strpt[i]);
@@ -189,6 +190,21 @@ fatalx (char *fmt, ...)
   fprintf (stderr, "fatalx:\n%s", Estr);
   fflush (stderr);
   abort ();
+}
+
+
+int
+docommand (char *fmt, ...)
+{
+  va_list args;
+
+  va_start (args, fmt);
+  vsprintf (Estr, fmt, args);
+  va_end (args);
+  printf("command: %s\n", Estr) ; 
+  fflush (stdout);
+
+  return system(Estr)  ;  
 }
 
 int
@@ -421,6 +437,28 @@ printnl ()
 {
   printf ("\n");
 }
+
+void
+striplead (char *sss, char c)
+
+/** 
+ strip out lead characters 
+ c will usually be ' '
+*/
+{
+  char *sx ;
+  sx = strdup(sss) ; 
+  
+  int len, i;
+  len = strlen (sss);
+  for (i = 0 ; i <len ; ++i) {
+    if (sss[i] != c) break ; 
+    ++sx ;  
+  }
+  strcpy(sss, sx) ; 
+  freestring(&sx) ;
+}
+
 
 void
 striptrail (char *sss, char c)
@@ -697,7 +735,7 @@ openit_trap (char *name, FILE ** fff, char *type)
 {
   char *ss;
   if (name == NULL)
-    fatalx ("\n(openit_reap) null name\n");
+    fatalx ("\n(openit_trap) null name\n");
   *fff = fopen (name, type);
   if (*fff == NULL) {
     ss = strerror (errno);
@@ -727,7 +765,7 @@ openit (char *name, FILE ** fff, char *type)
 }
 
 void fcheckr(char *name)
-// like ftest but just calls fatalx on errir
+// like ftest but just calls fatalx on error
 {
  FILE *fff ;
 
@@ -1441,6 +1479,20 @@ printstringsw (char **ss, int n, int slen, int width)
 }
 
 void
+printstringsx (char **ss, int n)
+// no newline
+{
+  int k;
+
+  for (k = 0; k < n; ++k) {
+    if (ss[k] != NULL)
+      printf (" %s", ss[k]);
+    else
+      printf (" %s", "NULL");
+  }
+}
+ 
+void
 printstrings (char **ss, int n)
 {
   int k;
@@ -1453,7 +1505,7 @@ printstrings (char **ss, int n)
     printnl ();
   }
 }
-
+ 
 int
 ridfile (char *fname)
 {

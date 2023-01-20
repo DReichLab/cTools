@@ -62,6 +62,12 @@ Q2IO=cpoly.o  admutils.o $(sam_OBJ) $(OBJ)
 $(Q2I): nicklib $(Q2IO) 
 	gcc -o $(Q2I) $(Q2IO)  -lm -lz -lncurses 
 
+Z2I=ccount 
+Z2IO=ccount.o  admutils.o $(sam_OBJ) $(OBJ)
+
+$(Z2I): nicklib $(Z2IO) 
+	gcc -o $(Z2I) $(Z2IO)  -lm -lz -lncurses 
+
 Q3I=cascertain 
 Q3IO=cascertain.o admutils.o $(sam_OBJ) $(OBJ)
 

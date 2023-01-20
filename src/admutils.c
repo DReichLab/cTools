@@ -1257,7 +1257,9 @@ int getfalist(char **poplist, int npops, char *dbfile, char **iublist)
     freeup(spt, nsplit) ; 
     continue ;
    }
+    if (nsplit<3) fatalx("bad dblist entry: no data field!\n::%s\n", line) ; 
     sx = spt[2] ;
+//  printf("zzz %d %s %s\n", nsplit, spt[0], spt[2]) ;  fflush(stdout) ; 
     tt = strcmp(sx, "NULL") ; 
     if (tt == 0) {  
      iublist[t] = NULL ;
@@ -1290,6 +1292,8 @@ int getdbname(char *dbase, char *name, char **pfqname)
  numfalist = getfalist(tpoplist, 1, dbase, tfalist) ;	
  if (numfalist == 0) fatalx("name: %s not found in %s\n", name, dbase) ;
 
+ if (tfalist[0] == NULL) fatalx("bad entry for %s in %s\n", name, dbase) ; 
+ 
  *pfqname = strdup(tfalist[0]) ;
  
  freeup(tpoplist, 1) ;

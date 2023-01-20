@@ -68,6 +68,8 @@ int getfalist(char **poplist, int npops, char *dbfile, char **iublist) ;
 void clearfainfo(FATYPE *fapt, int mode) ;
 char *myfai_fetch(faidx_t *fai, char *reg, int  *plen) ;
 int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, int hipos)  ;
+
+
 int minfalen(FATYPE **fainfo, int n)  ;
 
 int istransition(char iubc)  ;
@@ -93,6 +95,7 @@ int npops ;
 int seed = 77  ;
 int abxmode = 0 ;
 int db = 1;	// Use .dblist
+int readfailOK = YES ;
 
 ASC **asctable ;
 ASC **noasctable ;
@@ -123,6 +126,7 @@ int main(int argc, char **argv)
  char c1, c2 ; 
  FILE  *fff ;
  char ss[20] ;
+ double ymem ; 
 
  hipos = 1000*1000*1000 ;
  lopos = 0 ;
@@ -136,6 +140,9 @@ int main(int argc, char **argv)
 
  printf("cascertain: version %s\n", version) ; 
  readcommands(argc, argv) ;
+
+  cputime(0) ;
+  calcmem(0) ;
 
 	if (minch != NULL) {
 		if (minch[0] == 'X') minchrom = 23;
@@ -243,11 +250,8 @@ int main(int argc, char **argv)
 
  if (snpname != NULL) fclose(fff) ;
  
- printf("## end of cascertain\n") ;
-
-	end = clock();
-	cpu_time = ((float) (end - start)) / CLOCKS_PER_SEC;
-	fprintf(stderr, "CPU time: %f seconds\n", cpu_time);
+  ymem = calcmem(1)/1.0e6 ;
+  printf("##end of cascertain: %12.3f seconds cpu %12.3f Mbytes in use\n", cputime(1), ymem) ;
 
  return 0 ;
 }
@@ -494,7 +498,7 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
  static FATYPE **fainfo, *fapt ; 	// fainfo is the return valual that contains sequences in fa and mask
  int *falen ;
  char *region, *ref, *refname = (char*)malloc(256*sizeof(char));
- int lo, i, len_s, len_r, len ;
+ int lo, i, len_s, len_r, len, reflen ;
  static int ncall = 0 ;
 	faidx_t *fai_ref;	// Use this to open the reference sequence. 
   
@@ -590,8 +594,24 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
 	if (byte[0] == 0x1f && byte[1] == 0x8b) rz = 1;
 	fclose(fp);
 
+
+	
+        fapt -> rlen = fai_getlen(fapt->fai, reg) ;
+        if (lo>=fapt ->rlen) { 
+         reflen = fai_getlen(fai_ref, reg) ; 
+         printf("trying to read after chromosome end lo: %d len: %d reflen: %d\n", lo, fapt -> rlen, reflen) ; 
+        }
 	fapt->rstring = fai_fetch(fapt->fai, region, &len_s);
-	if (len_s==0) fatalx("bad fetch %s %s\n", fapt->alias, region) ; 	// fetch fai
+	if (len_s==0) {
+         printf("fetch fails\n") ;
+         printfapt(fapt) ; 
+         if (readfailOK==NO) { 
+          fatalx("bad fetch %s %s\n", fapt->alias, region);	// fetch fai
+         }
+         else { 
+          fapt -> rstring = NULL ; 
+         }
+        }
 	
 	len = len_r < len_s ? len_r : len_s;
 	if (rz == 1)	// raziped 
@@ -599,7 +619,6 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
 			if (fapt->rstring[i] == 'Q') fapt->rstring[i] = ref[i];
 
       fapt -> regname = strdup(reg) ;
-      fapt -> rlen = fai_getlen(fapt->fai, reg) ;
       fapt -> len = len_s ;
       fapt -> lopos = lo ;
       fapt -> hipos = lo + len_s - 1 ;
@@ -793,6 +812,7 @@ void readcommands(int argc, char **argv)
 
    getstring(ph, "monosamples:", &monoplistname) ;
    getint(ph, "monoval:", &monoval) ;
+   getint(ph, "readfailOK:", &readfailOK) ;
  
    t = 1 ; getint(ph, "lopos:", &lopos) ; lopos = MAX(lopos, t) ;
    t = BIGINT ; getint(ph, "hipos:", &hipos) ; hipos = MIN(hipos, t) ;

@@ -1,5 +1,5 @@
-/*
- * cpoly.c: This program is used to extract heterozygote SNPs from multiple samples
+/* ;
+ * ccount.c: This program is used to extract heterozygote SNPs from multiple samples
  * Author: Nick Patterson
  * Revised by: Mengyao Zhao
  * Last revise date: 2015-04-30
@@ -42,9 +42,10 @@ int readfailOK = YES ;
 
 int minderiv = -1 ; 
 int maxderiv = 99999 ; 
+int faloaded ; 
 
 int minchrom = 1 ;
-int xchrom = -1 ;
+int xchrom = 24 ;
 int maxchrom = 25 ;
 char *minch = NULL;
 char *maxch = NULL;
@@ -56,6 +57,10 @@ int qtmode = NO ;
 int doxchrom = YES ; 
 int doychrom = YES ; 
 int domt = NO ; 
+
+int maxqlen = 2 ; 
+char *yhaploname = NULL ; 
+char **yhaplos = NULL ; 
 
 
 char *polarid = NULL ;
@@ -78,6 +83,7 @@ char *poplistname = NULL ;
 char **poplist ; 
 int *hasmask ;
 int npops = 0 ;
+int mapmask = NO ; 
 
 
 // bugfix bug when polarize off.   Last pop het didn't work
@@ -102,15 +108,22 @@ void printgg(FILE *ggg, char *cc, char *ccmask, char c1, char c2, int n) ;
 
 int abxmode = 0 ;
 int checkmode = NO ;
+int *badposx; 
+int nbadposx ; 
 
 ASC **asctable ;
 ASC **noasctable ;
 int nasc, nonasc ;
+int getpat(int *pat, char *cc, char *ccmask, char c1, char c2) ;
+void printqhist(int *hist, int nhist, int qlen, char **poplist, int npops)  ;
+void gethaplos(char **poplist, int npops, char *yhaploname)   ; 
+char getfacc(FATYPE *fapt, int pos, int xmode)  ;
+
 
 static int usage() 
 {
 	fprintf(stderr, "\n");
-	fprintf(stderr, "Usage:   cpoly -p <parameter file> [options] \n\n");
+	fprintf(stderr, "Usage:   ccount -p <parameter file> [options] \n\n");
 	fprintf(stderr, "Options:\n");
 	fprintf(stderr, "Options: dbhetfa, dbmask now obligatory\n") ;
 	fprintf(stderr, "\t-V	Print more information while the program is running.\n");
@@ -124,10 +137,10 @@ int main(int argc, char **argv)
 {
 
  char *spt[MAXFF], *zspt[MAXFF] ;
- int  k, t, t2, q, g, isbad ;
+ int  k, t, t2, q, g, isbad, x, plen, a, b ;
  ASC *ascpt ;
  char *reg ;
- FATYPE **fainfo, *fapt ; 
+ FATYPE **fainfo, *fapt,  *famap ; 
  int xnpops ;
  int pos, chrom ;
  char *cc, *ccmask ;
@@ -135,12 +148,22 @@ int main(int argc, char **argv)
  FILE  *fff = NULL, *ggg = NULL ;;
  char ss[1024] ;
  int lo, hi ;
+ int *hist, nhist, *pat, allmisskode ; 
+ double y ; 
+ int reglen ; 
+ char **masklist ; 
+ int npopsx ; 
+
 
  int numout = 0 ;
  int abxkode ;
  int nmono ;
  int npoly ;
+ int qlen ; 
+ char *badpos = NULL, cmap ;    
+ int nbadp = 0 ; 
  double ymem ; 
+ int ccat[3] ; 
 
 	clock_t start, end;
 	float cpu_time;	
@@ -149,7 +172,11 @@ int main(int argc, char **argv)
  
  hipos = 1000*1000*1000 ;
  lopos = 0 ;
- printf("cpoly: version %s\n", version) ; 
+ printf("ccount: version %s\n", version) ; 
+
+ ZALLOC(badposx, 40, int) ; 
+
+ nbadposx = 0 ; 
 
  readcommands(argc, argv) ;
 
@@ -157,22 +184,22 @@ int main(int argc, char **argv)
   calcmem(0) ;
 
 
-	if (minch != NULL) {
-		if (minch[0] == 'X') minchrom = 23;
-		else if (minch[0] == 'Y') minchrom = 24;
-		else if (!strcmp(minch, "MT")) minchrom = 25; 
-		else minchrom = atoi(minch);
-        }
+       if (minch != NULL) {
+	if (minch[0] == 'X') minchrom = 23;
+	else if (minch[0] == 'Y') minchrom = 24;
+	else if (!strcmp(minch, "MT")) minchrom = 25; 
+	else minchrom = atoi(minch);
+       }
 
-         if (maxch != NULL) {
-		if (maxch[0] == 'X') maxchrom = 23;
-		else if (maxch[0] == 'Y') maxchrom = 24;
-		else if (!strcmp(maxch, "MT")) {
-                 maxchrom = 25; 
-                 domt = YES ; 
-                }
-		else maxchrom = atoi(maxch);
-	}
+       if (maxch != NULL) {
+	if (maxch[0] == 'X') maxchrom = 23;
+	else if (maxch[0] == 'Y') maxchrom = 24;
+	else if (!strcmp(maxch, "MT")) {
+                maxchrom = 25; 
+                domt = YES ; 
+               }
+	else maxchrom = atoi(maxch);
+       }
 
  if (indivname==NULL) {
    usage() ;
@@ -180,9 +207,6 @@ int main(int argc, char **argv)
    return 1 ;
  }
 
- if (snpoutfilename != NULL) openit(snpoutfilename, &fff, "w") ;
- else fff = stdout ; 
- if (genooutfilename != NULL) openit(genooutfilename, &ggg, "w") ;
 
  if (regname != NULL) { 
   if (regname[0] == 'X') xchrom = 23 ; 
@@ -195,25 +219,31 @@ int main(int argc, char **argv)
  //  fprintf(stderr, "call numlines in [main]\n");
  
   npops = numlines(indivname) ; 
-  ZALLOC(poplist, npops, char *) ;
+  ZALLOC(poplist, npops+1, char *) ;
   npops = getss(poplist, indivname) ;
+  ZALLOC(masklist, 1, char *) ; 
+  poplist[npops] = masklist[0] = strdup("mapmask") ; 
   
- if (npops > 1000) fatalx("too many samples\n") ;
+ if (npops > 20) fatalx("too many samples\n") ;
+
+ gethaplos(poplist, npops, yhaploname) ; 
+
+ y = pow(3.0, npops) ; 
+ nhist = nnint(y) ; 
+ ZALLOC(hist, nhist, int) ; 
+ ZALLOC(pat, npops, int) ; 
+ ivclear(pat, 2, npops) ; 
+ allmisskode = kodeitb(pat, npops, 3) ; 
 
  printf("samplist:\n") ;
  printstrings(poplist, npops) ;
-
-  if (indoutfilename != NULL) {  
-    sprintf(ss, "cp %s %s", indivname, indoutfilename) ;
-    system (ss) ; 
-    printf("%s written\n", indoutfilename) ;
-  }
 
   ZALLOC(hasmask, npops, int) ;
   
   if (polarid != NULL) {
    polarindex = indxstring(poplist, npops, polarid) ;
    if (polarindex<0) fatalx("polarid %s not found\n", polarid) ;
+   printf("polarindex: %d\n", polarindex) ; 
   }
 
  if (pagesize < 0) { 
@@ -229,19 +259,56 @@ int main(int argc, char **argv)
 		else if (chrom == 25) strcpy(ss, "MT") ;
 
 	 }
-	 else sprintf(ss, "%d", 22) ;
+	 else {
+          sprintf(ss, "%d", 22) ;
+         }
 	 regname = strdup(ss) ;
 	 reg = regname ;
 
  lo = lopos ; 
  hi = MIN(hipos, lo+pagesize) ;
- loadfa(poplist, npops, &fainfo, reg, lo, hi)  ;
+ 
+ npopsx = npops ; 
+ if (mapmask) ++npopsx ; 
+ loadfa(poplist, npopsx, &fainfo, reg, lo, hi)  ;
+ reglen = 1000*1000*1000 ; 
 //fprintf(stderr, "main: fapt->fai: %p\n", fainfo[0]->fai);
  printf("npops: %d\n", npops) ;
   for (k=0;  k< npops; ++k) { 
    fapt = fainfo[k] ;
    printfapt(fapt) ;
+   reglen = MIN(reglen, fapt -> len) ; 
   }
+
+  if (mapmask) {
+     famap = fapt = fainfo[npops] ; 
+     reglen = MIN(reglen, fapt -> len) ; 
+     printf("mapmask loaded!\n") ; 
+     printfapt(fapt) ; 
+     printnl() ;
+  }
+
+  printf("zz reg: %s reglen: %d\n", reg, reglen) ; 
+
+  ZALLOC(badpos, reglen+10, char) ;
+  cclear(badpos, '0', reglen+10) ; 
+
+  printf("reglen: %d\n", reglen) ;
+  if (nbadposx>0) { 
+   for (k=0; k<nbadposx; k+=2) { 
+    a = badposx[k] ; 
+    b = badposx[k+1] ; 
+    a = MIN(a, reglen) ;
+    b = MIN(b, reglen) ;
+    b = MAX(a, b) ; 
+    cclear(badpos+a, '1', b-a+1) ; 
+    nbadp += b-a+1 ; 
+   }
+   printf("positions zapped: %d\n", nbadp);
+   pos =   9910869 ; 
+// printf("zzbadp %d %c\n", pos, badpos[pos]) ; 
+  }
+
 
  ZALLOC(cc, xnpops, char) ; 
  ZALLOC(ccmask, xnpops, char) ; 
@@ -271,20 +338,61 @@ int main(int argc, char **argv)
   regname = strdup(ss) ;
   reg = regname ;
 	
+  lopos = MAX(lopos, 1) ; 
+  hipos = MIN(hipos, reglen) ; 
+
+  pos =   9910869 ; 
+//  printf("zzbadp2 %d %c\n", pos, badpos[pos]) ; 
+
   for (pos = lopos ; pos <= hipos; ++pos) { 
-    t = getiub(cc, ccmask, fainfo, ss, pos)  ;  
-    if (debug) printf("zziub %d\n%s\n%s\n\n", t, cc, ccmask) ;
+  
+   if ((badpos != NULL) && (badpos[pos]=='1')) continue ; 
+   t = getiub(cc, ccmask, fainfo, ss, pos)  ;  
+
    if (t==-5) break ;
    if (t<0) continue ;
+   
+  if (faloaded && mapmask) { 
+     famap = fapt = fainfo[npops] ; 
+     reglen = MIN(reglen, fapt -> len) ; 
+     printf("mapmask reloaded!\n") ; 
+     printfapt(fapt) ; 
+     printnl() ;
+  }
     
    t = checkpoly(cc, ccmask, &c1, &c2) ; 
-   if (t==NO) continue ;
+   if (t==-99) { 
+    printf("trialllelic: %9d %s\n", pos, cc) ;
+    continue ; 
+   }
+   x = getpat(pat, cc, ccmask, c1, c2) ; 
+   if (x==allmisskode) continue ; 
+   if ((polarindex >=0) && (pat[polarindex] != 0)) continue ;  
+   cmap = getfacc(famap, pos, 1) ; 
+   if (cmap == '1') continue ; 
+   
     if (abxmode != 0) {
+     if (c1==c2) continue ; 
      abxkode = abx(base2num(c1), base2num(c2)) ;
      if (abxkode < 0) continue ;
      t = abxok(abxkode, abxmode) ;
      if (t==NO) continue ;
     }
+    if (debug) { 
+     t = ranmod(100000) ; 
+     if (c1 != c2) t = ranmod(1000) ;
+     t = 99 ; 
+     if (t==0) 
+      printf("debugran. %9d %s %s\n", pos, cc, ccmask) ;
+     ivmaxmin(pat, npops-1, &t, NULL) ; 
+     a = intsum(pat, npops) ; 
+     if ((t==1) && (pat[3]==1) && (a==1)) { 
+//   a = pat[3] + pat[7] ; 
+      printf("debug. %9d %s %s %c\n", pos, cc, ccmask, cmap) ;
+     }
+    }
+
+   ++hist[x] ; 
    if (c1==c2) { 
 // hit
     ++nmono ;
@@ -292,40 +400,118 @@ int main(int argc, char **argv)
    }
    ++npoly ;
 
-  isbad = NO  ;
-  if ((polarindex >= 0) && (allowmissing==NO))  {
-   t = 0 ;
-   for (k=0; k<npops; ++k) {
-    g = gvalm(toupper(cc[k]), ccmask[k], c1, c2, minfilterval) ; // symbol to write (0 1 2 9)
-    if (g==9) isbad = YES ;
-    t += (2-g) ;
-   }
-   if (t<minderiv) isbad = YES ;
-   if (t>maxderiv) isbad = YES ;
-  }
-  if (isbad) continue ;
-
-
-   prints(fff, pos, c1, c2) ;
-   printgg(ggg, cc, ccmask, c1, c2, npops) ;
-
-/**
-    printf("zzgg: %12d %c %c " , pos, c1, c2)   ;
-    printf("%s %s\n", cc, ccmask) ; 
-    printnl() ; 
-*/
-   
  }}
 
- if (snpoutfilename != NULL) fclose(fff) ;
- if (genooutfilename != NULL) fclose(ggg) ;
- 
  printf("## monomorphs: %d  polymorphs %d\n", nmono, npoly) ;
+ for (x=0; x<nhist; ++x) { 
+  dekodeitb(pat, x, npops, 3) ;  
+//reviarr(pat, pat, npops) ;   // order comes out right! 
+  if ((polarindex >=0) && (pat[polarindex] != 0)) continue ;  
+  countcat(pat, npops, ccat, 3) ; 
+  printf("hist: ") ; 
+  for (k=0; k<npops; ++k) { 
+   if (k==polarindex) continue ;
+   printf("%1d", pat[k]) ;
+  }
+  printf(" %9d ::", hist[x]) ;
+  printimat(ccat, 1, 3) ; 
+ }
+ printf("total: %9d\n", intsum(hist, nhist)) ; 
+ fflush(stdout) ; 
+
+ for (qlen=2; qlen <= maxqlen ; ++qlen) { 
+  printqhist(hist, nhist, qlen, poplist, npops)  ;
+ }
 
   ymem = calcmem(1)/1.0e6 ;
-  printf("##end of cpoly: %12.3f seconds cpu %12.3f Mbytes in use\n", cputime(1), ymem) ;
+  printf("##end of ccount: %12.3f seconds cpu %12.3f Mbytes in use\n", cputime(1), ymem) ;
 	
  return 0 ;
+}
+
+void printqhist(int *hist, int nhist, int qlen, char **poplist, int npops)  
+{
+  int i, j, k, w, x, z, qmax, npat, nqpat ; 
+  int *pp, *hh, *qq, *qhist, *jj ; 
+  double y ; 
+  char *spops[MAXFF]   ; 
+  int nloop = 0 ; 
+
+  y = pow(2.0, npops) ; npat = nnint(y) ; 
+  y = pow(2.0, qlen) ; nqpat = nnint(y) ; 
+
+  ZALLOC(pp, npops, int) ; 
+  ZALLOC(hh, npops, int) ; 
+  ZALLOC(qq, qlen, int) ; 
+  ZALLOC(jj, qlen, int) ; 
+  ZALLOC(qhist, nqpat, int) ; 
+
+  for (x=0; x<npat; ++x) { 
+   dekodeitb(pp, x, npops, 2) ;  
+   if ((polarindex>=0) && (pp[polarindex] == 1)) continue ;
+   if (intsum(pp, npops) != qlen) continue ; 
+   ++nloop ; 
+   ivzero(qhist, nqpat) ;
+   for (z=0; z<nhist; ++z) { 
+    dekodeitb(hh, z, npops, 3) ; 
+
+    j=0; 
+   
+    for (k=0; k<npops; ++k) { 
+     if (pp[k] == 0) continue ; 
+     qq[j] = hh[k] ; ++j ; 
+    }
+    ivmaxmin(qq, qlen, &qmax, NULL) ; 
+    if (qmax>1) continue ; 
+    w = kodeitb(qq, qlen, 2) ; 
+    qhist[w] += hist[z] ; 
+   }
+   if (j != qlen) fatalx("(printqhist) badbug!!\n") ; 
+
+// now prettyprint qhist
+    j = 0 ;   
+    for (k=0; k<npops; ++k) { 
+     if (pp[k] == 0) continue ; 
+     spops[j] = strdup(poplist[k]) ;  
+     jj[j] = k ;
+     ++j ; 
+    }
+    if (j != qlen) fatalx("(printqhist) badbug!\n") ; 
+
+    printf("%6s", "qhist:") ;
+    for (i = 0;  i<qlen; ++i) { 
+     k = jj[i] ; 
+     printf("%20s ", poplist[k]) ; 
+    }
+    printnl() ;
+    printf("%6s", "") ;
+    for (i = 0;  i<qlen; ++i) { 
+     if (yhaplos == NULL) break ; 
+     k = jj[i] ; 
+     printf("%20s ", yhaplos[k]) ; 
+    }
+    printnl() ;     
+    freeup(spops, qlen) ; 
+
+    for (w=0; w<nqpat; ++w) { 
+     dekodeitb(qq, w, qlen, 2) ;
+     printimat1x(qq, 1, qlen) ;
+     printf(" %9d\n", qhist[w]) ;
+    }
+
+    printnl() ; 
+    printnl() ;
+
+    fflush(stdout) ; 
+
+  }
+
+  free(pp) ; 
+  free(hh) ; 
+  free(qq) ; 
+  free(jj) ; 
+  free(qhist) ; 
+
 }
 
 
@@ -408,13 +594,13 @@ int checkpoly(char *cc, char *ccmask, char *pc1, char *pc2)
    if ((t==NO) && (allowmissing==NO)) return NO ;
    if (t==NO) continue  ; 
    t = iubcbases(cb, cx) ; 
-   if ((t==2) & (allowhets==NO))    return NO ;
+   if ((t==2) & (allowhets==NO))    return -99 ;
    x = base2num(cb[0]) ; aa[x] = 1 ;
    x = base2num(cb[1]) ; aa[x] = 1 ;
   }
   t = intsum(aa, 4) ;
-  if (t > 2) return NO ;
-  if (t ==0 ) return NO ;
+  if (t > 2) return -99 ;
+  if (t==0 ) return -1 ;
   if (xpol<0) { 
    x1 = findfirst(aa, 4, 1) ; 
   }
@@ -425,8 +611,31 @@ int checkpoly(char *cc, char *ccmask, char *pc1, char *pc2)
   }
    *pc1 = num2base(x1) ;
    *pc2 = num2base(x2) ;
-   return YES ;
+   return 1 ;
 }
+int getpat(int *pat, char *cc, char *ccmask, char c1, char c2) 
+{
+
+  int k, v ; 
+  char cx, cm ; 
+  
+  
+  ivclear(pat, 2, npops) ; 
+// miss => 2, anc 0, der 1
+  for (k=0; k<npops; ++k) { 
+   cm = ccmask[k] ; 
+   cx  = toupper(cc[k]) ;
+   if (fvalid(cm, minfilterval) == NO)  continue ; 
+   v = 2 ; 
+   if (cx == c2) v=1 ;
+   if (cx == c1) v=0 ;   // if c1 == c2 v is ancestral
+// cx het or invalid => v=2  
+   pat[k] = v ; 
+  }
+  return kodeitb(pat, npops, 3) ; 
+}
+   
+
 int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, int hipos) 
 {
  static int k, numfalist, t;
@@ -551,7 +760,7 @@ int loadfa(char **poplist, int npops, FATYPE ***pfainfo, char *reg, int lopos, i
 
 	len = len_r < len_s ? len_r : len_s;
 //	len = len_s;
-	if (rz == 1)	// razipped 
+	if (rz == 1)	// raziped 
 		for (i = 0; i < len; ++i) 
 			if (fapt->rstring[i] == 'Q') fapt->rstring[i] = ref[i];
 	
@@ -614,9 +823,11 @@ int getiub(char *cc, char *ccmask, FATYPE **fainfo, char *reg, int pos)
   int newpage = NO, newreg = NO ;
   char regbuff[128] ;
   static long ncnt = 0 ;
+  int npopsx ;
   static long ncall = 0 ;
 
   ++ncall ;
+  faloaded = NO ; 
   cclear(cc, '?', npops) ;
   cclear(ccmask, '?', npops) ;
   fapt = fainfo[0] ; 
@@ -670,9 +881,18 @@ int getiub(char *cc, char *ccmask, FATYPE **fainfo, char *reg, int pos)
    printf("calling loodfa %s %d %d \n", regname, lastlo, lasthi) ;
    fflush(stdout) ;
 //fprintf(stderr, "getiub: fapt->fai: %p\n", fainfo[0]->fai);
-   loadfa(poplist, npops, &fainfo, regname, lastlo, lasthi)  ;
-   printf("newpage: %d %p %d %d\n", pos, topheap(), lastlo, lasthi) ;
+   if (mapmask) ++npopsx ; 
+   loadfa(poplist, npopsx, &fainfo, regname, lastlo, lasthi)  ;
+   faloaded = YES ; 
+   
 
+  if (mapmask) {
+//   famap = fapt = fainfo[npops] ; 
+     printf("mapmask reloaded!\n") ; 
+     printnl() ;
+  }
+
+   printf("newpage: %d %p %d %d\n", pos, topheap(), lastlo, lasthi) ;
    fflush(stdout) ;
   }
 
@@ -692,12 +912,6 @@ int getiub(char *cc, char *ccmask, FATYPE **fainfo, char *reg, int pos)
   }
 
   ++ncnt ;
-  if (ncnt == 1) { 
-   for (k=0; k<npops; ++k) { 
-    fapt = fainfo[k] ;
-    printfapt(fapt) ;
-   }
-  }
 
   return t ;
 }
@@ -769,10 +983,6 @@ void readcommands(int argc, char **argv)
 	getstring(ph, "chrom:", &regname) ;
    getstring(ph, "polarize:", &polarid) ;
    getstring(ph, "indivname:", &indivname) ;
-   getstring(ph, "indivoutname:", &indoutfilename) ; /* changed 11/02/06 */
-   getstring(ph, "snpoutname:", &snpoutfilename) ; /* changed 11/02/06 */
-   getstring(ph, "genooutname:", &genooutfilename) ; 
-   getstring(ph, "genotypeoutname:", &genooutfilename) ; 
  
    t = 1 ; getint(ph, "lopos:", &lopos) ; lopos = MAX(lopos, t) ;
    t = BIGINT ; getint(ph, "hipos:", &hipos) ; hipos = MIN(hipos, t) ;
@@ -782,6 +992,14 @@ void readcommands(int argc, char **argv)
    getint(ph, "domt:",  &domt) ;
    getint(ph, "minderiv:", &minderiv) ;
    getint(ph, "maxderiv:", &maxderiv) ;
+   getint(ph, "maxqlen:", &maxqlen) ;
+   getint(ph, "debug:", &debug) ;
+   getstring(ph, "yhaploname:", &yhaploname) ;
+   getintss(ph, "badposintervals:", badposx, &nbadposx) ;
+   getint(ph, "mapmask:", &mapmask) ; 
+
+ 
+
 
    printf("### THE INPUT PARAMETERS\n");
    printf("##PARAMETER NAME: VALUE\n");
@@ -925,3 +1143,29 @@ void ckopen(char *name)
   fclose(fff) ;
 
 }
+
+void 
+gethaplos(char **poplist, int npops, char *yhaploname)   
+{ 
+
+ char ***names ;
+ int t, k, j ; 
+
+ if (yhaploname == NULL) return ; 
+ t = numlines(yhaploname) ; 
+
+ ZALLOC(names, 2, char **) ; 
+  for (k=0; k<2; ++k) { 
+   ZALLOC(names[k], t, char *) ; 
+  }
+  t = getnames(&names, t, 2, yhaploname) ; 
+  ZALLOC(yhaplos, npops, char *) ;
+  for (j=0; j<t; ++j) { 
+   k = indxstring(poplist, npops, names[0][j]) ;
+   if (k<0) continue ;  
+   yhaplos[k] = strdup(names[1][j]) ; 
+  }
+
+}
+
+

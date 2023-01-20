@@ -6,7 +6,7 @@
  * Contact: nickp@broadinstitute.org     
  */
 
-#define WVERSION "200"
+#define WVERSION "202"
 
 #include <unistd.h>
 #include <nicksam.h>
@@ -43,6 +43,7 @@ int setstring(char *iname, unsigned char *ketfa, unsigned char *countfa, int len
 void writefa(FILE *fff, char *regname, char *rrr)  ;
 int readfa(char **falist, char **fasta, int *flen, int n) ;
 int getfalist(char **poplist, int npops, char *dbfile, char **iublist) ;
+void printpopiub(char **pops, char **iub, int n) ;;
 
 static int usage()
 {
@@ -89,13 +90,19 @@ int main(int argc, char *argv[])
   poplist[0] = strdup("Href") ;
   poplist[1] = strdup(iname) ;
    
+  iublist[0] = iublist[1] = NULL ; 
+  iubmask[0] = iubmask[1] = NULL ; 
   t = getfalist(poplist, 2, iubfile, iublist)  ;
   if (t!=2) { 
-   printstrings(iublist, t) ;  fatalx("bad iubfile\n") ;
+   printf("bad iubfile\n") ;
+   printpopiub(poplist, iublist, 2) ;
+   fatalx("bad iubfile\n") ;
   } 
   t = getfalist(poplist, 2, iubmaskfile, iubmask)  ;
   if (t!=2) { 
-   printstrings(iubmask, t) ;  fatalx("bad iubmask\n") ;
+   printf("bad iubmask\n") ;
+   printpopiub(poplist, iubmask, 2) ;
+   fatalx("bad iubmask\n") ;
   } 
   printf("pop: %s\nmask: %s\n", iublist[1], iubmask[1]) ;
   strcpy(fainame, iublist[1]) ;
@@ -317,4 +324,19 @@ int readfa(char **falist, char **fasta, int *flen, int n)
  }
 
 }
+void printpopiub(char **pops, char **iub, int n) 
+{
+ char ss[MAXSTR] ; 
+ int k ; 
+
+ for (k=0; k<n; k++) { 
+  printf("%20s ", pops[k]) ; 
+  if (iub[k] != NULL) strncpy(ss, iub[k], MAXSTR-1) ; 
+  else strcpy(ss, "NULL") ;
+  printf(" %30s", ss) ; 
+  printnl() ; 
+ }
+}
+
+ 
 

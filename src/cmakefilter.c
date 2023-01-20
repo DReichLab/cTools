@@ -1,4 +1,5 @@
 // Revised by Mengyao Zhao on 2015-03-12
+// Revised by NJP on 2020-04-13
 
 #include <libgen.h>
 #include <nicksam.h>
@@ -37,9 +38,11 @@ int maxhist = 100 ;
 char *refname, *sampfname ;
 char gender = 'U' ; 
 int goodmq = 37 ;
+int depthdivide = 1 ;
 long totlen = 0, totvalid = 0 ;  
+char *vcftemplate = NULL ; 
 
-#define VERSION  "300"      
+#define VERSION  "350"      
 // first pass at a version for release just containing what is needed
 void readcommands(int argc, char **argv) ;
 int getfastalist(char **poplist, int npops, char *dbfile, char **iublist, int *iubpops) ;
@@ -83,6 +86,7 @@ int main(int argc, char **argv)
  int  *filtval ;
  FILE *ffmask ;
  char *hengfilt, *cnvfilt ; 
+ double ymem ;
 
 
 // step 1 initialize regnames ;
@@ -98,6 +102,9 @@ int main(int argc, char **argv)
  vcfbase = vcfname = ref = NULL ;
  readcommands(argc, argv) ;
  
+  cputime(0) ;
+  calcmem(0) ;
+
 if (sampname == NULL) fatalx("no sampname\n") ;
 if (hetfaname == NULL) fatalx("no hetfaname\n") ;
 if (vcfsuffix == NULL) fatalx("no vcfsuffix\n") ;
@@ -158,8 +165,9 @@ if (debug==YES) {
  sprintf(ss, "samtools faidx %s", maskname) ;
  system(ss) ;
 
+ ymem = calcmem(1)/1.0e6 ;
+ printf("##end of cmakefilter: %12.3f seconds cpu %12.3f Mbytes in use\n", cputime(1), ymem) ;
   
- printf("## end of cmakefilter\n") ;
  return 0 ;
 
 }
@@ -453,7 +461,21 @@ int setvalid(int *valid, int len, char **fqdata, int nfqnames)
 }
 void mkvcfname(char *vcfname, char *dir, char *reg, char *suff) 
 {
-  sprintf(vcfname, "%s/%s.%s", dir, reg, suff) ; 
+  char ss[1024] ; 
+  char *sx ; 
+  sprintf(ss, "%s/%s.%s", dir, reg, suff) ; 
+  if (vcftemplate != NULL) { 
+    sx = strdup(vcftemplate) ; 
+    substring(&sx, "REG", reg) ; 
+    sprintf(ss, "%s/%s", dir, sx) ; 
+    free(sx) ; 
+   }
+    
+
+  else sprintf(ss, "%s/%s.%s", dir, reg, suff) ; 
+
+  strcpy(vcfname, ss) ; 
+  printf("vcfname: %s\n", ss) ; 
 }
 
 void paddata(char **fqd, int pi, int pj, char padval) 
@@ -488,7 +510,7 @@ int  mkhist(char **regnames, long *hh, long *mm, int *blist,
  int **vcfvals, vcflen[3], ttt[3] ;
  int *ccc, x, k, cc, t ;
  char cref, csamp ; 
- char vcfname[1024] ;
+ char vcfname[1024], *sx ;
  int isbad, kode, vv ; 
  long tt, hit, miss ;
  long **mghit, **mgmiss ;
@@ -499,6 +521,12 @@ int  mkhist(char **regnames, long *hh, long *mm, int *blist,
   ZALLOC(fqdata, nfqnames, char *) ;
 
   regname = regnames[rnum] ;
+  ivmaxmin(fqlen, nfqnames, NULL, &len) ; // min fqlen  
+
+  for (a=0; a<nfqnames; ++a) { 
+   printf("fqz: %3d %s %12d\n", a, fqnames[a], fqlen[a]) ;
+  }
+
   readfa(fqnames, fqdata, fqlen, nfqnames) ; 
   paddata(fqdata, 1, 3, '1') ;
   for (a=0; a<nfqnames; ++a) { 
@@ -516,7 +544,7 @@ int  mkhist(char **regnames, long *hh, long *mm, int *blist,
   totlen  += len ; 
   totvalid += vv ;
   vcfvals = initarray_2Dint(len, 3,  0) ;
-  mkvcfname(vcfname, vcfdir, regname, vcfsuffix) ;
+  mkvcfname((char *) vcfname, vcfdir, regname, vcfsuffix) ;
   readvcf(vcfname, vcfvals, len, vcflen) ;
 
   for (i=0; i<len; i++) { 
@@ -730,12 +758,13 @@ void *setvcff(char *vcffile, char **vcfn)
   
 }
 
+
 int readvcf(char *vcffile, int **fasta, int reflen, int *flen) 
 {
 
         printf("readvcf  file: %s reflen: %d\n", vcffile, reflen) ;
         FILE *vcffp;
-        char *vcftmp = NULL, *ctmp ;
+        char *vcftmp = NULL, *ctmp, *vname ;
         int t ; 
         int depth = -1;
         int MQ = -1;
@@ -743,16 +772,21 @@ int readvcf(char *vcffile, int **fasta, int reflen, int *flen)
         int pos = 0;
 	int i;
         int *ccc ;
+        int nlines = 0 ; // data only 
+
 // fasta is preallocated
 
 
         if (ftest(vcffile) == NO) { 
           setvcff(vcffile, &vcftmp) ;
           openit(vcftmp, &vcffp, "r") ; // aborts on error
+          vname = vcftmp ; 
         }
         else {
          openit(vcffile, &vcffp, "r") ; // aborts on error
+         vname = vcffile ; 
         }
+        printf("vcfname: %s\n", vname) ;  fflush(stdout) ; 
 	char line[4096];
 
         iclear2D(&fasta, reflen, 3, -1) ;
@@ -763,13 +797,21 @@ int readvcf(char *vcffile, int **fasta, int reflen, int *flen)
         MQ0 = -1;
         pos = 0;
 
-        if (line[0] != '#' && line[0] != '-')
+        if ((line[0] != '#') && (line[0] != '-')) 
         {
          char *fields[MAXFF], *infofields[MAXFF], *dp[MAXFF];
          int nfields = -1, ninfo = -1, ndp = -1;
          nfields = splitupx(line, fields, MAXFF, '\t') ;
+         if (nfields<8) { 
+          freeup(fields, nfields) ; 
+          continue ; 
+         }
+         if (!isnumword(fields[1]))  { 
+          freeup(fields, nfields) ; 
+          continue ; 
+         }
          pos = atoi(fields[1]);
-         if (pos > reflen) { 
+         if (pos >= reflen) { 
           freeup(fields, nfields) ;
           continue ;
          }
@@ -780,6 +822,7 @@ int readvcf(char *vcffile, int **fasta, int reflen, int *flen)
           ndp = splitupx(infofields[n], dp, MAXFF, '=') ;
           if (strcmp (dp[0], "DP") == 0) {
            if (isnumword(dp[1])) depth = atoi(dp[1]);
+           depth /= depthdivide ;  // usually 1
            ccc[0] = depth;
            //printf("DP: %i\n", depth) ;
           }
@@ -797,11 +840,12 @@ int readvcf(char *vcffile, int **fasta, int reflen, int *flen)
          }
          freeup(fields, nfields);
          freeup(infofields, ninfo);
+         ++nlines ; 
         }
-/**
-        t = ranmod(100*1000) ; 
+       if (debug == YES) { 
+        t = ranmod(100*100) ; 
         if (t==0) printf("zzvcf: %d  %d %d %d\n", pos, depth, MQ, MQ0) ;
-*/
+       }
         
     }
     flen[0] = reflen;
@@ -809,8 +853,11 @@ int readvcf(char *vcffile, int **fasta, int reflen, int *flen)
     flen[2] = reflen;
     fclose ( vcffp );
     if (vcftmp != NULL) remove(vcftmp) ;
+    printf("vname: %s  data: %d\n", vname, nlines) ; 
+    return 1 ; 
 
 }
+
 
 void readcommands(int argc, char **argv) 
 
@@ -875,10 +922,12 @@ void readcommands(int argc, char **argv)
    getstring(ph, "sampname:", &sampname) ;
    getstring(ph, "popname:", &sampname) ;
    getstring(ph, "maskname:", &maskname) ;
+   getstring(ph, "vcftemplate:", &vcftemplate) ;
 
    getstring(ph, "lovals:", &lov) ;
    getstring(ph, "hivals:", &hiv) ;
    getint(ph, "debug:", &debug) ;
+   getint(ph, "depthdivide:", &depthdivide) ;
 
 
 
@@ -1109,7 +1158,7 @@ void  mkmask(FILE *fff, char **regnames, FENTRY **fans,  int rlo, int rhi, char 
  char cref, csamp, maskval ; 
  char *ffout ;
  FENTRY  *fept ;
- char vcfname[1024] ;
+ char vcfname[1024], *sx ;
  int **ftable ; 
  int lev, dp, mq, mq0 ; 
  int ftok ; // look up ftable
@@ -1149,7 +1198,7 @@ void  mkmask(FILE *fff, char **regnames, FENTRY **fans,  int rlo, int rhi, char 
   ZALLOC(valid, len, int) ;  
   setvalid(valid, len, fqdata, nfqnames) ;  
   vcfvals = initarray_2Dint(len, 3,  0) ;
-  mkvcfname(vcfname, vcfdir, regname, vcfsuffix) ;
+  mkvcfname((char *) vcfname, vcfdir, regname, vcfsuffix) ;
   readvcf(vcfname, vcfvals, len, vcflen) ;
 
   reflen = fqlen[0] ;   

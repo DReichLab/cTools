@@ -134,6 +134,7 @@ int main(int argc, char **argv)
   char **qcc, **qmm ; 
 
   char ss[100], cbases[2], iub, cm, c1, c2, cval ;
+  double ymem ; 
 
   ofile = stdout; 
   packmode = YES ;
@@ -353,8 +354,9 @@ int main(int argc, char **argv)
   outfiles(snpoutfilename, indoutfilename, genooutfilename, 
    snpmarkers, indivmarkers, numsnps, numindivs, -1, NO) ;
 
+  ymem = calcmem(1)/1.0e6 ;
+  printf("##end of cpulldown: %12.3f seconds cpu %12.3f Mbytes in use\n", cputime(1), ymem) ;
 
-  printf("##end of run\n") ;
   return 0 ;
 }
 void readcommands(int argc, char **argv) 
